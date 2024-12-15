@@ -6,7 +6,7 @@ const inter = Inter({ subsets: ['latin'] })
 
 export const metadata = {
   title: 'Future U',
-  description: 'Personalized 10-year career development roadmap using AI',
+  description: 'Personalized career guide using RAG',
 }
 
 export default function RootLayout({
