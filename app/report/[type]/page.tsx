@@ -1,11 +1,10 @@
 "use client"
 
 import { useState, useEffect } from 'react'
-import { useParams, useSearchParams } from 'next/navigation'
+import { useSearchParams } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 
 export default function ReportPage() {
-  const params = useParams()
   const searchParams = useSearchParams()
   const reportId = searchParams.get('id')
   const [report, setReport] = useState<string | null>(null)

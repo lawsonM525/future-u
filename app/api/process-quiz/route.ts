@@ -30,7 +30,7 @@ const index = pinecone.index(process.env.PINECONE_INDEX as string)
 
 export async function POST(request: Request) {
   try {
-    const { quizType, answers } = await request.json()
+    const { answers } = await request.json()
 
     // 1. Compile answers into a structured document
     const userProfile = Object.entries(answers)
