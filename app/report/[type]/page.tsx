@@ -1,42 +1,94 @@
 "use client"
 
-import { useParams } from 'next/navigation'
+import { useState, useEffect } from 'react'
+import { useParams, useSearchParams } from 'next/navigation'
 import { Button } from '@/components/ui/button'
-
-const reportData = {
-  free: { title: 'Free Report', price: 'Free' },
-  quickie: { title: 'Quickie Report', price: '$20' },
-  medium: { title: 'Medium Report', price: '$30' },
-  'deep-dive': { title: 'Deep Dive Report', price: '$50' },
-}
 
 export default function ReportPage() {
   const params = useParams()
-  const reportType = params.type as keyof typeof reportData
-  const { title, price } = reportData[reportType]
+  const searchParams = useSearchParams()
+  const reportId = searchParams.get('id')
+  const [report, setReport] = useState<string | null>(null)
+  const [careers, setCareers] = useState<string | null>(null)
+  const [showCareers, setShowCareers] = useState(false)
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+
+  useEffect(() => {
+    const fetchReport = async () => {
+      try {
+        if (!reportId) {
+          throw new Error('No report ID provided')
+        }
+
+        const response = await fetch(`/api/get-report?id=${reportId}`)
+        const data = await response.json()
+
+        if (!response.ok) {
+          throw new Error(data.error || 'Failed to fetch report')
+        }
+
+        setReport(data.report)
+        setCareers(data.careers)
+      } catch (error) {
+        console.error('Error fetching report:', error)
+        setError(error instanceof Error ? error.message : 'Failed to load report')
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchReport()
+  }, [reportId])
+
+  if (loading) {
+    return <div className="min-h-screen p-4">Loading your personalized report...</div>
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen p-4">
+        <h1 className="text-3xl font-bold mb-6">Your Career Report</h1>
+        <p className="text-red-500">{error}</p>
+      </div>
+    )
+  }
 
   return (
     <div className="min-h-screen p-4">
-      <h1 className="text-3xl font-bold mb-6">{title}</h1>
-      <p className="mb-4">Price: {price}</p>
+      <h1 className="text-3xl font-bold mb-6">Your Career Report</h1>
+      
       <div className="space-y-4">
-        <h2 className="text-2xl font-semibold">Summary of Quiz Answers</h2>
-        <p>Your quiz answers summary will appear here.</p>
-        
-        <h2 className="text-2xl font-semibold">Influencer Recommendations</h2>
-        <p>Personalized influencer recommendations will appear here.</p>
-        
-        <h2 className="text-2xl font-semibold">Career Advice</h2>
-        <p>Tailored career advice based on your responses will appear here.</p>
-        
-        {reportType !== 'free' && (
-          <>
-            <h2 className="text-2xl font-semibold">7-Step Action Plan</h2>
-            <p>Your personalized 7-step action plan will appear here.</p>
-            
-            <Button variant="yellow" className="font-bold">Download PDF Report</Button>
-          </>
+        {showCareers ? (
+          <div className="prose max-w-none bg-muted p-4 rounded-lg">
+            <h2 className="text-xl font-semibold mb-4">Relevant Career Data</h2>
+            {careers?.split('\n').map((paragraph, index) => (
+              <p key={index}>{paragraph}</p>
+            ))}
+          </div>
+        ) : (
+          <div className="prose max-w-none">
+            {report?.split('\n').map((paragraph, index) => (
+              <p key={index}>{paragraph}</p>
+            ))}
+          </div>
         )}
+        
+        <div className="flex gap-4 items-center mt-8">
+          <Button 
+            variant="yellow" 
+            className="font-bold"
+            onClick={() => window.print()}
+          >
+            Download PDF Report
+          </Button>
+          <Button
+            variant="outline"
+            onClick={() => setShowCareers(!showCareers)}
+          >
+            {showCareers ? 'Show Full Report' : 'Show Relevant Data Selected'}
+          </Button>
+        </div>
       </div>
     </div>
   )

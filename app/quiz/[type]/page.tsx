@@ -7,22 +7,61 @@ import { Textarea } from '@/components/ui/textarea'
 import { Progress } from '@/components/ui/progress'
 
 const quizData = {
-  quickie: { questions: 10, name: 'The Quickie' },
-  medium: { questions: 40, name: 'I\'ve Got Some Time' },
-  'deep-dive': { questions: 100, name: 'The Deep Dive' },
+  test: { 
+    questions: 3, 
+    name: 'Test Quiz',
+    prompts: [
+      "What is your current job title?",
+      "What industry do you want towork in?",
+      "What's your dream job?"
+    ]
+  },
+  quickie: { 
+    questions: 10, 
+    name: 'The Quickie',
+    prompts: [
+      "What are your career goals for the next 5 years?",
+      "What skills do you currently possess?",
+      "What industry interests you the most?",
+      "Describe your ideal work environment.",
+      "What's your educational background?",
+      "What are your salary expectations?",
+      "What skills would you like to develop?",
+      "What's your preferred work style?",
+      "What challenges are you facing in your career?",
+      "What motivates you professionally?"
+    ]
+  },
+  medium: { 
+    questions: 40, 
+    name: 'I\'ve Got Some Time',
+    prompts: Array(40).fill("What are your career goals?")
+  },
+  'deep-dive': { 
+    questions: 100, 
+    name: 'The Deep Dive',
+    prompts: Array(100).fill("What are your career goals?")
+  }
 }
 
 export default function QuizPage() {
   const params = useParams()
   const quizType = params.type as keyof typeof quizData
-  const { questions } = quizData[quizType]
+  const { questions, prompts } = quizData[quizType]
   const router = useRouter()
 
   const [currentQuestion, setCurrentQuestion] = useState(1)
   const [answer, setAnswer] = useState('')
   const [isAnimating, setIsAnimating] = useState(false)
+  const [answers, setAnswers] = useState<Record<number, string>>({})
 
-  const handleNext = useCallback(() => {
+  const handleNext = useCallback(async () => {
+    // Store the current answer
+    setAnswers(prev => ({
+      ...prev,
+      [currentQuestion]: answer
+    }))
+
     if (currentQuestion < questions) {
       setIsAnimating(true)
       setTimeout(() => {
@@ -31,10 +70,34 @@ export default function QuizPage() {
         setIsAnimating(false)
       }, 300)
     } else {
-      // Handle quiz completion
-      router.push(`/report/${quizType}`)
+      // Send answers to the backend before navigation
+      try {
+        const response = await fetch('/api/process-quiz', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            quizType,
+            answers: {
+              ...answers,
+              [currentQuestion]: answer
+            }
+          }),
+        })
+
+        if (!response.ok) {
+          throw new Error('Failed to process quiz')
+        }
+
+        const { reportId } = await response.json()
+        router.push(`/report/${quizType}?id=${reportId}`)
+      } catch (error) {
+        console.error('Error processing quiz:', error)
+        // Handle error appropriately
+      }
     }
-  }, [currentQuestion, questions, quizType, router])
+  }, [currentQuestion, questions, quizType, router, answer, answers])
 
   const handleKeyDown = useCallback((e: KeyboardEvent) => {
     if (e.key === 'Enter' && !e.shiftKey && answer.trim().length > 0 && answer.trim().split(/\s+/).length <= 100) {
@@ -53,7 +116,7 @@ export default function QuizPage() {
   return (
     <div className="min-h-screen flex flex-col items-center justify-center p-4 animate-fade-in">
       <h1 className="text-3xl font-bold mb-6 animate-slide-up">
-        Question {currentQuestion}: What are your career goals for the next 5 years?
+        Question {currentQuestion}: {prompts[currentQuestion - 1]}
       </h1>
       <Progress 
         value={(currentQuestion / questions) * 100} 

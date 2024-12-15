@@ -1,0 +1,145 @@
+import { NextResponse } from 'next/server'
+import { OpenAI } from 'openai'
+import { Pinecone } from '@pinecone-database/pinecone'
+import redis from '@/lib/redis'
+import { v4 as uuidv4 } from 'uuid'
+
+// Validate environment variables
+const requiredEnvVars = [
+  'OPENAI_API_KEY',
+  'PINECONE_API_KEY',
+  'PINECONE_ENVIRONMENT',
+  'PINECONE_INDEX'
+] as const
+
+for (const envVar of requiredEnvVars) {
+  if (!process.env[envVar]) {
+    throw new Error(`Missing required environment variable: ${envVar}`)
+  }
+}
+
+const openai = new OpenAI({
+  apiKey: process.env.OPENAI_API_KEY
+})
+
+const pinecone = new Pinecone({
+  apiKey: process.env.PINECONE_API_KEY as string,
+})
+
+const index = pinecone.index(process.env.PINECONE_INDEX as string)
+
+export async function POST(request: Request) {
+  try {
+    const { quizType, answers } = await request.json()
+
+    // 1. Compile answers into a structured document
+    const userProfile = Object.entries(answers)
+      .map(([q, a]) => `Q${q}: ${a}`)
+      .join('\n')
+
+    // 2. Generate embedding for user profile
+    const embedding = await openai.embeddings.create({
+      model: "text-embedding-ada-002",
+      input: userProfile,
+    })
+
+    // 3. Query Pinecone for similar vectors
+    const queryResponse = await index.query({
+      vector: embedding.data[0].embedding,
+      topK: 5,
+      includeMetadata: true
+    })
+
+    // Add debug logging
+    console.log('Pinecone response:', JSON.stringify(queryResponse.matches, null, 2))
+
+    // 4. Generate career advice using retrieved context
+    const relevantData = queryResponse.matches
+      .map(match => {
+        if (!match.metadata) {
+          console.warn('Match missing metadata:', match)
+          return ''
+        }
+        // Check for different possible metadata field names
+        const text = match.metadata.text || match.metadata.content || match.metadata.description
+        if (!text) {
+          console.warn('Match metadata missing text field:', match.metadata)
+          return ''
+        }
+        return text
+      })
+      .filter(Boolean)
+      .join('\n')
+
+    if (!relevantData) {
+      console.warn('No relevant data found in Pinecone response')
+    }
+
+    // Log the extracted data
+    console.log('Extracted relevant data:', relevantData)
+
+    // Store the relevant career data separately
+    const relevantCareers = queryResponse.matches
+      .map(match => match.metadata?.text)
+      .join('\n')
+
+    const completion = await openai.chat.completions.create({
+      model: "gpt-4",
+      messages: [
+        {
+          role: "system",
+          content: "You are a career advisor. Generate personalized career advice based on the user's profile and relevant career data."
+        },
+        {
+          role: "user",
+          content: `
+User Profile:
+${userProfile}
+
+Relevant Career Data:
+${relevantData}
+
+Generate a detailed career advice report including:
+1. Summary of user's current situation
+2. Career path recommendations
+3. Skill development suggestions
+4. Action items
+5. Industry insights
+          `
+        }
+      ]
+    })
+
+    // Generate a unique ID for this report
+    const reportId = uuidv4()
+    
+    // Store both the main report and relevant careers data
+    await Promise.all([
+      redis.set(
+        `report:${reportId}`, 
+        completion.choices[0].message.content || '',
+        'EX',
+        60 * 60 * 24 // Expire after 24 hours
+      ),
+      redis.set(
+        `report:${reportId}:careers`,
+        relevantCareers,
+        'EX',
+        60 * 60 * 24 // Expire after 24 hours
+      )
+    ])
+
+    // Return both IDs (they'll use the same reportId but different prefixes in Redis)
+    return NextResponse.json({ 
+      reportId,
+      relevantCareers // Include the career data directly in the response
+    })
+
+  } catch (error) {
+    console.error('Error processing quiz:', error)
+    return NextResponse.json(
+      { error: 'Failed to process quiz' },
+      { status: 500 }
+    )
+  }
+} 
