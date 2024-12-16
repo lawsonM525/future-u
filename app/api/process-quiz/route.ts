@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server'
 import { OpenAI } from 'openai'
 import { Pinecone } from '@pinecone-database/pinecone'
-import redis from '@/lib/redis'
+import { supabase } from '../../../lib/supabase'
 import { v4 as uuidv4 } from 'uuid'
 
 // Validate environment variables
@@ -113,26 +113,33 @@ Generate a detailed career advice report including:
     // Generate a unique ID for this report
     const reportId = uuidv4()
     
-    // Store both the main report and relevant careers data
-    await Promise.all([
-      redis.set(
-        `report:${reportId}`, 
-        completion.choices[0].message.content || '',
-        'EX',
-        60 * 60 * 24 // Expire after 24 hours
-      ),
-      redis.set(
-        `report:${reportId}:careers`,
-        relevantCareers,
-        'EX',
-        60 * 60 * 24 // Expire after 24 hours
-      )
+    // Store both the main report and relevant careers data in Supabase
+    const [reportInsert, careersInsert] = await Promise.all([
+      supabase
+        .from('reports')
+        .insert({
+          id: reportId,
+          data: completion.choices[0].message.content || ''
+        }),
+      supabase
+        .from('careers')
+        .insert({
+          report_id: reportId,
+          data: relevantCareers
+        })
     ])
 
-    // Return both IDs (they'll use the same reportId but different prefixes in Redis)
+    if (reportInsert.error) {
+      throw new Error(`Failed to store report: ${reportInsert.error.message}`)
+    }
+
+    if (careersInsert.error) {
+      throw new Error(`Failed to store careers: ${careersInsert.error.message}`)
+    }
+
     return NextResponse.json({ 
       reportId,
-      relevantCareers // Include the career data directly in the response
+      relevantCareers
     })
 
   } catch (error) {
