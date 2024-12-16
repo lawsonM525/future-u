@@ -167,22 +167,23 @@ Generate a detailed and clear career advice report including:
         relevantCareers
       })
 
-    } catch (error) {
+    } catch (err: unknown) {
       clearTimeout(timeoutId)
-      if (error.name === 'AbortError') {
+      if (err instanceof Error && err.name === 'AbortError') {
         return NextResponse.json(
           { error: 'Request timed out. Please try again.' },
           { status: 408 }
         )
       }
-      throw error
+      throw err
     }
 
-  } catch (error) {
-    console.error('Error processing quiz:', error)
+  } catch (err: unknown) {
+    console.error('Error processing quiz:', err)
+    const status = err instanceof Error && 'status' in err ? Number(err.status) : 500
     return NextResponse.json(
-      { error: error.message || 'Failed to process quiz' },
-      { status: error.status || 500 }
+      { error: err instanceof Error ? err.message : 'Failed to process quiz' },
+      { status }
     )
   }
 } 

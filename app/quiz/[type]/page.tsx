@@ -106,9 +106,9 @@ export default function QuizPage() {
 
         setIsNavigating(true)
         await router.push(`/report/${quizType}?id=${data.reportId}`)
-      } catch (error) {
-        console.error('Error processing quiz:', error)
-        setError(error instanceof Error ? error.message : 'Failed to process quiz')
+      } catch (err: unknown) {
+        console.error('Error processing quiz:', err)
+        setError(err instanceof Error ? err.message : 'Failed to process quiz')
         setIsProcessing(false)
         setIsNavigating(false)
       }
@@ -147,7 +147,7 @@ export default function QuizPage() {
         ) : (
           <div className="text-center space-y-4">
             <h2 className="text-2xl font-bold text-red-500">
-              {error.includes('too long to process') ? 'Request Timeout' : 'Something Went Wrong'}
+              {typeof error === 'string' && error.includes('too long to process') ? 'Request Timeout' : 'Something Went Wrong'}
             </h2>
             <p className="text-muted-foreground max-w-md mx-auto">{error}</p>
             <Button 
