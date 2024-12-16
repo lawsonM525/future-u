@@ -56,6 +56,7 @@ export default function QuizPage() {
   const [answers, setAnswers] = useState<Record<number, string>>({})
   const [isProcessing, setIsProcessing] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [isNavigating, setIsNavigating] = useState(false)
 
   const handleNext = useCallback(async () => {
     // Store the current answer
@@ -95,12 +96,18 @@ export default function QuizPage() {
           throw new Error(errorData.error || 'Failed to process quiz')
         }
 
-        const { reportId } = await response.json()
-        router.push(`/report/${quizType}?id=${reportId}`)
+        const data = await response.json()
+        if (!data.reportId) {
+          throw new Error('No report ID received')
+        }
+
+        setIsNavigating(true)
+        await router.push(`/report/${quizType}?id=${data.reportId}`)
       } catch (error) {
         console.error('Error processing quiz:', error)
         setError(error instanceof Error ? error.message : 'Failed to process quiz')
         setIsProcessing(false)
+        setIsNavigating(false)
       }
     }
   }, [currentQuestion, questions, quizType, router, answer, answers])
@@ -125,9 +132,13 @@ export default function QuizPage() {
         {!error ? (
           <>
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-accent"></div>
-            <h2 className="text-2xl font-bold text-center">Processing Your Responses</h2>
+            <h2 className="text-2xl font-bold text-center">
+              {isNavigating ? 'Taking you to your results...' : 'Processing Your Responses'}
+            </h2>
             <p className="text-center text-muted-foreground">
-              This may take a minute while we analyze your answers and generate personalized career insights...
+              {isNavigating 
+                ? 'Almost there!'
+                : 'This may take a minute while we analyze your answers and generate personalized career insights...'}
             </p>
           </>
         ) : (

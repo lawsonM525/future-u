@@ -88,7 +88,7 @@ export async function POST(request: Request) {
       messages: [
         {
           role: "system",
-          content: "You are a career advisor. Generate personalized career advice based on the user's profile and relevant career data."
+          content: "You are a helpful career advisor. Generate a report with personalized career advice based on the user's profile and relevant career data. The report should include clear simple steps to take and should be amply spaced and easily readable."
         },
         {
           role: "user",
@@ -99,11 +99,16 @@ ${userProfile}
 Relevant Career Data:
 ${relevantData}
 
-Generate a detailed career advice report including:
+Generate a detailed and clear career advice report including:
+
 1. Summary of user's current situation
+
 2. Career path recommendations
+
 3. Skill development suggestions
+
 4. Action items
+
 5. Industry insights
           `
         }
