@@ -113,27 +113,35 @@ Generate a detailed career advice report including:
     // Generate a unique ID for this report
     const reportId = uuidv4()
     
-    // Store both the main report and relevant careers data in Supabase
-    const [reportInsert, careersInsert] = await Promise.all([
-      supabase
-        .from('reports')
-        .insert({
-          id: reportId,
-          data: completion.choices[0].message.content || ''
-        }),
-      supabase
-        .from('careers')
-        .insert({
-          report_id: reportId,
-          data: relevantCareers
-        })
-    ])
+    // First insert the report
+    const reportInsert = await supabase
+      .from('reports')
+      .insert({
+        id: reportId,
+        data: completion.choices[0].message.content
+      })
+      .select('id')
+      .single()
 
     if (reportInsert.error) {
+      console.error('Report insert error:', reportInsert.error)
       throw new Error(`Failed to store report: ${reportInsert.error.message}`)
     }
 
+    // Then insert the careers data
+    const careersInsert = await supabase
+      .from('careers')
+      .insert({
+        report_id: reportId,
+        data: relevantCareers || ''  // Ensure we never insert null
+      })
+      .select('id')
+      .single()
+
     if (careersInsert.error) {
+      console.error('Careers insert error:', careersInsert.error)
+      // Try to clean up the report if careers insert fails
+      await supabase.from('reports').delete().eq('id', reportId)
       throw new Error(`Failed to store careers: ${careersInsert.error.message}`)
     }
 

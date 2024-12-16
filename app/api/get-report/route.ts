@@ -17,13 +17,14 @@ export async function GET(request: Request) {
     const [reportResponse, careersResponse] = await Promise.all([
       supabase
         .from('reports')
-        .select('*')
+        .select('data')
         .eq('id', reportId)
         .single(),
       supabase
         .from('careers')
-        .select('*')
+        .select('data')
         .eq('report_id', reportId)
+        .single()
     ])
     
     if (reportResponse.error || !reportResponse.data) {
@@ -34,8 +35,8 @@ export async function GET(request: Request) {
     }
 
     return NextResponse.json({
-      report: reportResponse.data,
-      careers: careersResponse.data
+      report: reportResponse.data.data,
+      careers: careersResponse.data?.data || null
     })
   } catch (error) {
     console.error('Error fetching report:', error)
