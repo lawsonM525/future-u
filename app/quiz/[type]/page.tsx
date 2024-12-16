@@ -93,6 +93,9 @@ export default function QuizPage() {
 
         if (!response.ok) {
           const errorData = await response.json()
+          if (response.status === 504) {
+            throw new Error('The request took too long to process. This usually happens when our AI is under heavy load. Please try again.')
+          }
           throw new Error(errorData.error || 'Failed to process quiz')
         }
 
@@ -143,8 +146,10 @@ export default function QuizPage() {
           </>
         ) : (
           <div className="text-center space-y-4">
-            <h2 className="text-2xl font-bold text-red-500">Something Went Wrong</h2>
-            <p className="text-muted-foreground">{error}</p>
+            <h2 className="text-2xl font-bold text-red-500">
+              {error.includes('too long to process') ? 'Request Timeout' : 'Something Went Wrong'}
+            </h2>
+            <p className="text-muted-foreground max-w-md mx-auto">{error}</p>
             <Button 
               onClick={() => {
                 setError(null)
