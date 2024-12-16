@@ -54,6 +54,8 @@ export default function QuizPage() {
   const [answer, setAnswer] = useState('')
   const [isAnimating, setIsAnimating] = useState(false)
   const [answers, setAnswers] = useState<Record<number, string>>({})
+  const [isProcessing, setIsProcessing] = useState(false)
+  const [error, setError] = useState<string | null>(null)
 
   const handleNext = useCallback(async () => {
     // Store the current answer
@@ -70,7 +72,9 @@ export default function QuizPage() {
         setIsAnimating(false)
       }, 300)
     } else {
-      // Send answers to the backend before navigation
+      setIsProcessing(true)
+      setError(null)
+      
       try {
         const response = await fetch('/api/process-quiz', {
           method: 'POST',
@@ -87,14 +91,16 @@ export default function QuizPage() {
         })
 
         if (!response.ok) {
-          throw new Error('Failed to process quiz')
+          const errorData = await response.json()
+          throw new Error(errorData.error || 'Failed to process quiz')
         }
 
         const { reportId } = await response.json()
         router.push(`/report/${quizType}?id=${reportId}`)
       } catch (error) {
         console.error('Error processing quiz:', error)
-        // Handle error appropriately
+        setError(error instanceof Error ? error.message : 'Failed to process quiz')
+        setIsProcessing(false)
       }
     }
   }, [currentQuestion, questions, quizType, router, answer, answers])
@@ -112,6 +118,36 @@ export default function QuizPage() {
       window.removeEventListener('keydown', handleKeyDown)
     }
   }, [handleKeyDown])
+
+  if (isProcessing) {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center p-4 space-y-4">
+        {!error ? (
+          <>
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-accent"></div>
+            <h2 className="text-2xl font-bold text-center">Processing Your Responses</h2>
+            <p className="text-center text-muted-foreground">
+              This may take a minute while we analyze your answers and generate personalized career insights...
+            </p>
+          </>
+        ) : (
+          <div className="text-center space-y-4">
+            <h2 className="text-2xl font-bold text-red-500">Something Went Wrong</h2>
+            <p className="text-muted-foreground">{error}</p>
+            <Button 
+              onClick={() => {
+                setError(null)
+                setIsProcessing(false)
+              }}
+              className="bg-accent text-accent-foreground hover:bg-accent/90"
+            >
+              Try Again
+            </Button>
+          </div>
+        )}
+      </div>
+    )
+  }
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center p-4 animate-fade-in">
