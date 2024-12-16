@@ -117,9 +117,11 @@ Generate a detailed and clear career advice report including:
 
 3. Skill development suggestions
 
-4. Action items
+4. Clear action items
 
 5. Industry insights
+
+Separate each section with dash line separatoors like "---------------------------"
             `
           }
         ]
