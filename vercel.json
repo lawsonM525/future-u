@@ -1,0 +1,8 @@
+{
+  "regions": ["us-east-2"],
+  "vpc": {
+    "vpcId": "vpc-09b40c1e4726931eb",
+    "subnetIds": ["subnet-05318f53d05e084a5", "subnet-0f9f6a581778c7d61", "subnet-06b5be5334bfa215a"],
+    "securityGroupIds": ["sg-0ddfac3954db0e918"]
+  }
+} 
