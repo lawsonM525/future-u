@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server'
-import redis from '@/lib/redis'
+import { supabase } from '../../../lib/supabase'
 
 export async function GET(request: Request) {
   try {
@@ -14,19 +14,29 @@ export async function GET(request: Request) {
     }
 
     // Fetch both report and careers data in parallel
-    const [report, careers] = await Promise.all([
-      redis.get(`report:${reportId}`),
-      redis.get(`report:${reportId}:careers`)
+    const [reportResponse, careersResponse] = await Promise.all([
+      supabase
+        .from('reports')
+        .select('*')
+        .eq('id', reportId)
+        .single(),
+      supabase
+        .from('careers')
+        .select('*')
+        .eq('report_id', reportId)
     ])
     
-    if (!report) {
+    if (reportResponse.error || !reportResponse.data) {
       return NextResponse.json(
         { error: 'Report not found. Please complete the quiz first.' },
         { status: 404 }
       )
     }
 
-    return NextResponse.json({ report, careers })
+    return NextResponse.json({
+      report: reportResponse.data,
+      careers: careersResponse.data
+    })
   } catch (error) {
     console.error('Error fetching report:', error)
     return NextResponse.json(
