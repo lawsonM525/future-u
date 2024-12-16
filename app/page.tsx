@@ -6,7 +6,7 @@ export default function LandingPage() {
     <div className="min-h-screen flex flex-col items-center justify-center p-4 animate-fade-in">
       <h1 className="text-4xl font-bold mb-6 animate-slide-up">Welcome to Future U</h1>
       <p className="text-xl mb-8 text-center max-w-2xl animate-slide-up">
-        Discover your personalized 10-year career development roadmap using AI and behavioral psychology principles.
+        Discover your personalized 10-year career development roadmap using AI, RAG and deep learning principles.
       </p>
       <Link href="/quiz-selection">
         <Button 
