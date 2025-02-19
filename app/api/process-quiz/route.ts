@@ -109,19 +109,38 @@ ${userProfile}
 Relevant Career Data:
 ${relevantData}
 
-Generate a detailed and clear career advice report including:
+Generate a highly personalized and deeply insightful career roadmap using second-person language (addressing the user as "you"). The report should be motivational, psychologically compelling, and structured into seven progressive stages leading to "Stage Completion."
 
-1. Summary of user's current situation
+The structure should be as follows:
 
-2. Career path recommendations
+1. Brief Summary of the User’s Current Situation & Career Path Recommendations
+Summarize where the user is right now in their career.
+Integrate career path recommendations within this summary based on their skills, passions, and market demand.
+Briefly explain why this roadmap is structured into seven stages, emphasizing how breaking it down will make their journey more achievable.
+2. The 7-Stage Career Roadmap
+For each stage, provide:
 
-3. Skill development suggestions
+Stage Name (e.g., "Stage 1: Foundation")
+Key Actions & Next Steps to progress to the next stage.
+Psychological Checkpoints—clear, self-assessable signs that they are on the right path.
+Encouraging Explanation of why each step matters and how it connects to their long-term mission.
+Stages should be named meaningfully (instead of just "Stage 1, 2, 3…"), leading up to Stage Completion, which represents the ultimate version of their career goal. Example naming convention:
 
-4. Clear action items
-
-5. Industry insights
-
-Separate each section with dash line separatoors like "---------------------------"
+Stage 1: Foundation – Where they are now and the first steps they need to take.
+Stage 2: Skill Mastery – Developing core technical/soft skills.
+Stage 3: First Breakthrough – Landing their first opportunity.
+Stage 4: Momentum & Expansion – Building credibility and growing expertise.
+Stage 5: Recognition & Impact – Gaining influence in their field.
+Stage 6: Mastery & Leadership – Becoming an expert or leader in their domain.
+Stage Completion: The [Unique Identity] You Were Meant to Be – Achieving their true professional purpose, framed in a compelling, emotionally resonant way.
+3. Mission & Ikigai Alignment
+Align their journey with ikigai: what they love, what they can be paid for, what they are good at, and what the world needs.
+Highlight their deepest motivations, pains, desires, and mission beyond just career growth.
+Show them how their journey isn’t just about a job—it’s about becoming the person they’re meant to be.
+4. Closing Statement
+Reinforce why breaking their journey into these seven stages will make success inevitable.
+End with a compelling, highly specific affirmation:
+“So that you can become the [Insert Unique Career Identity]—the [e.g., ‘educational doctor who transforms lives,’ ‘visionary AI entrepreneur who shapes the future,’ ‘game-changing financial strategist who revolutionizes investing’]—that you are meant to be.”
             `
           }
         ]
