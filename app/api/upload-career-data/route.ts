@@ -16,12 +16,6 @@ export async function POST(request: NextRequest) {
             );
         }
 
-        // TODO: Process and store the career data
-        // This is where you would typically:
-        // 1. Validate the specific career data structure
-        // 2. Store it in your database
-        // 3. Perform any necessary data transformations
-
         return NextResponse.json(
             { message: 'Career data uploaded successfully' },
             { status: 200 }

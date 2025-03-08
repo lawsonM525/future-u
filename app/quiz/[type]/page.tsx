@@ -269,6 +269,17 @@ export default function QuizPage() {
     }
   }, [currentQuestion, questions, quizType, router, answer, answers])
 
+  const handlePrevious = useCallback(() => {
+    if (currentQuestion > 1) {
+      setIsAnimating(true)
+      setTimeout(() => {
+        setCurrentQuestion(prev => prev - 1)
+        setAnswer(answers[currentQuestion - 1] || '')
+        setIsAnimating(false)
+      }, 300) // Adjust the delay as needed
+    }
+  }, [currentQuestion, answers])
+
   const handleKeyDown = useCallback((e: KeyboardEvent) => {
     if (e.key === 'Enter' && !e.shiftKey && answer.trim().length > 0 && answer.trim().split(/\s+/).length <= 100) {
       e.preventDefault()
@@ -338,13 +349,23 @@ export default function QuizPage() {
         onChange={(e) => setAnswer(e.target.value)}
         className={`w-full max-w-md mb-4 transition-opacity duration-300 ${isAnimating ? 'opacity-0' : 'opacity-100'}`}
       />
-      <Button 
-        onClick={handleNext} 
-        disabled={answer.trim().length === 0 || answer.trim().split(/\s+/).length > 100}
-        className="bg-accent text-accent-foreground hover:bg-accent/90 animate-slide-up font-bold"
-      >
-        {currentQuestion === questions ? 'Finish' : 'Next'}
-      </Button>
+      <div className="flex space-x-4">
+        <Button 
+          onClick={handlePrevious} 
+          disabled={currentQuestion === 1 || isAnimating}
+          className="bg-accent text-accent-foreground hover:bg-accent/90 animate-slide-up font-bold"
+        >
+          Previous
+        </Button>
+        <Button 
+          onClick={handleNext} 
+          disabled={answer.trim().length === 0 || answer.trim().split(/\s+/).length > 100}
+          className="bg-accent text-accent-foreground hover:bg-accent/90 animate-slide-up font-bold"
+        >
+          {currentQuestion === questions ? 'Finish' : 'Next'}
+        </Button>
+      </div>
+      <a href="/" className="text-gray-500 mt-4">Back to Home</a>
     </div>
   )
 }
