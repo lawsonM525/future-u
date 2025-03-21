@@ -26,7 +26,7 @@ export default function SignIn() {
       } else {
         router.push('/quiz-selection')
       }
-    } catch (err) {
+    } catch {
       setError('Something went wrong')
     }
   }

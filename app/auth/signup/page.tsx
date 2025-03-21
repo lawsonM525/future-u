@@ -26,7 +26,7 @@ export default function SignUp() {
       // For now, we'll just redirect to sign in
       // TODO: Implement actual user creation
       router.push('/auth/signin')
-    } catch (err) {
+    } catch {
       setError('Something went wrong')
     }
   }
