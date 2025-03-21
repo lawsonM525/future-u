@@ -18,3 +18,9 @@ I think GitDoc just works when we forget about it haha... but I'm now using Mong
 
 Michelle did we move on to sign uo? Uhm... well.. now Github Copilot is Pro because commit messages were not generting cuz I'd reached the limit for the free trial so NOOOOWWW I will focus on sign up, pinky promise.. i need to take like a 15 minute nap.. the caffeine is itchy..
 
+03/21/2025 19:21
+
+When did two hours pass?? anyway, now that its getting to time for my nap im suddenly super pumped!
+sign up/sign in functionality works(ish)
+but most importantly, i LOVE the data!!! the RAG really pulls relevant tweets and not just random bs. life is good hehe
+

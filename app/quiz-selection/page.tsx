@@ -5,7 +5,7 @@ import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/com
 const quizOptions = [
   {
     title: 'The Quickie',
-    description: 'Short, quick insights. Rapid career snapshot.',
+    description: 'Short, quick insights. You get a snapshot of your next steps.',
     questions: 10,
     href: '/quiz/quickie',
   },
@@ -27,7 +27,7 @@ export default function QuizSelection() {
   return (
     <div className="min-h-screen flex flex-col items-center justify-center p-4 animate-fade-in">
       <h1 className="text-3xl font-bold mb-6 animate-slide-up">Choose Your Quiz</h1>
-      <div className="grid gap-6 md:grid-cols-3">
+      <div className="grid gap-6 md:grid-cols-3 mb-8">
         {quizOptions.map((option, index) => (
           <Card key={option.title} className={`w-full max-w-sm animate-slide-up`} style={{animationDelay: `${index * 0.1}s`}}>
             <CardHeader>
@@ -43,6 +43,8 @@ export default function QuizSelection() {
           </Card>
         ))}
       </div>
-    </div>
+      <Link href="/" className="text-yellow-500 hover:text-yellow-400 transition-colors animate-slide-up" style={{animationDelay: '0.3s'}}>
+        ← Go Back
+      </Link>    </div>
   )
 }

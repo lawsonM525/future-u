@@ -1,15 +1,15 @@
 import { NextResponse } from 'next/server'
 import { OpenAI } from 'openai'
 import { Pinecone } from '@pinecone-database/pinecone'
-import { supabase } from '../../../lib/supabase'
-import { v4 as uuidv4 } from 'uuid'
+import { connect } from '@/lib/mongodb'
+import { Report } from '@/models/Report'
 
 // Validate environment variables
 const requiredEnvVars = [
   'OPENAI_API_KEY',
   'PINECONE_API_KEY',
-  'PINECONE_ENVIRONMENT',
-  'PINECONE_INDEX'
+  'PINECONE_INDEX',
+  'MONGODB_URI'
 ] as const
 
 for (const envVar of requiredEnvVars) {
@@ -23,7 +23,7 @@ const openai = new OpenAI({
 })
 
 const pinecone = new Pinecone({
-  apiKey: process.env.PINECONE_API_KEY as string,
+  apiKey: process.env.PINECONE_API_KEY as string
 })
 
 const index = pinecone.index(process.env.PINECONE_INDEX as string)
@@ -42,6 +42,9 @@ export async function POST(request: Request) {
     const timeoutId = setTimeout(() => controller.abort(), timeoutMs)
 
     try {
+      // Connect to MongoDB early
+      await connect()
+
       // 1. Compile answers into a structured document
       const userProfile = Object.entries(answers)
         .map(([q, a]) => `Q${q}: ${a}`)
@@ -85,16 +88,14 @@ export async function POST(request: Request) {
         console.warn('No relevant data found in Pinecone response')
       }
 
-      // Log the extracted data
-      console.log('Extracted relevant data:', relevantData)
-
       // Store the relevant career data separately
       const relevantCareers = queryResponse.matches
         .map(match => match.metadata?.text)
+        .filter(Boolean)
         .join('\n')
 
       const completion = await openai.chat.completions.create({
-        model: "gpt-4",
+        model: "gpt-4o",
         messages: [
           {
             role: "system",
@@ -113,80 +114,37 @@ Generate a highly personalized and deeply insightful career roadmap using second
 
 The structure should be as follows:
 
-1. Brief Summary of the User’s Current Situation & Career Path Recommendations
-Summarize where the user is right now in their career.
-Integrate career path recommendations within this summary based on their skills, passions, and market demand.
-Briefly explain why this roadmap is structured into seven stages, emphasizing how breaking it down will make their journey more achievable.
-2. The 7-Stage Career Roadmap
-For each stage, provide:
-
-Stage Name (e.g., "Stage 1: Foundation")
-Key Actions & Next Steps to progress to the next stage.
-Psychological Checkpoints—clear, self-assessable signs that they are on the right path.
-Encouraging Explanation of why each step matters and how it connects to their long-term mission.
-Stages should be named meaningfully (instead of just "Stage 1, 2, 3…"), leading up to Stage Completion, which represents the ultimate version of their career goal. Example naming convention:
-
-Stage 1: Foundation – Where they are now and the first steps they need to take.
-Stage 2: Skill Mastery – Developing core technical/soft skills.
-Stage 3: First Breakthrough – Landing their first opportunity.
-Stage 4: Momentum & Expansion – Building credibility and growing expertise.
-Stage 5: Recognition & Impact – Gaining influence in their field.
-Stage 6: Mastery & Leadership – Becoming an expert or leader in their domain.
-Stage Completion: The [Unique Identity] You Were Meant to Be – Achieving their true professional purpose, framed in a compelling, emotionally resonant way.
+1. Brief Summary of the User's Current Situation & Career Path Recommendations
+2. The 7-Stage Career Roadmap (with meaningful stage names)
 3. Mission & Ikigai Alignment
-Align their journey with ikigai: what they love, what they can be paid for, what they are good at, and what the world needs.
-Highlight their deepest motivations, pains, desires, and mission beyond just career growth.
-Show them how their journey isn’t just about a job—it’s about becoming the person they’re meant to be.
-4. Closing Statement
-Reinforce why breaking their journey into these seven stages will make success inevitable.
-End with a compelling, highly specific affirmation:
-“So that you can become the [Insert Unique Career Identity]—the [e.g., ‘educational doctor who transforms lives,’ ‘visionary AI entrepreneur who shapes the future,’ ‘game-changing financial strategist who revolutionizes investing’]—that you are meant to be.”
+4. Closing Statement with a compelling, specific affirmation
+
+Please ensure each stage includes:
+- Key Actions & Next Steps
+- Psychological Checkpoints
+- Encouraging Explanation
             `
           }
         ]
       }, { signal: controller.signal })
 
-      // Generate a unique ID for this report
-      const reportId = uuidv4()
-      
-      // First insert the report
-      const reportInsert = await supabase
-        .from('reports')
-        .insert({
-          id: reportId,
-          data: completion.choices[0].message.content
+      try {
+        // Store report in MongoDB
+        const report = await Report.create({
+          data: completion.choices[0].message.content,
+          careers: relevantCareers || ''
         })
-        .select('id')
-        .single()
 
-      if (reportInsert.error) {
-        console.error('Report insert error:', reportInsert.error)
-        throw new Error(`Failed to store report: ${reportInsert.error.message}`)
-      }
+        clearTimeout(timeoutId)
 
-      // Then insert the careers data
-      const careersInsert = await supabase
-        .from('careers')
-        .insert({
-          report_id: reportId,
-          data: relevantCareers || ''  // Ensure we never insert null
+        return NextResponse.json({ 
+          reportId: report._id.toString(),
+          relevantCareers
         })
-        .select('id')
-        .single()
-
-      if (careersInsert.error) {
-        console.error('Careers insert error:', careersInsert.error)
-        // Try to clean up the report if careers insert fails
-        await supabase.from('reports').delete().eq('id', reportId)
-        throw new Error(`Failed to store careers: ${careersInsert.error.message}`)
+      } catch (dbError) {
+        console.error('Database error:', dbError)
+        throw new Error(`Database operation failed: ${dbError instanceof Error ? dbError.message : 'Unknown error'}`)
       }
-
-      clearTimeout(timeoutId)
-
-      return NextResponse.json({ 
-        reportId,
-        relevantCareers
-      })
 
     } catch (err: unknown) {
       clearTimeout(timeoutId)
@@ -199,12 +157,11 @@ End with a compelling, highly specific affirmation:
       throw err
     }
 
-  } catch (err: unknown) {
-    console.error('Error processing quiz:', err)
-    const status = err instanceof Error && 'status' in err ? Number(err.status) : 500
+  } catch (error) {
+    console.error('Error processing quiz:', error)
     return NextResponse.json(
-      { error: err instanceof Error ? err.message : 'Failed to process quiz' },
-      { status }
+      { error: `Error processing quiz: ${error instanceof Error ? error.message : 'Unknown error'}` },
+      { status: 500 }
     )
   }
-} 
+}

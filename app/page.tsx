@@ -26,7 +26,7 @@ export default function LandingPage() {
           </>
         ) : (
           <>
-            <Link href="/auth/signin">
+            <Link href="/login">
               <Button 
                 variant="outline"
                 size="lg"
@@ -35,7 +35,7 @@ export default function LandingPage() {
                 Sign In
               </Button>
             </Link>
-            <Link href="/auth/signup">
+            <Link href="/signup">
               <Button 
                 variant="yellow"
                 size="lg"
@@ -52,13 +52,13 @@ export default function LandingPage() {
       <p className="text-xl mb-8 text-center max-w-2xl animate-slide-up">
         Your Future, Mapped Out.
       </p>
-      <Link href={session ? "/quiz-selection" : "/auth/signin"}>
+      <Link href="/quiz-selection">
         <Button 
           variant="yellow"
           size="lg" 
           className="animate-slide-up font-bold"
         >
-          {session ? "Start Your Journey" : "Sign In to Begin"}
+          Start Your Journey
         </Button>
       </Link>
     </div>
