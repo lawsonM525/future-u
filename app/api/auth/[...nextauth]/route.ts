@@ -1,9 +1,8 @@
 import NextAuth from "next-auth"
-import type { NextAuthConfig } from "next-auth"
 import CredentialsProvider from "next-auth/providers/credentials"
 import GoogleProvider from "next-auth/providers/google"
 
-export const authOptions: NextAuthConfig = {
+const handler = NextAuth({
   providers: [
     CredentialsProvider({
       name: "Credentials",
@@ -42,7 +41,6 @@ export const authOptions: NextAuthConfig = {
     strategy: "jwt",
   },
   secret: process.env.NEXTAUTH_SECRET,
-}
+})
 
-const handler = NextAuth(authOptions)
 export { handler as GET, handler as POST }
