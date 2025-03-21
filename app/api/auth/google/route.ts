@@ -1,11 +1,20 @@
 import { connect } from '@/lib/mongodb'
 import { NextResponse } from 'next/server'
 import { OAuth2Client } from 'google-auth-library'
-import { User } from '@/models/User'
+import { User, type IUserLean } from '@/models/User'
 import { sign } from 'jsonwebtoken'
 import { cookies } from 'next/headers'
-import { Mongoose } from 'mongoose'
-import type { IUserLean } from '@/models/User'
+import { Mongoose, Types } from 'mongoose'
+
+// Define the type for lean document
+interface UserLeanDoc {
+  _id: Types.ObjectId;
+  googleId: string;
+  email: string;
+  name: string;
+  avatarUrl?: string;
+  createdAt: Date;
+}
 
 // Create a single instance of OAuth2Client
 const client = new OAuth2Client(process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID)
@@ -27,8 +36,9 @@ export async function POST(request: Request) {
 
       try {
         await Promise.race([dbConnection, timeoutPromise]);
+        return dbConnection;
       } catch (error) {
-        dbConnection = null; // Reset connection on timeout
+        dbConnection = null; // Reset connection on error
         throw error;
       }
     };
@@ -61,54 +71,88 @@ export async function POST(request: Request) {
       }
 
       // Check if user exists with timeout
-      const user = await Promise.race([
-        User.findOne({ googleId: payload.sub }).lean() as Promise<IUserLean>,
+      const userDoc = await Promise.race([
+        User.findOne({ googleId: payload.sub }).lean(),
         new Promise((_, reject) => 
           setTimeout(() => reject(new Error('Database query timeout')), 5000)
         )
-      ]);
+      ]) as UserLeanDoc | null;
+
+      // Transform the Mongoose document to IUserLean
+      const user: IUserLean | null = userDoc ? {
+        _id: userDoc._id.toString(),
+        googleId: userDoc.googleId,
+        email: userDoc.email,
+        name: userDoc.name,
+        avatarUrl: userDoc.avatarUrl,
+        createdAt: userDoc.createdAt
+      } : null;
       
       if (!user) {
-        return NextResponse.json({ 
-          error: 'No account found with this Google account.' 
-        }, { status: 404 })
+        // Create new user
+        const newUser = await User.create({
+          googleId: payload.sub,
+          email: payload.email,
+          name: payload.name,
+          avatarUrl: payload.picture
+        })
+
+        // Transform new user to IUserLean
+        const newUserLean: IUserLean = {
+          _id: newUser._id.toString(),
+          googleId: newUser.googleId,
+          email: newUser.email,
+          name: newUser.name,
+          avatarUrl: newUser.avatarUrl,
+          createdAt: newUser.createdAt
+        }
+
+        // Generate JWT
+        const token = sign(
+          { userId: newUserLean._id },
+          process.env.JWT_SECRET || '',
+          { expiresIn: '7d' }
+        )
+
+        // Set cookie
+        cookies().set('token', token, {
+          httpOnly: true,
+          secure: process.env.NODE_ENV === 'production',
+          sameSite: 'strict',
+          maxAge: 7 * 24 * 60 * 60 // 7 days
+        })
+
+        return NextResponse.json({ user: newUserLean })
       }
 
-      // Create JWT token
+      // Generate JWT for existing user
       const token = sign(
-        { 
-          userId: user._id.toString(),
-          email: user.email,
-          googleId: user.googleId 
-        },
-        process.env.JWT_SECRET as string,
+        { userId: user._id },
+        process.env.JWT_SECRET || '',
         { expiresIn: '7d' }
       )
 
       // Set cookie
-      cookies().set('auth-token', token, {
+      cookies().set('token', token, {
         httpOnly: true,
         secure: process.env.NODE_ENV === 'production',
         sameSite: 'strict',
-        maxAge: 60 * 60 * 24 * 7 // 7 days
+        maxAge: 7 * 24 * 60 * 60 // 7 days
       })
 
-      return NextResponse.json({
-        success: true,
-        message: 'Logged in successfully'
-      })
-
+      return NextResponse.json({ user })
     } catch (error) {
-      console.error('Authentication process error:', error);
-      return NextResponse.json({
-        error: error instanceof Error ? error.message : 'Authentication failed'
-      }, { status: 500 })
+      console.error('Database error:', error)
+      return NextResponse.json(
+        { error: 'Database error' },
+        { status: 500 }
+      )
     }
-
   } catch (error) {
-    console.error('Request processing error:', error)
-    return NextResponse.json({
-      error: 'Failed to process request'
-    }, { status: 500 })
+    console.error('Authentication error:', error)
+    return NextResponse.json(
+      { error: 'Authentication failed' },
+      { status: 401 }
+    )
   }
-} 
+}

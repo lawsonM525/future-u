@@ -9,6 +9,11 @@ export interface IUser extends Document {
   createdAt: Date;
 }
 
+// Add a lean version of the interface without Document methods
+export type IUserLean = Omit<IUser, keyof Document> & {
+  _id: string; // Convert ObjectId to string for lean queries
+}
+
 const userSchema = new mongoose.Schema({
   googleId: {
     type: String,
@@ -31,4 +36,5 @@ const userSchema = new mongoose.Schema({
   }
 })
 
+// If the model is already compiled, use it. Otherwise compile it
 export const User = mongoose.models.User || mongoose.model<IUser>('User', userSchema)
