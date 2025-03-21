@@ -1,9 +1,11 @@
-import type { NextAuthConfig } from "next-auth"
+// authOptions.ts
+
+import NextAuth from "next-auth"
 import GoogleProvider from "next-auth/providers/google"
 import { connect } from "@/lib/mongodb"
 import { User } from "@/models/User"
 
-export const authOptions: NextAuthConfig = {
+export const { handlers: authHandlers, auth } = NextAuth({
   providers: [
     GoogleProvider({
       clientId: process.env.GOOGLE_CLIENT_ID ?? "",
@@ -45,9 +47,8 @@ export const authOptions: NextAuthConfig = {
         await connect()
         // Get user from database and add any custom fields to session
         const user = await User.findOne({ email: session.user?.email })
-        if (user) {
+        if (user && session.user) {
           session.user.id = user._id.toString()
-          // Add any other custom fields you want to include in the session
         }
       } catch (error) {
         console.error('Session callback error:', error)
@@ -62,4 +63,4 @@ export const authOptions: NextAuthConfig = {
     strategy: "jwt" as const,
   },
   secret: process.env.NEXTAUTH_SECRET,
-}
+})

@@ -1,6 +1,5 @@
-import { authOptions } from "@/app/utils/authOptions"
-import NextAuth from "next-auth"
+// route.ts
 
-const handler = NextAuth(authOptions)
+import { authHandlers } from "@/app/utils/authOptions"
 
-export { handler as GET, handler as POST }
+export const { GET, POST } = authHandlers
