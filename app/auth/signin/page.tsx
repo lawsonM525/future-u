@@ -9,7 +9,7 @@ import { useRouter } from 'next/navigation'
 export default function SignIn() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
-  const [error, setError] = useState('')
+  const [error, setError] = useState<string | null>(null)
   const router = useRouter()
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -26,7 +26,7 @@ export default function SignIn() {
       } else {
         router.push('/quiz-selection')
       }
-    } catch (error) {
+    } catch (err) {
       setError('Something went wrong')
     }
   }
@@ -37,7 +37,7 @@ export default function SignIn() {
         <div>
           <h2 className="text-3xl font-bold text-center">Sign in to Future U</h2>
           <p className="mt-2 text-center text-gray-600">
-            Don't have an account?{' '}
+            Don&apos;t have an account?{' '}
             <Link href="/auth/signup" className="text-yellow-600 hover:text-yellow-500">
               Sign up
             </Link>

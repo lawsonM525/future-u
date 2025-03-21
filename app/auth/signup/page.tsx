@@ -9,11 +9,12 @@ export default function SignUp() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
-  const [error, setError] = useState('')
+  const [error, setError] = useState<string | null>(null)
   const router = useRouter()
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+    setError(null)
     
     if (password !== confirmPassword) {
       setError('Passwords do not match')
@@ -25,7 +26,7 @@ export default function SignUp() {
       // For now, we'll just redirect to sign in
       // TODO: Implement actual user creation
       router.push('/auth/signin')
-    } catch (error) {
+    } catch (err) {
       setError('Something went wrong')
     }
   }
