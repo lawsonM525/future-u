@@ -13,3 +13,8 @@ Okay, Copilot was working but chat wasnt and now I have the most recent compatib
 03/21/2025 17:21
 
 I think GitDoc just works when we forget about it haha... but I'm now using MongoDB for our DB and NextAuth for authentication.. yeah, i guess ill do that.. without credentials... only logging in with google for now.
+
+03/21/2025 17:38
+
+Michelle did we move on to sign uo? Uhm... well.. now Github Copilot is Pro because commit messages were not generting cuz I'd reached the limit for the free trial so NOOOOWWW I will focus on sign up, pinky promise.. i need to take like a 15 minute nap.. the caffeine is itchy..
+
