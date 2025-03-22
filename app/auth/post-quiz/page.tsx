@@ -2,13 +2,14 @@
 
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { signIn } from 'next-auth/react'
+import { signIn, useSession } from 'next-auth/react'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 
 export default function PostQuizAuthPage() {
   const router = useRouter()
   const [loading, setLoading] = useState(false)
+  const { status } = useSession()
 
   // Ensure we have a report to show
   useEffect(() => {
@@ -16,8 +17,16 @@ export default function PostQuizAuthPage() {
     const reportContent = localStorage.getItem('lastReportContent')
     if (!reportId || !reportContent) {
       router.push('/quiz-selection')
+      return
     }
-  }, [router])
+
+    // If user is already authenticated, go straight to report
+    if (status === 'authenticated') {
+      // Store report content for email sending
+      sessionStorage.setItem('pendingReportContent', reportContent)
+      router.push('/report/strategy')
+    }
+  }, [router, status])
 
   const handleGoogleSignIn = async () => {
     setLoading(true)
@@ -35,6 +44,9 @@ export default function PostQuizAuthPage() {
       setLoading(false)
     }
   }
+
+  // Don't render anything if authenticated (will redirect)
+  if (status === 'authenticated') return null
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center p-4">

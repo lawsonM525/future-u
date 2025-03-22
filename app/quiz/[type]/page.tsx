@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react'
 import { useParams, useRouter } from 'next/navigation'
+import { signOut, useSession } from 'next-auth/react'
 import { Button } from '@/components/ui/button'
 import { Textarea } from '@/components/ui/textarea'
 import { Progress } from '@/components/ui/progress'
@@ -203,6 +204,15 @@ export default function QuizPage() {
   const quizType = params.type as keyof typeof quizData
   const { questions, prompts } = quizData[quizType]
   const router = useRouter()
+  const { status } = useSession()
+
+  // If user is not authenticated when starting the quiz,
+  // clear any lingering sessions to prevent auto-signin
+  useEffect(() => {
+    if (status === 'unauthenticated') {
+      signOut({ redirect: false })
+    }
+  }, [status])
 
   const [currentQuestion, setCurrentQuestion] = useState(1)
   const [answer, setAnswer] = useState('')
@@ -286,6 +296,13 @@ export default function QuizPage() {
       handleNext()
     }
   }, [answer, handleNext])
+
+  useEffect(() => {
+    // Only clear stored report data when starting a new quiz
+    localStorage.removeItem('lastReportId')
+    localStorage.removeItem('lastReportContent')
+    sessionStorage.removeItem('pendingReportContent')
+  }, [])
 
   useEffect(() => {
     window.addEventListener('keydown', handleKeyDown)

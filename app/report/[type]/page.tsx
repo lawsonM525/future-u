@@ -30,9 +30,17 @@ export default function ReportPage({ params }: { params: { type: string } }) {
 
   useEffect(() => {
     const sendPendingReport = async () => {
-      const pendingReportContent = sessionStorage.getItem('pendingReportContent')
+      // Check if we've already sent this report
       const reportId = localStorage.getItem('lastReportId')
+      const sentReports = JSON.parse(localStorage.getItem('sentReports') || '[]')
       
+      if (sentReports.includes(reportId)) {
+        // Already sent this report, just clean up storage
+        sessionStorage.removeItem('pendingReportContent')
+        return
+      }
+
+      const pendingReportContent = sessionStorage.getItem('pendingReportContent')
       if (pendingReportContent && reportId && session?.user?.email && session?.user?.name) {
         try {
           const response = await fetch('/api/send-report', {
@@ -45,6 +53,10 @@ export default function ReportPage({ params }: { params: { type: string } }) {
 
           if (!response.ok) {
             console.error('Failed to send report email')
+          } else {
+            // Mark this report as sent
+            sentReports.push(reportId)
+            localStorage.setItem('sentReports', JSON.stringify(sentReports))
           }
         } catch (error) {
           console.error('Error sending report:', error)
