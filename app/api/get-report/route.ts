@@ -3,6 +3,8 @@ import { connect } from '@/lib/mongodb'
 import { Report } from '@/models/Report'
 import { auth } from '@/app/utils/authOptions'
 
+export const dynamic = 'force-dynamic'
+
 export async function GET() {
   try {
     const session = await auth()
@@ -29,10 +31,9 @@ export async function GET() {
     }
 
     return NextResponse.json({
-      report: {
-        content: report.content,
-        createdAt: report.createdAt
-      }
+      reportId: report._id,
+      reportContent: report.content,
+      createdAt: report.createdAt
     })
   } catch (error) {
     console.error('Error fetching report:', error)

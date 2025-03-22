@@ -1,12 +1,12 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { signIn, useSession } from 'next-auth/react'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 
-export default function PostQuizAuthPage() {
+function PostQuizContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const [loading, setLoading] = useState(false)
@@ -15,19 +15,6 @@ export default function PostQuizAuthPage() {
   // Get quiz answers and type from URL params
   const answers = searchParams.get('answers')
   const quizType = searchParams.get('quizType')
-
-  // Ensure we have quiz answers
-  useEffect(() => {
-    if (!answers || !quizType) {
-      router.push('/quiz-selection')
-      return
-    }
-
-    // If user is already authenticated, process the quiz
-    if (status === 'authenticated') {
-      handleQuizSubmission()
-    }
-  }, [router, status, answers, quizType])
 
   const handleQuizSubmission = async () => {
     if (!answers || !quizType) return
@@ -55,6 +42,19 @@ export default function PostQuizAuthPage() {
       router.push('/quiz-selection')
     }
   }
+
+  // Ensure we have quiz answers
+  useEffect(() => {
+    if (!answers || !quizType) {
+      router.push('/quiz-selection')
+      return
+    }
+
+    // If user is already authenticated, process the quiz
+    if (status === 'authenticated') {
+      handleQuizSubmission()
+    }
+  }, [answers, quizType, status, router, handleQuizSubmission])
 
   const handleGoogleSignIn = async () => {
     if (!answers || !quizType) return
@@ -107,5 +107,23 @@ export default function PostQuizAuthPage() {
         </div>
       </div>
     </div>
+  )
+}
+
+// Loading state while the page is being client-side rendered
+function LoadingState() {
+  return (
+    <div className="min-h-screen flex flex-col items-center justify-center p-4">
+      <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-yellow-400"></div>
+      <p className="mt-4 text-zinc-400">Loading...</p>
+    </div>
+  )
+}
+
+export default function PostQuizPage() {
+  return (
+    <Suspense fallback={<LoadingState />}>
+      <PostQuizContent />
+    </Suspense>
   )
 }
