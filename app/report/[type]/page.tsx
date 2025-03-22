@@ -9,7 +9,7 @@ import { Button } from '@/components/ui/button'
 import Link from 'next/link'
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card'
 
-export default function ReportPage({ params }: { params: { type: string } }) {
+export default function ReportPage() {
   const router = useRouter()
   const { data: session, status } = useSession()
   const [loading, setLoading] = useState(true)
@@ -74,18 +74,22 @@ export default function ReportPage({ params }: { params: { type: string } }) {
           const res = await fetch('/api/get-report')
           if (!res.ok) {
             if (res.status === 404) {
-              // No report found, redirect to quiz
-              router.push('/quiz/' + params.type)
+              // No report found, redirect to quiz selection
+              router.push('/quiz-selection')
               return
             }
             throw new Error('Failed to fetch report')
           }
           
           const data = await res.json()
-          if (data.report) {
-            setReport(data.report)
+          if (data.reportContent) {
+            setReport({
+              content: data.reportContent,
+              createdAt: data.createdAt
+            })
           } else {
-            router.push('/quiz/' + params.type)
+            // No report content, redirect to quiz selection
+            router.push('/quiz-selection')
           }
         } catch (err) {
           setError('Error loading report')
@@ -97,9 +101,7 @@ export default function ReportPage({ params }: { params: { type: string } }) {
 
       fetchReport()
     }
-  }, [status, session, params.type, router])
-
-  // Removed downloadPDF function as it's no longer needed
+  }, [status, session, router])
 
   if (loading) {
     return (
@@ -121,7 +123,7 @@ export default function ReportPage({ params }: { params: { type: string } }) {
         <div className="max-w-4xl mx-auto text-center space-y-8">
           <h1 className="text-2xl font-bold text-accent">{error}</h1>
           <Button asChild variant="outline" className="border-accent hover:bg-accent/20">
-            <Link href="/quiz/personality">Take the Quiz</Link>
+            <Link href="/quiz-selection">Take the Quiz</Link>
           </Button>
         </div>
       </div>
@@ -146,7 +148,7 @@ export default function ReportPage({ params }: { params: { type: string } }) {
             )}
           </CardHeader>
           <CardContent className="space-y-8">
-            {report?.content && (
+            {report?.content ? (
               <div className="prose prose-invert max-w-none space-y-4">
                 <ReactMarkdown 
                   remarkPlugins={[remarkGfm]}
@@ -159,8 +161,19 @@ export default function ReportPage({ params }: { params: { type: string } }) {
                     li: ({...props}) => <li className="text-muted-foreground" {...props} />
                   }}
                 >
-                  {report.content.replace(/\*\*([^*]+)\*\*\s*\n\1/g, '**$1**')}
+                  {report.content}
                 </ReactMarkdown>
+              </div>
+            ) : (
+              <div className="text-center py-8">
+                <p className="text-muted-foreground">No report content available. Please take a quiz to generate your report.</p>
+                <Button
+                  variant="outline"
+                  className="mt-4 border-accent hover:bg-accent/20"
+                  onClick={() => router.push('/quiz-selection')}
+                >
+                  Take Quiz
+                </Button>
               </div>
             )}
           </CardContent>
@@ -177,7 +190,8 @@ export default function ReportPage({ params }: { params: { type: string } }) {
           </Button>
           <Button
             variant="outline"
-            onClick={() => router.push('/quiz/' + params.type)}
+            className="border-accent hover:bg-accent/20"
+            onClick={() => router.push('/quiz-selection')}
           >
             Retake Quiz
           </Button>

@@ -211,13 +211,14 @@ export default function QuizPage() {
   const [answers, setAnswers] = useState<Record<number, string>>({})
   const [isProcessing, setIsProcessing] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [isSubmitting, setIsSubmitting] = useState(false)
 
   const quiz = quizData[quizType as keyof typeof quizData]
   const questions = quiz?.questions ?? 0
   const prompts = quiz?.prompts ?? []
 
   const handleNext = useCallback(async () => {
-    if (!quiz) return
+    if (!quiz || isSubmitting) return
 
     setAnswers(prev => ({
       ...prev,
@@ -232,6 +233,8 @@ export default function QuizPage() {
         setIsAnimating(false)
       }, 300)
     } else {
+      if (isSubmitting) return // Prevent double submission
+      setIsSubmitting(true)
       setIsProcessing(true)
       setError(null)
       
@@ -248,9 +251,11 @@ export default function QuizPage() {
             'Content-Type': 'application/json',
           },
           body: JSON.stringify({ 
-            answers,
-            userId: session.user.id
-          })
+            answers: {
+              ...answers,
+              [currentQuestion]: answer
+            }
+          }),
         })
 
         if (!response.ok) {
@@ -259,14 +264,15 @@ export default function QuizPage() {
 
         const data = await response.json()
         router.push(`/report/${data.reportId}`)
-      } catch (error) {
-        console.error('Error processing quiz:', error)
+      } catch (err) {
+        console.error('Error:', err)
         setError('Failed to process quiz. Please try again.')
+        setIsSubmitting(false)
       } finally {
         setIsProcessing(false)
       }
     }
-  }, [currentQuestion, answer, answers, quiz, questions, session, router, quizType])
+  }, [quiz, currentQuestion, questions, answer, answers, session, router, quizType, isSubmitting])
 
   const handlePrevious = useCallback(() => {
     if (currentQuestion > 1) {

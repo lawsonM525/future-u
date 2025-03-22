@@ -8,6 +8,7 @@ export const dynamic = 'force-dynamic'
 export async function GET() {
   try {
     const session = await auth()
+    console.log('Session/user ID:', session?.user?.id)
     if (!session?.user?.id) {
       return NextResponse.json(
         { error: 'Authentication required' },
@@ -23,6 +24,13 @@ export async function GET() {
       userId: session.user.id 
     }).sort({ createdAt: -1 })
     
+    console.log('Found report:', {
+      id: report?._id?.toString(),
+      userId: report?.userId,
+      contentLength: report?.content?.length,
+      createdAt: report?.createdAt
+    })
+    
     if (!report) {
       return NextResponse.json(
         { error: 'No reports found. Please complete a quiz first.' },
@@ -31,7 +39,7 @@ export async function GET() {
     }
 
     return NextResponse.json({
-      reportId: report._id,
+      reportId: report._id.toString(),
       reportContent: report.content,
       createdAt: report.createdAt
     })
