@@ -3,6 +3,7 @@ import { OpenAI } from 'openai'
 import { Pinecone } from '@pinecone-database/pinecone'
 import { connect } from '@/lib/mongodb'
 import { Report } from '@/models/Report'
+import { Timeline, TimelineCheckpoint } from '@/models/Timeline'
 import { auth } from '@/app/utils/authOptions'
 
 // Validate environment variables
@@ -144,10 +145,48 @@ Format each section with a clear title in bold, followed by detailed explanation
         max_tokens: 2000
       }, { signal: controller.signal })
 
-      // Clear timeout
-      clearTimeout(timeoutId)
-
       const reportContent = completion.choices[0].message.content
+
+      // Then, generate the timeline
+      const timelineResponse = await openai.chat.completions.create({
+        model: "gpt-4",
+        messages: [
+          {
+            role: "system",
+            content: "Based on the career strategy report, create a 5-year timeline from 2025 to 2030. For each year, provide a clear checkpoint description of where the person should be in their journey. Make it specific, measurable, and aligned with their ultimate career goals. The checkpoints should build progressively, leading to their 'hero level' by 2030. Format each checkpoint as 'YYYY: Description'"
+          },
+          {
+            role: "user",
+            content: `Create a 5-year timeline based on this career strategy report: ${reportContent}`
+          }
+        ],
+        temperature: 0.7,
+        max_tokens: 1000
+      }, { signal: controller.signal })
+
+      const timelineContent = timelineResponse.choices[0].message.content
+
+      if (!timelineContent) {
+        throw new Error('Failed to generate timeline')
+      }
+
+      // Parse the timeline content into structured data
+      // Expected format from GPT:
+      // 2025: Description for 2025
+      // 2026: Description for 2026
+      // etc.
+      const timelineCheckpoints: TimelineCheckpoint[] = timelineContent
+        .split('\n')
+        .filter((line: string) => line.trim())
+        .map((line: string) => {
+          const match = line.match(/(\d{4}):\s*(.+)/)
+          if (!match) return null
+          return {
+            year: parseInt(match[1]),
+            description: match[2].trim()
+          }
+        })
+        .filter((checkpoint): checkpoint is TimelineCheckpoint => checkpoint !== null)
 
       // Create report document
       const report = new Report({
@@ -166,6 +205,15 @@ Format each section with a clear title in bold, followed by detailed explanation
       })
 
       await report.save()
+
+      // Save the timeline
+      await Timeline.create({
+        userId: session.user.id,
+        checkpoints: timelineCheckpoints,
+      })
+
+      // Clear timeout
+      clearTimeout(timeoutId)
 
       return NextResponse.json({ 
         reportId: report._id.toString(),
