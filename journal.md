@@ -24,3 +24,14 @@ When did two hours pass?? anyway, now that its getting to time for my nap im sud
 sign up/sign in functionality works(ish)
 but most importantly, i LOVE the data!!! the RAG really pulls relevant tweets and not just random bs. life is good hehe
 
+03/22/2025 12:03
+
+dang, i stopped journaling huh... well.. we've made progress. sign up functionality works.. and works in prod too... career strategy report is pretty.. now i just want to add more features, especially shareable stuff to the dashboard
+
+03/22/2025 13:25
+
+Okay so where are we rn... Well, we are able to generate useful career strategy reports. The spacing could be better there, but that's okay. We have a user dashboard that shows their career strategy report. We should have a link. The link on the strategy report that says back to home should take them to their dashboard instead. That shouldn't be a hard fix. We have the ability to have an avatar that you can customize. I would like to be able to save and share that avatar. And then we have these sort of placeholders a timeline and resources that need to be updated. And when we the updated, probably also using an OpenAI request, then we can save and share the timeline as well. Make a shareable timeline.
+
+03/22/2025 15:30
+
+we're in prod!! with MVP at least.

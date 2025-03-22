@@ -99,44 +99,7 @@ export default function ReportPage({ params }: { params: { type: string } }) {
     }
   }, [status, session, params.type, router])
 
-  const downloadPDF = async () => {
-    try {
-      if (!report?.content) return;
-
-      const res = await fetch('/api/generate-pdf', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ 
-          content: report.content,
-          userName: session?.user?.name,
-          date: report.createdAt
-        })
-      })
-
-      if (!res.ok) {
-        throw new Error('Failed to generate PDF')
-      }
-
-      // Get the PDF blob
-      const blob = await res.blob()
-      
-      // Create download link
-      const url = window.URL.createObjectURL(blob)
-      const a = document.createElement('a')
-      a.href = url
-      a.download = 'career-strategy.pdf'
-      document.body.appendChild(a)
-      a.click()
-      
-      // Cleanup
-      window.URL.revokeObjectURL(url)
-      document.body.removeChild(a)
-    } catch (error) {
-      console.error('Error downloading PDF:', error)
-    }
-  }
+  // Removed downloadPDF function as it's no longer needed
 
   if (loading) {
     return (
@@ -208,21 +171,15 @@ export default function ReportPage({ params }: { params: { type: string } }) {
           <Button
             variant="outline"
             className="border-accent hover:bg-accent/20"
-            onClick={() => router.push('/')}
+            onClick={() => router.push('/dashboard')}
           >
-            Back to Home
+            Back to Dashboard
           </Button>
           <Button
             variant="outline"
             onClick={() => router.push('/quiz/' + params.type)}
           >
             Retake Quiz
-          </Button>
-          <Button
-            variant="yellow"
-            onClick={() => downloadPDF()}
-          >
-            Download PDF
           </Button>
         </div>
       </div>

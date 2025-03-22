@@ -31,13 +31,13 @@ export default function LandingPage() {
             Ready to recommit to your dream?
           </p>
           <div className="flex flex-col gap-4 items-center animate-slide-up">
-            <Link href="/report/strategy">
+            <Link href="/dashboard">
               <Button 
                 variant="yellow"
                 size="lg" 
                 className="font-bold"
               >
-                View Your Strategy
+                View Your Dashboard
               </Button>
             </Link>
             <Link href="/quiz-selection">
