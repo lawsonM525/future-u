@@ -8,6 +8,7 @@ import AvatarCreator from '@/components/AvatarCreator'
 import { lorelei } from '@dicebear/collection'
 import type { JSONSchema7 } from 'json-schema'
 import { toast } from 'react-hot-toast'
+import { Switch } from '../../components/ui/switch'
 
 interface SchemaProperty {
   type: string
@@ -24,16 +25,28 @@ interface AvatarOption {
 
 type AvatarOptions = Record<string, AvatarOption>
 
+type AvatarPreferences = {
+  [key: string]: string | number | Array<string>
+}
+
+type OptionValue = string | number | Array<string>
+
+// Helper function to safely get array value
+const getArrayValue = (value: string | number | Array<string>, index: number): string | undefined => {
+  if (Array.isArray(value)) {
+    return value[index]
+  }
+  return undefined
+}
+
 // List of options we want to expose to users
 const ALLOWED_OPTIONS = [
   'mouth', 'eyes', 'hair', 'hairColor', 'skinColor', 
-  'freckles', 'frecklesProbability', 'frecklesColor',
-  'glasses', 'glassesProbability', 'glassesColor',
-  'beard', 'beardProbability',
-  'earrings', 'earringsProbability', 'earringsColor',
+  'freckles', 'glasses', 'beard',
+  'earrings', 'earringsColor',
   'eyebrows', 'eyebrowsColor',
   'eyesColor',
-  'hairAccessories', 'hairAccessoriesProbability', 'hairAccessoriesColor',
+  'hairAccessories', 'hairAccessoriesColor',
   'head',
   'mouthColor',
   'nose', 'noseColor'
@@ -48,22 +61,15 @@ const OPTION_LABELS: Record<OptionKey, string> = {
   hair: 'Hair Style',
   hairColor: 'Hair Color',
   skinColor: 'Skin Tone',
-  freckles: 'Freckles Style',
-  frecklesProbability: 'Freckles Chance',
-  frecklesColor: 'Freckles Color',
-  glasses: 'Glasses Style',
-  glassesProbability: 'Glasses Chance',
-  glassesColor: 'Glasses Color',
-  beard: 'Beard Style',
-  beardProbability: 'Beard Chance',
-  earrings: 'Earrings Style',
-  earringsProbability: 'Earrings Chance',
+  freckles: 'Freckles',
+  glasses: 'Glasses',
+  beard: 'Beard',
+  earrings: 'Earrings',
   earringsColor: 'Earrings Color',
   eyebrows: 'Eyebrows Style',
   eyebrowsColor: 'Eyebrows Color',
   eyesColor: 'Eyes Color',
   hairAccessories: 'Hair Accessories',
-  hairAccessoriesProbability: 'Accessories Chance',
   hairAccessoriesColor: 'Accessories Color',
   head: 'Head Shape',
   mouthColor: 'Mouth Color',
@@ -79,7 +85,7 @@ const OPTION_GROUPS = [
   },
   {
     title: 'Hair & Accessories',
-    options: ['hair', 'hairColor', 'hairAccessories', 'hairAccessoriesProbability', 'hairAccessoriesColor']
+    options: ['hair', 'hairColor', 'hairAccessories', 'hairAccessoriesColor']
   },
   {
     title: 'Face',
@@ -87,13 +93,22 @@ const OPTION_GROUPS = [
   },
   {
     title: 'Accessories',
-    options: ['glasses', 'glassesProbability', 'glassesColor', 'earrings', 'earringsProbability', 'earringsColor']
+    options: ['glasses', 'earrings', 'earringsColor']
   },
   {
     title: 'Additional Features',
-    options: ['beard', 'beardProbability', 'freckles', 'frecklesProbability', 'frecklesColor']
+    options: ['beard', 'freckles']
   }
-]
+] as const
+
+// Define default skin colors with white as default
+const DEFAULT_SKIN_COLORS = [
+  'ffffff', // White (default)
+  'f2d3b1', // Light
+  'd1a3a4', // Medium
+  'c58c85', // Dark
+  'a58b80', // Deep
+] as const
 
 export default function CustomizeAvatarPage() {
   const { data: session } = useSession({
@@ -105,11 +120,19 @@ export default function CustomizeAvatarPage() {
 
   const router = useRouter()
   const [options, setOptions] = useState<AvatarOptions>({})
-  const [selectedOptions, setSelectedOptions] = useState<Record<string, string | number | string[]>>({})
+  const [selectedOptions, setSelectedOptions] = useState<AvatarPreferences>({
+    skinColor: ['ffffff'], // Set white as default
+  })
   const [isSaving, setIsSaving] = useState(false)
   const userEmail = session?.user?.email || ''
 
   useEffect(() => {
+    // Load saved preferences
+    const savedPrefs = localStorage.getItem('avatarPreferences')
+    if (savedPrefs) {
+      setSelectedOptions(JSON.parse(savedPrefs))
+    }
+
     // Get all available options from the schema
     const schemaProperties = {
       ...((lorelei.schema as JSONSchema7).properties || {})
@@ -132,11 +155,17 @@ export default function CustomizeAvatarPage() {
           option.choices.push(...property.items.enum)
         }
 
-        if (option.choices.length > 0 || property.type === 'boolean' || property.type === 'integer') {
+        if (option.choices.length > 0 || property.type === 'boolean') {
           processedOptions[key] = option
         }
       }
     }
+
+    // Override skin colors with our defaults
+    if (processedOptions.skinColor) {
+      processedOptions.skinColor.choices = [...DEFAULT_SKIN_COLORS]
+    }
+
     setOptions(processedOptions)
   }, [])
 
@@ -154,11 +183,27 @@ export default function CustomizeAvatarPage() {
     }
   }
 
-  const handleOptionChange = (key: string, value: string | number | string[]) => {
-    setSelectedOptions(prev => ({
-      ...prev,
-      [key]: value
-    }))
+  const handleOptionChange = (key: string, value: string | number | string[] | boolean) => {
+    setSelectedOptions(prev => {
+      const newOptions = { ...prev }
+      
+      // Handle boolean toggles
+      if (typeof value === 'boolean') {
+        if (value) {
+          // When toggle is turned on, set probability to 100
+          newOptions[key] = ['variant01'] // Set a default variant
+          newOptions[`${key}Probability`] = 100
+        } else {
+          // When toggle is turned off, set probability to 0
+          delete newOptions[key]
+          newOptions[`${key}Probability`] = 0
+        }
+      } else {
+        newOptions[key] = value as OptionValue
+      }
+      
+      return newOptions
+    })
   }
 
   if (!session?.user?.email) return null
@@ -200,54 +245,62 @@ export default function CustomizeAvatarPage() {
                         const option = options[key]
                         if (!option) return null
 
-                        if (key.endsWith('Probability')) {
+                        // Special handling for toggleable features
+                        if (['glasses', 'beard', 'earrings', 'freckles', 'hairAccessories'].includes(key)) {
+                          const isEnabled = selectedOptions[`${key}Probability`] === 100
                           return (
-                            <div key={key} className="bg-zinc-800 p-4 rounded">
-                              <label className="block text-sm font-medium text-zinc-300 mb-2">
+                            <div key={key} className="flex items-center justify-between">
+                              <label htmlFor={key} className="text-sm font-medium text-zinc-200">
                                 {OPTION_LABELS[key as OptionKey]}
                               </label>
-                              <div className="flex items-center gap-2">
-                                <input
-                                  type="range"
-                                  min="0"
-                                  max="100"
-                                  value={selectedOptions[key] as number || 0}
-                                  onChange={(e) => handleOptionChange(key, parseInt(e.target.value))}
-                                  className="flex-1 h-2 bg-zinc-700 rounded-lg appearance-none cursor-pointer"
-                                />
-                                <span className="w-8 text-sm">{selectedOptions[key] as number || 0}%</span>
-                              </div>
-                            </div>
-                          )
-                        }
-
-                        if (key.endsWith('Color')) {
-                          return (
-                            <div key={key} className="bg-zinc-800 p-4 rounded">
-                              <label className="block text-sm font-medium text-zinc-300 mb-2">
-                                {OPTION_LABELS[key as OptionKey]}
-                              </label>
-                              <input
-                                type="color"
-                                value={`#${Array.isArray(selectedOptions[key]) ? selectedOptions[key][0] || '000000' : '000000'}`}
-                                onChange={(e) => handleOptionChange(key, [e.target.value.substring(1)])}
-                                className="w-full h-8 bg-zinc-700 rounded cursor-pointer"
+                              <Switch
+                                id={key}
+                                checked={isEnabled}
+                                onCheckedChange={(checked: boolean) => handleOptionChange(key, checked)}
                               />
                             </div>
                           )
                         }
 
+                        // Special handling for skin color
+                        if (key === 'skinColor') {
+                          return (
+                            <div key={key} className="col-span-2">
+                              <label className="text-sm font-medium text-zinc-200 block mb-2">
+                                {OPTION_LABELS[key as OptionKey]}
+                              </label>
+                              <div className="flex flex-wrap gap-2">
+                                {DEFAULT_SKIN_COLORS.map(color => (
+                                  <button
+                                    key={color}
+                                    onClick={() => handleOptionChange(key, [color])}
+                                    className={`w-8 h-8 rounded-full border-2 ${
+                                      getArrayValue(selectedOptions[key], 0) === color 
+                                        ? 'border-yellow-400' 
+                                        : 'border-transparent'
+                                    }`}
+                                    style={{ backgroundColor: `#${color}` }}
+                                    title={color === 'ffffff' ? 'White (Default)' : `Skin Tone #${color}`}
+                                  />
+                                ))}
+                              </div>
+                            </div>
+                          )
+                        }
+
+                        // Regular select options
                         return (
-                          <div key={key} className="bg-zinc-800 p-4 rounded">
-                            <label className="block text-sm font-medium text-zinc-300 mb-2">
+                          <div key={key}>
+                            <label htmlFor={key} className="text-sm font-medium text-zinc-200 block mb-2">
                               {OPTION_LABELS[key as OptionKey]}
                             </label>
                             <select
-                              value={Array.isArray(selectedOptions[key]) ? selectedOptions[key][0] || '' : ''}
+                              id={key}
+                              value={Array.isArray(selectedOptions[key]) ? (selectedOptions[key] as string[])[0] || '' : String(selectedOptions[key] || '')}
                               onChange={(e) => handleOptionChange(key, [e.target.value])}
-                              className="w-full bg-zinc-700 text-zinc-300 rounded px-3 py-2"
+                              className="w-full bg-zinc-800 text-zinc-200 rounded px-3 py-2 focus:ring-2 focus:ring-yellow-400"
                             >
-                              <option value="">Default</option>
+                              <option value="">Select...</option>
                               {option.choices.map(choice => (
                                 <option key={choice} value={choice}>
                                   {choice}
@@ -262,31 +315,20 @@ export default function CustomizeAvatarPage() {
                 ))}
               </div>
 
-              {/* Navigation */}
-              <div className="flex justify-between mt-8">
+              {/* Save Button */}
+              <div className="mt-8 flex justify-end gap-4">
                 <Link
                   href="/dashboard"
-                  className="bg-zinc-800 text-zinc-300 hover:bg-zinc-700 px-6 py-2 rounded transition-colors"
+                  className="px-4 py-2 text-zinc-400 hover:text-zinc-300 transition-colors"
                 >
-                  Back to Dashboard
+                  Cancel
                 </Link>
                 <button
                   onClick={handleSave}
                   disabled={isSaving}
-                  className={`${
-                    isSaving 
-                      ? 'bg-yellow-400 cursor-not-allowed'
-                      : 'bg-yellow-500 hover:bg-yellow-600'
-                  } text-black font-semibold px-6 py-2 rounded transition-colors flex items-center gap-2`}
+                  className="px-4 py-2 bg-yellow-500 text-yellow-950 rounded hover:bg-yellow-400 transition-colors disabled:opacity-50"
                 >
-                  {isSaving ? (
-                    <>
-                      <div className="w-4 h-4 border-2 border-black border-t-transparent rounded-full animate-spin" />
-                      Saving...
-                    </>
-                  ) : (
-                    'Save Changes'
-                  )}
+                  {isSaving ? 'Saving...' : 'Save Changes'}
                 </button>
               </div>
             </div>
