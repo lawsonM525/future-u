@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
-import { supabase } from '../../../lib/supabase'
+import { connect } from '@/lib/mongodb'
+import { Report } from '@/models/Report'
 
 export async function GET(request: Request) {
   try {
@@ -13,21 +14,13 @@ export async function GET(request: Request) {
       )
     }
 
-    // Fetch both report and careers data in parallel
-    const [reportResponse, careersResponse] = await Promise.all([
-      supabase
-        .from('reports')
-        .select('data')
-        .eq('id', reportId)
-        .single(),
-      supabase
-        .from('careers')
-        .select('data')
-        .eq('report_id', reportId)
-        .single()
-    ])
+    // Connect to MongoDB
+    await connect()
+
+    // Find the report
+    const report = await Report.findById(reportId)
     
-    if (reportResponse.error || !reportResponse.data) {
+    if (!report) {
       return NextResponse.json(
         { error: 'Report not found. Please complete the quiz first.' },
         { status: 404 }
@@ -35,8 +28,8 @@ export async function GET(request: Request) {
     }
 
     return NextResponse.json({
-      report: reportResponse.data.data,
-      careers: careersResponse.data?.data || null
+      report: report.data,
+      careers: report.careers
     })
   } catch (error) {
     console.error('Error fetching report:', error)
@@ -45,4 +38,4 @@ export async function GET(request: Request) {
       { status: 500 }
     )
   }
-} 
+}
