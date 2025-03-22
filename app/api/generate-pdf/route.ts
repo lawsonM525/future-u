@@ -1,7 +1,8 @@
 import { NextResponse } from 'next/server'
-import puppeteer from 'puppeteer'
+import puppeteer from 'puppeteer-core'
 import { auth } from '@/app/utils/authOptions'
 import { marked } from 'marked'
+import chrome from '@sparticuz/chromium'
 
 export const maxDuration = 300 // 5 minutes
 export const dynamic = 'force-dynamic'
@@ -24,10 +25,17 @@ export async function POST(request: Request) {
       breaks: true
     })
 
-    // Launch Puppeteer with proper configuration
+    // Launch Puppeteer with serverless-compatible configuration
+    const executablePath = process.env.NODE_ENV === 'production'
+      ? await chrome.executablePath()
+      : undefined
+    
     const browser = await puppeteer.launch({
-      headless: true,
-      args: ['--no-sandbox', '--disable-setuid-sandbox']
+      args: process.env.NODE_ENV === 'production'
+        ? chrome.args
+        : ['--no-sandbox', '--disable-setuid-sandbox'],
+      executablePath,
+      headless: true
     })
     
     const page = await browser.newPage()
