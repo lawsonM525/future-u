@@ -28,13 +28,17 @@ export async function POST(request: Request) {
       { expiresIn: '7d' }
     )
 
-    // Set cookie
-    cookies().set('auth-token', token, {
+    // Set cookie with domain support for production
+    const cookieOptions = {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
-      sameSite: 'strict',
-      maxAge: 60 * 60 * 24 * 7 // 7 days
-    })
+      sameSite: 'lax' as const,
+      maxAge: 60 * 60 * 24 * 7, // 7 days
+      path: '/',
+      domain: process.env.NODE_ENV === 'production' ? '.future-u.app' : undefined
+    }
+
+    cookies().set('auth-token', token, cookieOptions)
 
     return NextResponse.json(
       { message: 'Logged in successfully' },

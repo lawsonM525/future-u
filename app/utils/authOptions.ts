@@ -78,6 +78,7 @@ export const { handlers: authHandlers, auth } = NextAuth({
         sameSite: "lax",
         path: "/",
         secure: process.env.NODE_ENV === "production",
+        domain: process.env.NODE_ENV === "production" ? ".future-u.app" : undefined
       },
     },
     callbackUrl: {
@@ -86,6 +87,7 @@ export const { handlers: authHandlers, auth } = NextAuth({
         sameSite: "lax",
         path: "/",
         secure: process.env.NODE_ENV === "production",
+        domain: process.env.NODE_ENV === "production" ? ".future-u.app" : undefined
       },
     },
     csrfToken: {
@@ -95,6 +97,7 @@ export const { handlers: authHandlers, auth } = NextAuth({
         sameSite: "lax",
         path: "/",
         secure: process.env.NODE_ENV === "production",
+        domain: process.env.NODE_ENV === "production" ? ".future-u.app" : undefined
       },
     },
   },
