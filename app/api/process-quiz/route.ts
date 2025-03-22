@@ -105,7 +105,7 @@ export async function POST(request: Request) {
 
       // 5. Generate career roadmap report with actionable, data-driven insights
       const completion = await openai.chat.completions.create({
-        model: "gpt-4",
+        model: "gpt-4o",
         messages: [
           {
             role: "system",
