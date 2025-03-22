@@ -105,14 +105,14 @@ export default function ReportPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-background text-foreground p-8">
-        <div className="max-w-4xl mx-auto">
-          <div className="space-y-8">
-            <div className="h-8 bg-card rounded-lg animate-pulse" />
-            <div className="h-64 bg-card rounded-lg animate-pulse" />
-            <div className="h-32 bg-card rounded-lg animate-pulse" />
-          </div>
-        </div>
+      <div className="min-h-screen flex flex-col items-center justify-center p-4 space-y-4">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-accent"></div>
+        <h2 className="text-2xl font-bold text-center">
+          Loading Your Career Strategy
+        </h2>
+        <p className="text-center text-muted-foreground max-w-md">
+          Just a moment while we prepare your personalized career insights and recommendations...
+        </p>
       </div>
     )
   }

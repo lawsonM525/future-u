@@ -10,6 +10,8 @@ function PostQuizContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const [loading, setLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+  const [isProcessing, setIsProcessing] = useState(false)
   const { status } = useSession()
 
   // Get quiz answers and type from URL params
@@ -19,6 +21,7 @@ function PostQuizContent() {
   const handleQuizSubmission = async () => {
     if (!answers || !quizType) return
 
+    setIsProcessing(true)
     try {
       const response = await fetch('/api/process-quiz', {
         method: 'POST',
@@ -39,7 +42,8 @@ function PostQuizContent() {
       router.push(`/report/${data.reportId}`)
     } catch (error) {
       console.error('Error processing quiz:', error)
-      router.push('/quiz-selection')
+      setError('Failed to process quiz')
+      setIsProcessing(false)
     }
   }
 
@@ -62,9 +66,19 @@ function PostQuizContent() {
     setLoading(true)
     try {
       // Keep the quiz answers in the URL during authentication
-      await signIn('google', { 
-        callbackUrl: `/auth/post-quiz?answers=${answers}&quizType=${quizType}`
+      const result = await signIn('google', { 
+        callbackUrl: `/auth/post-quiz?answers=${answers}&quizType=${quizType}`,
+        redirect: false,
       })
+
+      if (result?.error) {
+        setError('Failed to sign in')
+        setLoading(false)
+        return
+      }
+
+      // Process the quiz after successful sign-in
+      await handleQuizSubmission()
     } catch {
       setLoading(false)
     }
@@ -72,6 +86,37 @@ function PostQuizContent() {
 
   // Don't render anything if authenticated (will redirect)
   if (status === 'authenticated') return null
+
+  if (isProcessing) {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center p-4 space-y-4">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-yellow-400"></div>
+        <h2 className="text-2xl font-bold text-center">
+          Processing Your Career Assessment
+        </h2>
+        <p className="text-center text-zinc-400 max-w-md">
+          Please wait while we analyze your responses and generate your personalized career strategy...
+        </p>
+      </div>
+    )
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center p-4 space-y-4">
+        <div className="text-center space-y-4">
+          <h2 className="text-2xl font-bold text-red-500">Something Went Wrong</h2>
+          <p className="text-zinc-400 max-w-md mx-auto">{error}</p>
+          <Button 
+            onClick={() => router.push('/quiz-selection')}
+            className="bg-yellow-500 text-yellow-950 hover:bg-yellow-400"
+          >
+            Try Again
+          </Button>
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center p-4 animate-fade-in">
