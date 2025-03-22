@@ -28,7 +28,7 @@ export default function LandingPage() {
             Welcome back, {session.user?.name?.split(' ')[0] || 'User'}
           </h1>
           <p className="text-xl mb-8 text-center max-w-2xl animate-slide-up">
-            Ready to review your career strategy?
+            Ready to recommit to your dream?
           </p>
           <div className="flex flex-col gap-4 items-center animate-slide-up">
             <Link href="/report/strategy">

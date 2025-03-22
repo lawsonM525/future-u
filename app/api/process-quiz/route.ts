@@ -3,6 +3,7 @@ import { OpenAI } from 'openai'
 import { Pinecone } from '@pinecone-database/pinecone'
 import { connect } from '@/lib/mongodb'
 import { Report } from '@/models/Report'
+import { auth } from '@/app/utils/authOptions'
 
 // Validate environment variables
 const requiredEnvVars = [
@@ -34,7 +35,22 @@ export const fetchCache = 'force-no-store'
 
 export async function POST(request: Request) {
   try {
+    const session = await auth()
+    if (!session?.user?.id) {
+      return NextResponse.json(
+        { error: 'Authentication required' },
+        { status: 401 }
+      )
+    }
+
     const { answers } = await request.json()
+
+    if (!answers) {
+      return NextResponse.json(
+        { error: 'Answers are required' },
+        { status: 400 }
+      )
+    }
 
     // Add timeout to OpenAI calls
     const timeoutMs = 180000 // 3 minutes
@@ -88,67 +104,71 @@ export async function POST(request: Request) {
         console.warn('No relevant data found in Pinecone response')
       }
 
-      // Store the relevant career data separately
-      const relevantCareers = queryResponse.matches
-        .map(match => match.metadata?.text)
-        .filter(Boolean)
-        .join('\n')
-
       const completion = await openai.chat.completions.create({
         model: "gpt-4o",
         messages: [
           {
             role: "system",
-            content: "You are a helpful career advisor. Generate a report with personalized career advice based on the user's profile and relevant career data. The report should include clear simple steps to take and should be amply spaced and easily readable."
+            content: `you are a career guidance expert. analyze the user's quiz responses and generate a detailed, step-by-step career roadmap report that takes the user from where they are now to becoming their career hero. this report should be aligned with the philosophy of transformation—think of it as mapping out "your future, mapped out"—with practical checkpoints along the way. use simple language. break your report into the following sections:
+
+1. **VISION & DREAM STATE**
+   - describe the ultimate career vision the user aspires to achieve.
+   - use inspiring, vivid language that helps them visualize their dream future.
+   - encourage them to see this vision as both attainable and transformative.
+
+2. **CURRENT STRENGTHS & TALENTS**
+   - identify 3-4 key strengths and talents from their quiz responses.
+   - provide clear titles and detailed explanations with practical examples of how these can be leveraged.
+
+3. **MILESTONES & CHECKPOINTS (YOUR ROADMAP TO SUCCESS)**
+   - outline 5-7 actionable milestones that mark significant steps on the journey from zero to hero.
+   - for each milestone, include specific, measurable actions the user can take.
+   - emphasize the importance of celebrating small wins and re-committing at each checkpoint.
+
+4. **STRATEGIES FOR GROWTH & OVERCOMING OBSTACLES**
+   - offer 3-4 practical strategies to navigate setbacks, detours, and distractions.
+   - focus on building resilience, adapting to changes, and maintaining an unwavering commitment.
+   - inject motivational insights that remind them that persistence and recommitment are key.
+
+format each section with a clear title in bold followed by detailed explanations. use bullet points or numbered lists where appropriate, and ensure there are double line breaks between sections and points for clarity.`
           },
           {
             role: "user",
-            content: `
-User Profile:
-${userProfile}
-
-Relevant Career Data:
-${relevantData}
-
-Generate a highly personalized and deeply insightful career roadmap using second-person language (addressing the user as "you"). The report should be motivational, psychologically compelling, and structured into seven progressive stages leading to "Stage Completion."
-
-The structure should be as follows:
-
-1. Brief Summary of the User's Current Situation & Career Path Recommendations
-2. The 7-Stage Career Roadmap (with meaningful stage names)
-3. Mission & Ikigai Alignment
-4. Closing Statement with a compelling, specific affirmation
-
-Please ensure each stage includes:
-- Key Actions & Next Steps
-- Psychological Checkpoints
-- Encouraging Explanation
-            `
+            content: `User Profile:\n${userProfile}\n\nRelevant Career Context:\n${relevantData}`
           }
-        ]
+        ],
+        temperature: 0.7,
+        max_tokens: 2000
       }, { signal: controller.signal })
+
+      // Clear timeout
+      clearTimeout(timeoutId)
 
       const reportContent = completion.choices[0].message.content
 
-      try {
-        // Store report in MongoDB
-        const report = await Report.create({
-          data: reportContent,
-          careers: relevantCareers || ''
-        })
+      // Create report document
+      const report = new Report({
+        content: reportContent,
+        userId: session.user.id,
+        careers: queryResponse.matches
+          .filter((match): match is typeof match & { score: number } => 
+            typeof match.score === 'number' && 
+            match.metadata?.text !== undefined
+          )
+          .map(match => ({
+            id: match.id,
+            score: Math.round(match.score * 100),
+            metadata: match.metadata
+          }))
+      })
 
-        clearTimeout(timeoutId)
+      await report.save()
 
-        return NextResponse.json({ 
-          reportId: report._id.toString(),
-          reportContent, 
-          relevantCareers
-        })
-      } catch (dbError) {
-        console.error('Database error:', dbError)
-        throw new Error(`Database operation failed: ${dbError instanceof Error ? dbError.message : 'Unknown error'}`)
-      }
-
+      return NextResponse.json({ 
+        reportId: report._id.toString(),
+        reportContent, 
+        relevantCareers: report.careers.map((career: { metadata: { text?: string } }) => career.metadata?.text).filter(Boolean).join('\n')
+      })
     } catch (err: unknown) {
       clearTimeout(timeoutId)
       if (err instanceof Error && err.name === 'AbortError') {

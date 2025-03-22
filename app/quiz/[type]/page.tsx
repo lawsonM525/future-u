@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react'
 import { useParams, useRouter } from 'next/navigation'
-import { signOut, useSession } from 'next-auth/react'
+import { useSession } from 'next-auth/react'
 import { Button } from '@/components/ui/button'
 import { Textarea } from '@/components/ui/textarea'
 import { Progress } from '@/components/ui/progress'
@@ -201,18 +201,9 @@ const quizData = {
 
 export default function QuizPage() {
   const params = useParams()
-  const quizType = params.type as keyof typeof quizData
-  const { questions, prompts } = quizData[quizType]
   const router = useRouter()
-  const { status } = useSession()
-
-  // If user is not authenticated when starting the quiz,
-  // clear any lingering sessions to prevent auto-signin
-  useEffect(() => {
-    if (status === 'unauthenticated') {
-      signOut({ redirect: false })
-    }
-  }, [status])
+  const { status, data: session } = useSession()
+  const quizType = params.type as string
 
   const [currentQuestion, setCurrentQuestion] = useState(1)
   const [answer, setAnswer] = useState('')
@@ -222,8 +213,13 @@ export default function QuizPage() {
   const [error, setError] = useState<string | null>(null)
   const [isNavigating, setIsNavigating] = useState(false)
 
+  const quiz = quizData[quizType as keyof typeof quizData]
+  const questions = quiz?.questions ?? 0
+  const prompts = quiz?.prompts ?? []
+
   const handleNext = useCallback(async () => {
-    // Store the current answer
+    if (!quiz) return
+
     setAnswers(prev => ({
       ...prev,
       [currentQuestion]: answer
@@ -246,38 +242,28 @@ export default function QuizPage() {
           headers: {
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify({
-            quizType,
-            answers: {
-              ...answers,
-              [currentQuestion]: answer
-            }
-          }),
+          body: JSON.stringify({ 
+            answers,
+            userId: session?.user?.id
+          })
         })
 
         if (!response.ok) {
-          const errorData = await response.json()
-          if (response.status === 504) {
-            throw new Error('The request took too long to process. This usually happens when our AI is under heavy load. Please try again.')
-          }
-          throw new Error(errorData.error || 'Failed to process quiz')
+          throw new Error('Failed to process quiz')
         }
 
         const data = await response.json()
-        // Store the report ID and content in localStorage
         localStorage.setItem('lastReportId', data.reportId)
         localStorage.setItem('lastReportContent', data.reportContent)
         
-        // Redirect to auth page after quiz
         router.push('/auth/post-quiz')
       } catch (err: unknown) {
         console.error('Error processing quiz:', err)
-        setError(err instanceof Error ? err.message : 'Failed to process quiz')
-        setIsProcessing(false)
+        setError('Failed to process quiz. Please try again.')
         setIsNavigating(false)
       }
     }
-  }, [currentQuestion, questions, quizType, router, answer, answers])
+  }, [currentQuestion, questions, router, answer, answers, session, quiz])
 
   const handlePrevious = useCallback(() => {
     if (currentQuestion > 1) {
@@ -286,30 +272,46 @@ export default function QuizPage() {
         setCurrentQuestion(prev => prev - 1)
         setAnswer(answers[currentQuestion - 1] || '')
         setIsAnimating(false)
-      }, 300) // Adjust the delay as needed
+      }, 300)
     }
   }, [currentQuestion, answers])
 
-  const handleKeyDown = useCallback((e: KeyboardEvent) => {
-    if (e.key === 'Enter' && !e.shiftKey && answer.trim().length > 0 && answer.trim().split(/\s+/).length <= 100) {
-      e.preventDefault()
+  const handleKeyPress = useCallback((e: KeyboardEvent) => {
+    if (e.key === 'Enter' && !e.shiftKey && answer.trim()) {
       handleNext()
     }
   }, [answer, handleNext])
 
   useEffect(() => {
-    // Only clear stored report data when starting a new quiz
+    if (!quizData[quizType as keyof typeof quizData]) {
+      router.push('/quiz-selection')
+      return
+    }
+  }, [quizType, router])
+
+  useEffect(() => {
+    if (status === 'unauthenticated') {
+      router.push('/login')
+      return
+    }
+  }, [status, router])
+
+  useEffect(() => {
     localStorage.removeItem('lastReportId')
     localStorage.removeItem('lastReportContent')
     sessionStorage.removeItem('pendingReportContent')
   }, [])
 
   useEffect(() => {
-    window.addEventListener('keydown', handleKeyDown)
+    window.addEventListener('keydown', handleKeyPress)
     return () => {
-      window.removeEventListener('keydown', handleKeyDown)
+      window.removeEventListener('keydown', handleKeyPress)
     }
-  }, [handleKeyDown])
+  }, [handleKeyPress])
+
+  if (!quiz) {
+    return null // Will redirect in useEffect
+  }
 
   if (isProcessing) {
     return (

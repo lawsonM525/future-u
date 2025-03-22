@@ -1,35 +1,38 @@
 import { NextResponse } from 'next/server'
 import { connect } from '@/lib/mongodb'
 import { Report } from '@/models/Report'
+import { auth } from '@/app/utils/authOptions'
 
-export async function GET(request: Request) {
+export async function GET() {
   try {
-    const { searchParams } = new URL(request.url)
-    const reportId = searchParams.get('id')
-
-    if (!reportId) {
+    const session = await auth()
+    if (!session?.user?.id) {
       return NextResponse.json(
-        { error: 'Report ID is required' },
-        { status: 400 }
+        { error: 'Authentication required' },
+        { status: 401 }
       )
     }
 
     // Connect to MongoDB
     await connect()
 
-    // Find the report
-    const report = await Report.findById(reportId)
+    // Find the most recent report for this user
+    const report = await Report.findOne({ 
+      userId: session.user.id 
+    }).sort({ createdAt: -1 })
     
     if (!report) {
       return NextResponse.json(
-        { error: 'Report not found. Please complete the quiz first.' },
+        { error: 'No reports found. Please complete a quiz first.' },
         { status: 404 }
       )
     }
 
     return NextResponse.json({
-      content: report.data,
-      careers: report.careers
+      report: {
+        content: report.content,
+        createdAt: report.createdAt
+      }
     })
   } catch (error) {
     console.error('Error fetching report:', error)
