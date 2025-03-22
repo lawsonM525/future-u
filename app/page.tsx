@@ -10,36 +10,64 @@ export default function LandingPage() {
   return (
     <div className="min-h-screen flex flex-col items-center justify-center p-4 animate-fade-in">
       <div className="fixed top-4 right-4 flex gap-4">
-        {session ? (
-          <>
-            <span className="self-center font-medium">
-              Welcome, {session.user?.name || 'User'}
-            </span>
-            <Button 
-              variant="outline"
-              size="lg"
-              className="font-semibold"
-              onClick={() => signOut()}
-            >
-              Sign Out
-            </Button>
-          </>
-        ) : null}
+        {session && (
+          <Button 
+            variant="outline"
+            size="lg"
+            className="font-semibold"
+            onClick={() => signOut()}
+          >
+            Sign Out
+          </Button>
+        )}
       </div>
 
-      <h1 className="text-4xl font-bold mb-6 animate-slide-up">Welcome to Future U</h1>
-      <p className="text-xl mb-8 text-center max-w-2xl animate-slide-up">
-        Your Future, Mapped Out.
-      </p>
-      <Link href="/quiz-selection">
-        <Button 
-          variant="yellow"
-          size="lg" 
-          className="animate-slide-up font-bold"
-        >
-          Start Your Journey
-        </Button>
-      </Link>
+      {session ? (
+        <>
+          <h1 className="text-4xl font-bold mb-6 animate-slide-up">
+            Welcome back, {session.user?.name?.split(' ')[0] || 'User'}
+          </h1>
+          <p className="text-xl mb-8 text-center max-w-2xl animate-slide-up">
+            Ready to review your career strategy?
+          </p>
+          <div className="flex flex-col gap-4 items-center animate-slide-up">
+            <Link href="/report/strategy">
+              <Button 
+                variant="yellow"
+                size="lg" 
+                className="font-bold"
+              >
+                View Your Strategy
+              </Button>
+            </Link>
+            <Link href="/quiz-selection">
+              <Button 
+                variant="outline"
+                size="lg" 
+                className="font-bold"
+              >
+                Take Quiz Again
+              </Button>
+            </Link>
+          </div>
+        </>
+      ) : (
+        <>
+          <h1 className="text-4xl font-bold mb-6 animate-slide-up">Welcome to Future U</h1>
+          <p className="text-xl mb-8 text-center max-w-2xl animate-slide-up">
+            Your Future, Mapped Out.
+          </p>
+          <Link href="/quiz-selection">
+            <Button 
+              variant="yellow"
+              size="lg" 
+              className="animate-slide-up font-bold"
+            >
+              Start Your Journey
+            </Button>
+          </Link>
+        </>
+      )}
     </div>
   )
 }

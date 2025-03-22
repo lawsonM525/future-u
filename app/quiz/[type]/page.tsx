@@ -254,12 +254,11 @@ export default function QuizPage() {
         }
 
         const data = await response.json()
-        if (!data.reportId) {
-          throw new Error('No report ID received')
-        }
-
-        setIsNavigating(true)
-        await router.push(`/report/${quizType}?id=${data.reportId}`)
+        // Store the report ID in localStorage
+        localStorage.setItem('lastReportId', data.reportId)
+        
+        // Redirect to auth page after quiz
+        router.push('/auth/post-quiz')
       } catch (err: unknown) {
         console.error('Error processing quiz:', err)
         setError(err instanceof Error ? err.message : 'Failed to process quiz')

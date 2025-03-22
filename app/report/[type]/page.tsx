@@ -1,34 +1,46 @@
-"use client"
+'use client'
 
-import { useState, useEffect } from 'react'
-import { useSearchParams } from 'next/navigation'
+import { useEffect, useState } from 'react'
+import { useRouter } from 'next/navigation'
+import { useSession } from 'next-auth/react'
+import ReactMarkdown from 'react-markdown'
+import remarkGfm from 'remark-gfm'
 import { Button } from '@/components/ui/button'
+import Link from 'next/link'
 
-export default function ReportPage() {
-  const searchParams = useSearchParams()
-  const reportId = searchParams.get('id')
-  const [report, setReport] = useState<string | null>(null)
-  const [careers, setCareers] = useState<string | null>(null)
-  const [showCareers, setShowCareers] = useState(false)
+interface Report {
+  content: string
+}
+
+export default function ReportPage({ params }: { params: { type: string } }) {
+  const router = useRouter()
+  const { data: session, status } = useSession()
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [report, setReport] = useState<Report | null>(null)
 
   useEffect(() => {
-    const fetchReport = async () => {
+    // Check authentication
+    if (status === 'unauthenticated') {
+      router.push('/login?redirect=' + encodeURIComponent('/report/' + params.type))
+      return
+    }
+
+    const reportId = localStorage.getItem('lastReportId')
+    if (!reportId) {
+      setError('No report found. Please take the quiz first.')
+      setLoading(false)
+      return
+    }
+
+    async function fetchReport() {
       try {
-        if (!reportId) {
-          throw new Error('No report ID provided')
-        }
-
         const response = await fetch(`/api/get-report?id=${reportId}`)
-        const data = await response.json()
-
         if (!response.ok) {
-          throw new Error(data.error || 'Failed to fetch report')
+          throw new Error('Failed to load report')
         }
-
-        setReport(data.report)
-        setCareers(data.careers)
+        const data = await response.json()
+        setReport(data)
       } catch (error) {
         console.error('Error fetching report:', error)
         setError(error instanceof Error ? error.message : 'Failed to load report')
@@ -37,57 +49,85 @@ export default function ReportPage() {
       }
     }
 
-    fetchReport()
-  }, [reportId])
+    if (status === 'authenticated') {
+      fetchReport()
+    }
+  }, [params.type, router, status])
 
-  if (loading) {
-    return <div className="min-h-screen p-4">Loading your personalized report...</div>
+  if (status === 'loading' || loading) {
+    return (
+      <div className="min-h-screen p-8 max-w-4xl mx-auto">
+        <div className="animate-pulse space-y-4">
+          <div className="h-8 bg-gray-200 rounded w-3/4"></div>
+          <div className="h-4 bg-gray-200 rounded w-1/2"></div>
+          <div className="space-y-3">
+            <div className="h-4 bg-gray-200 rounded"></div>
+            <div className="h-4 bg-gray-200 rounded"></div>
+            <div className="h-4 bg-gray-200 rounded"></div>
+          </div>
+        </div>
+      </div>
+    )
   }
 
   if (error) {
     return (
-      <div className="min-h-screen p-4">
-        <h1 className="text-3xl font-bold mb-6">Your Career Report</h1>
-        <p className="text-red-500">{error}</p>
+      <div className="min-h-screen p-8 max-w-4xl mx-auto">
+        <h1 className="text-3xl font-bold mb-6">Your Career Strategy</h1>
+        <div className="bg-red-50 dark:bg-red-900/20 p-4 rounded-lg">
+          <p className="text-red-600 dark:text-red-400">{error}</p>
+          <Link href="/quiz-selection" className="mt-4 inline-block">
+            <Button variant="yellow">Take the Quiz</Button>
+          </Link>
+        </div>
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen p-4">
-      <h1 className="text-3xl font-bold mb-6">Your Career Report</h1>
+    <div className="min-h-screen p-8 max-w-4xl mx-auto">
+      <h1 className="text-3xl font-bold mb-6">Your Career Strategy</h1>
       
-      <div className="space-y-4">
-        {showCareers ? (
-          <div className="prose max-w-none bg-muted p-4 rounded-lg">
-            <h2 className="text-xl font-semibold mb-4">Relevant Career Data</h2>
-            {careers?.split('\n').map((paragraph, index) => (
-              <p key={index}>{paragraph}</p>
-            ))}
-          </div>
-        ) : (
-          <div className="prose max-w-none">
-            {report?.split('\n').map((paragraph, index) => (
-              <p key={index}>{paragraph}</p>
-            ))}
+      <div className="prose dark:prose-invert max-w-none">
+        {session?.user && (
+          <div className="text-sm text-gray-500 dark:text-gray-400 mb-6">
+            Prepared for {session.user.name}
           </div>
         )}
-        
-        <div className="flex gap-4 items-center mt-8">
-          <Button 
-            variant="yellow" 
-            className="font-bold"
-            onClick={() => window.print()}
-          >
-            Download PDF Report
-          </Button>
-          <Button
-            variant="outline"
-            onClick={() => setShowCareers(!showCareers)}
-          >
-            {showCareers ? 'Show Full Report' : 'Show Relevant Data Selected'}
-          </Button>
-        </div>
+        <ReactMarkdown 
+          remarkPlugins={[remarkGfm]}
+          components={{
+            // eslint-disable-next-line @typescript-eslint/no-unused-vars
+            h1: ({children, ...props}) => <h1 className="text-2xl font-bold mt-8 mb-4" {...props}>{children}</h1>,
+            // eslint-disable-next-line @typescript-eslint/no-unused-vars
+            h2: ({children, ...props}) => <h2 className="text-xl font-bold mt-6 mb-3" {...props}>{children}</h2>,
+            // eslint-disable-next-line @typescript-eslint/no-unused-vars
+            h3: ({children, ...props}) => <h3 className="text-lg font-bold mt-4 mb-2" {...props}>{children}</h3>,
+            // eslint-disable-next-line @typescript-eslint/no-unused-vars
+            p: ({children, ...props}) => <p className="mb-4 leading-relaxed" {...props}>{children}</p>,
+            // eslint-disable-next-line @typescript-eslint/no-unused-vars
+            ul: ({children, ...props}) => <ul className="list-disc pl-6 mb-4" {...props}>{children}</ul>,
+            // eslint-disable-next-line @typescript-eslint/no-unused-vars
+            ol: ({children, ...props}) => <ol className="list-decimal pl-6 mb-4" {...props}>{children}</ol>,
+            // eslint-disable-next-line @typescript-eslint/no-unused-vars
+            li: ({children, ...props}) => <li className="mb-2" {...props}>{children}</li>,
+            // eslint-disable-next-line @typescript-eslint/no-unused-vars
+            blockquote: ({children, ...props}) => (
+              <blockquote className="border-l-4 border-yellow-500 pl-4 italic my-4" {...props}>{children}</blockquote>
+            ),
+          }}
+        >
+          {report?.content || ''}
+        </ReactMarkdown>
+      </div>
+
+      <div className="mt-8 flex gap-4">
+        <Link href="/">
+          <Button variant="outline">Back to Home</Button>
+        </Link>
+        <Link href="/quiz-selection">
+          <Button variant="yellow">Take Quiz Again</Button>
+        </Link>
       </div>
     </div>
   )
