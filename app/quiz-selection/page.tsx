@@ -43,8 +43,14 @@ export default function QuizSelection() {
           </Card>
         ))}
       </div>
-      <Link href="/" className="text-yellow-500 hover:text-yellow-400 transition-colors animate-slide-up" style={{animationDelay: '0.3s'}}>
-        ← Go Back
-      </Link>    </div>
+      <div className="flex flex-col items-center gap-4 animate-slide-up" style={{animationDelay: '0.3s'}}>
+        <Link href="/login" className="text-yellow-500 hover:text-yellow-400 transition-colors font-medium">
+          Already taken the quiz? Sign in.
+        </Link>
+        <Link href="/" className="text-gray-500 hover:text-gray-400 transition-colors">
+          ← Go Back
+        </Link>
+      </div>
+    </div>
   )
 }

@@ -24,28 +24,7 @@ export default function LandingPage() {
               Sign Out
             </Button>
           </>
-        ) : (
-          <>
-            <Link href="/login">
-              <Button 
-                variant="outline"
-                size="lg"
-                className="font-semibold"
-              >
-                Sign In
-              </Button>
-            </Link>
-            <Link href="/signup">
-              <Button 
-                variant="yellow"
-                size="lg"
-                className="font-semibold"
-              >
-                Sign Up
-              </Button>
-            </Link>
-          </>
-        )}
+        ) : null}
       </div>
 
       <h1 className="text-4xl font-bold mb-6 animate-slide-up">Welcome to Future U</h1>
