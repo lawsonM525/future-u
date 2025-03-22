@@ -11,7 +11,6 @@ export default function LoginPage() {
   const searchParams = useSearchParams()
   const { data: session } = useSession()
   const [loading, setLoading] = useState(false)
-  const [error, setError] = useState('')
   const redirect = searchParams.get('redirect') || '/'
   const isPostQuiz = redirect.includes('/report/strategy')
 
@@ -27,8 +26,7 @@ export default function LoginPage() {
       await signIn('google', { 
         callbackUrl: redirect
       })
-    } catch (error) {
-      setError('Failed to sign in with Google')
+    } catch {
       setLoading(false)
     }
   }
@@ -65,17 +63,6 @@ export default function LoginPage() {
             Sign up
           </Link>
         </div>
-
-        {error && (
-          <div className="text-center mt-4">
-            <p className="text-red-500">{error}</p>
-            {error.includes('Failed to sign in') && (
-              <Link href="/signup" className="text-blue-600 hover:underline mt-2 inline-block">
-                Create an account instead
-              </Link>
-            )}
-          </div>
-        )}
       </div>
     </div>
   )

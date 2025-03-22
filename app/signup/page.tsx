@@ -11,7 +11,6 @@ export default function SignupPage() {
   const searchParams = useSearchParams()
   const { data: session } = useSession()
   const [loading, setLoading] = useState(false)
-  const [error, setError] = useState('')
   const redirect = searchParams.get('redirect') || '/'
   const isPostQuiz = redirect.includes('/report/strategy')
 
@@ -27,8 +26,7 @@ export default function SignupPage() {
       await signIn('google', { 
         callbackUrl: redirect
       })
-    } catch (error) {
-      setError('Failed to sign up with Google')
+    } catch {
       setLoading(false)
     }
   }
@@ -65,10 +63,6 @@ export default function SignupPage() {
             Sign in
           </Link>
         </div>
-
-        {error && (
-          <p className="text-red-500 text-center mt-4">{error}</p>
-        )}
       </div>
     </div>
   )

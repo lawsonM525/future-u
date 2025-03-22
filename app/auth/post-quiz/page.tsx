@@ -9,7 +9,6 @@ import { Button } from '@/components/ui/button'
 export default function PostQuizAuthPage() {
   const router = useRouter()
   const [loading, setLoading] = useState(false)
-  const [error, setError] = useState('')
 
   // Ensure we have a report to show
   useEffect(() => {
@@ -25,8 +24,7 @@ export default function PostQuizAuthPage() {
       await signIn('google', { 
         callbackUrl: '/report/strategy'
       })
-    } catch (error) {
-      setError('Failed to sign in with Google')
+    } catch {
       setLoading(false)
     }
   }
@@ -73,12 +71,6 @@ export default function PostQuizAuthPage() {
             Sign in with Google
           </Button>
         </div>
-
-        {error && (
-          <div className="text-center mt-4">
-            <p className="text-red-500">{error}</p>
-          </div>
-        )}
       </div>
     </div>
   )
