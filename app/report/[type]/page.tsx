@@ -29,6 +29,38 @@ export default function ReportPage({ params }: { params: { type: string } }) {
   const [report, setReport] = useState<Report | null>(null)
 
   useEffect(() => {
+    const sendPendingReport = async () => {
+      const pendingReportContent = sessionStorage.getItem('pendingReportContent')
+      const reportId = localStorage.getItem('lastReportId')
+      
+      if (pendingReportContent && reportId && session?.user?.email && session?.user?.name) {
+        try {
+          const response = await fetch('/api/send-report', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ reportId }),
+          })
+
+          if (!response.ok) {
+            console.error('Failed to send report email')
+          }
+        } catch (error) {
+          console.error('Error sending report:', error)
+        } finally {
+          // Clear the pending report even if sending failed
+          sessionStorage.removeItem('pendingReportContent')
+        }
+      }
+    }
+
+    if (status === 'authenticated') {
+      sendPendingReport()
+    }
+  }, [status, session])
+
+  useEffect(() => {
     // Check authentication
     if (status === 'unauthenticated') {
       router.push('/login?redirect=' + encodeURIComponent('/report/' + params.type))
@@ -166,6 +198,37 @@ export default function ReportPage({ params }: { params: { type: string } }) {
         <Link href="/quiz-selection">
           <Button variant="yellow">Take Quiz Again</Button>
         </Link>
+        <Button 
+          variant="outline" 
+          className="ml-auto"
+          onClick={async () => {
+            try {
+              const reportId = localStorage.getItem('lastReportId')
+              if (!reportId) {
+                throw new Error('No report found')
+              }
+              
+              const response = await fetch('/api/send-report', {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ reportId }),
+              })
+              
+              if (!response.ok) {
+                throw new Error('Failed to send report')
+              }
+              
+              alert('Report sent to your email!')
+            } catch (error) {
+              console.error('Error sending report:', error)
+              alert('Failed to send report. Please try again.')
+            }
+          }}
+        >
+          Email Report
+        </Button>
       </div>
     </div>
   )

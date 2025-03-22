@@ -95,7 +95,7 @@ export async function POST(request: Request) {
         .join('\n')
 
       const completion = await openai.chat.completions.create({
-        model: "gpt-4o",
+        model: "gpt-4",
         messages: [
           {
             role: "system",
@@ -128,10 +128,12 @@ Please ensure each stage includes:
         ]
       }, { signal: controller.signal })
 
+      const reportContent = completion.choices[0].message.content
+
       try {
         // Store report in MongoDB
         const report = await Report.create({
-          data: completion.choices[0].message.content,
+          data: reportContent,
           careers: relevantCareers || ''
         })
 
@@ -139,6 +141,7 @@ Please ensure each stage includes:
 
         return NextResponse.json({ 
           reportId: report._id.toString(),
+          reportContent, 
           relevantCareers
         })
       } catch (dbError) {
@@ -150,17 +153,16 @@ Please ensure each stage includes:
       clearTimeout(timeoutId)
       if (err instanceof Error && err.name === 'AbortError') {
         return NextResponse.json(
-          { error: 'Request timed out. Please try again.' },
+          { error: 'Request timed out' },
           { status: 408 }
         )
       }
       throw err
     }
-
   } catch (error) {
-    console.error('Error processing quiz:', error)
+    console.error('Processing error:', error)
     return NextResponse.json(
-      { error: `Error processing quiz: ${error instanceof Error ? error.message : 'Unknown error'}` },
+      { error: 'Failed to process quiz' },
       { status: 500 }
     )
   }

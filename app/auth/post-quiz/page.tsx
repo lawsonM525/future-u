@@ -13,7 +13,8 @@ export default function PostQuizAuthPage() {
   // Ensure we have a report to show
   useEffect(() => {
     const reportId = localStorage.getItem('lastReportId')
-    if (!reportId) {
+    const reportContent = localStorage.getItem('lastReportContent')
+    if (!reportId || !reportContent) {
       router.push('/quiz-selection')
     }
   }, [router])
@@ -21,6 +22,12 @@ export default function PostQuizAuthPage() {
   const handleGoogleSignIn = async () => {
     setLoading(true)
     try {
+      // Store the report content in sessionStorage so we can access it after auth
+      const reportContent = localStorage.getItem('lastReportContent')
+      if (reportContent) {
+        sessionStorage.setItem('pendingReportContent', reportContent)
+      }
+      
       await signIn('google', { 
         callbackUrl: '/report/strategy'
       })
@@ -36,7 +43,7 @@ export default function PostQuizAuthPage() {
           <h1 className="text-2xl font-bold mb-2">Your Career Strategy is Ready!</h1>
           <p className="text-gray-600 dark:text-gray-400 mb-8">
             We&apos;ve analyzed your responses and prepared a personalized career strategy for you. 
-            To view your results, please create an account or sign in.
+            To view your results and receive them by email, please create an account or sign in.
           </p>
         </div>
 
@@ -53,19 +60,17 @@ export default function PostQuizAuthPage() {
 
           <div className="relative">
             <div className="absolute inset-0 flex items-center">
-              <div className="w-full border-t border-gray-300 dark:border-gray-700"></div>
+              <span className="w-full border-t" />
             </div>
-            <div className="relative flex justify-center text-sm">
-              <span className="px-2 bg-background text-gray-500">
-                Already have an account?
-              </span>
+            <div className="relative flex justify-center text-xs uppercase">
+              <span className="bg-background px-2 text-muted-foreground">Or</span>
             </div>
           </div>
 
           <Button
             variant="outline"
-            className="w-full font-semibold"
             onClick={handleGoogleSignIn}
+            className="w-full py-6 text-lg font-semibold"
             disabled={loading}
           >
             Sign in with Google

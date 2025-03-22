@@ -254,8 +254,9 @@ export default function QuizPage() {
         }
 
         const data = await response.json()
-        // Store the report ID in localStorage
+        // Store the report ID and content in localStorage
         localStorage.setItem('lastReportId', data.reportId)
+        localStorage.setItem('lastReportContent', data.reportContent)
         
         // Redirect to auth page after quiz
         router.push('/auth/post-quiz')
