@@ -8,8 +8,17 @@ import remarkGfm from 'remark-gfm'
 import { Button } from '@/components/ui/button'
 import Link from 'next/link'
 
+interface Career {
+  id: string
+  score: number
+  metadata: {
+    text: string
+  }
+}
+
 interface Report {
   content: string
+  careers?: Career[]
 }
 
 export default function ReportPage({ params }: { params: { type: string } }) {
@@ -40,7 +49,20 @@ export default function ReportPage({ params }: { params: { type: string } }) {
           throw new Error('Failed to load report')
         }
         const data = await response.json()
-        setReport(data)
+        console.log('Raw API response:', data) // Debug log
+        
+        // Ensure data has the correct structure
+        if (!data.content) {
+          throw new Error('Invalid report format: missing content')
+        }
+        
+        // Convert careers to array if it's not already
+        const careers = Array.isArray(data.careers) ? data.careers : []
+        
+        setReport({
+          content: data.content,
+          careers: careers
+        })
       } catch (error) {
         console.error('Error fetching report:', error)
         setError(error instanceof Error ? error.message : 'Failed to load report')
@@ -119,6 +141,22 @@ export default function ReportPage({ params }: { params: { type: string } }) {
         >
           {report?.content || ''}
         </ReactMarkdown>
+
+        {report?.careers && report.careers.length > 0 && (
+          <div className="mt-8">
+            <h2 className="text-xl font-bold mb-4">Similar Career Paths</h2>
+            <ul className="space-y-4">
+              {report.careers.map((career: Career) => (
+                <li key={career.id} className="bg-gray-50 dark:bg-gray-900/50 p-4 rounded-lg">
+                  <p className="text-sm">{career.metadata.text}</p>
+                  <div className="mt-2 text-xs text-gray-500">
+                    Match Score: {Math.round(career.score * 100)}%
+                  </div>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
       </div>
 
       <div className="mt-8 flex gap-4">

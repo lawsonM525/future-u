@@ -1,3 +1,6 @@
 {
-    "gitdoc.enabled": true
+    "gitdoc.enabled": true,
+    "gitdoc.ai.enabled": true,
+    "gitdoc.ai.customInstructions": "lowercase messages with simple language",
+    "github.copilot.editor.enableAutoCompletions": false
 }

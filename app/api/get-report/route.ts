@@ -28,7 +28,7 @@ export async function GET(request: Request) {
     }
 
     return NextResponse.json({
-      report: report.data,
+      content: report.data,
       careers: report.careers
     })
   } catch (error) {
