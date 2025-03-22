@@ -202,7 +202,7 @@ const quizData = {
 export default function QuizPage() {
   const params = useParams()
   const router = useRouter()
-  const { status, data: session } = useSession()
+  const { data: session } = useSession()
   const quizType = params.type as string
 
   const [currentQuestion, setCurrentQuestion] = useState(1)
@@ -211,7 +211,6 @@ export default function QuizPage() {
   const [answers, setAnswers] = useState<Record<number, string>>({})
   const [isProcessing, setIsProcessing] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const [isNavigating, setIsNavigating] = useState(false)
 
   const quiz = quizData[quizType as keyof typeof quizData]
   const questions = quiz?.questions ?? 0
@@ -237,6 +236,12 @@ export default function QuizPage() {
       setError(null)
       
       try {
+        if (!session?.user?.id) {
+          const encodedAnswers = encodeURIComponent(JSON.stringify(answers))
+          router.push(`/auth/post-quiz?answers=${encodedAnswers}&quizType=${quizType}`)
+          return
+        }
+
         const response = await fetch('/api/process-quiz', {
           method: 'POST',
           headers: {
@@ -244,7 +249,7 @@ export default function QuizPage() {
           },
           body: JSON.stringify({ 
             answers,
-            userId: session?.user?.id
+            userId: session.user.id
           })
         })
 
@@ -253,17 +258,15 @@ export default function QuizPage() {
         }
 
         const data = await response.json()
-        localStorage.setItem('lastReportId', data.reportId)
-        localStorage.setItem('lastReportContent', data.reportContent)
-        
-        router.push('/auth/post-quiz')
-      } catch (err: unknown) {
-        console.error('Error processing quiz:', err)
+        router.push(`/report/${data.reportId}`)
+      } catch (error) {
+        console.error('Error processing quiz:', error)
         setError('Failed to process quiz. Please try again.')
-        setIsNavigating(false)
+      } finally {
+        setIsProcessing(false)
       }
     }
-  }, [currentQuestion, questions, router, answer, answers, session, quiz])
+  }, [currentQuestion, answer, answers, quiz, questions, session, router, quizType])
 
   const handlePrevious = useCallback(() => {
     if (currentQuestion > 1) {
@@ -290,13 +293,6 @@ export default function QuizPage() {
   }, [quizType, router])
 
   useEffect(() => {
-    if (status === 'unauthenticated') {
-      router.push('/login')
-      return
-    }
-  }, [status, router])
-
-  useEffect(() => {
     localStorage.removeItem('lastReportId')
     localStorage.removeItem('lastReportContent')
     sessionStorage.removeItem('pendingReportContent')
@@ -320,12 +316,10 @@ export default function QuizPage() {
           <>
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-accent"></div>
             <h2 className="text-2xl font-bold text-center">
-              {isNavigating ? 'Taking you to your results...' : 'Processing Your Responses'}
+              Processing Your Responses
             </h2>
             <p className="text-center text-muted-foreground">
-              {isNavigating 
-                ? 'Almost there!'
-                : 'This may take a minute while we analyze your answers and generate personalized career insights...'}
+              This may take a minute while we analyze your answers and generate personalized career insights...
             </p>
           </>
         ) : (
