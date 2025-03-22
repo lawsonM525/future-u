@@ -3,6 +3,7 @@ import { ThemeProvider } from '@/components/theme-provider'
 import './globals.css'
 import { Providers } from './providers'
 import { ToastContainer } from '@/components/ui/toast'
+import { Footer } from '@/components/Footer'
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -18,10 +19,13 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={`${inter.className} bg-background text-foreground`}>
+      <body className={`${inter.className} bg-background text-foreground min-h-screen flex flex-col`}>
         <ThemeProvider attribute="class" defaultTheme="dark">
           <Providers>
-            {children}
+            <main className="flex-1">
+              {children}
+            </main>
+            <Footer />
             <ToastContainer />
           </Providers>
         </ThemeProvider>

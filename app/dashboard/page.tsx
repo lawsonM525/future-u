@@ -33,7 +33,7 @@ export default async function DashboardPage() {
   ]
 
   return (
-    <div className="min-h-screen bg-zinc-950 text-zinc-400">
+    <div className="min-h-screen background text-zinc-400">
       <div className="container mx-auto px-4 py-8">
         {/* Header Section */}
         <div className="flex items-center justify-between mb-12 bg-zinc-900 rounded-lg p-6">
