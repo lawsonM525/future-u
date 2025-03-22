@@ -46,16 +46,15 @@ export async function POST(request: Request) {
         <head>
           <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
           <style>
-            /* Control page breaks */
             @page {
               margin: 0;
               size: A4;
             }
-
+            
             * {
               box-sizing: border-box;
             }
-
+            
             html, body {
               margin: 0;
               padding: 0;
@@ -67,92 +66,91 @@ export async function POST(request: Request) {
               color: #A1A1AA;
               font-family: 'Inter', system-ui, -apple-system, sans-serif;
               line-height: 1.6;
-              display: flex;
-              flex-direction: column;
             }
-
+            
             .container {
               width: 100%;
               max-width: 100%;
               margin: 0 auto;
               background-color: #18181B;
-              padding: 5rem 4rem;
-              flex: 1;
+              padding: 60px 50px;
             }
-
+            
             .header {
-              margin-bottom: 3rem;
+              margin-bottom: 40px;
             }
-
+            
             .title {
               color: #FACC15;
-              font-size: 2rem;
+              font-size: 28px;
               font-weight: 700;
-              margin-bottom: 0.75rem;
+              margin-bottom: 10px;
             }
-
+            
             .subtitle {
               color: #71717A;
-              font-size: 1rem;
+              font-size: 16px;
             }
-
+            
             .content {
               color: #A1A1AA;
             }
-
-            /* Keep headings with their content */
-            .section-wrapper {
-              break-inside: avoid-page;
-              page-break-inside: avoid;
-              margin-bottom: 2.5rem;
-            }
-
-            /* Prevent unwanted breaks */
+            
             h1, h2, h3, h4, h5, h6 {
-              break-after: avoid;
-              break-inside: avoid;
-              page-break-after: avoid;
-              page-break-inside: avoid;
               color: #FACC15;
               font-weight: 600;
-              margin-top: 2.5rem;
-              margin-bottom: 1.25rem;
+              margin-top: 40px;
+              margin-bottom: 20px;
+              page-break-after: avoid;
+              page-break-inside: avoid;
             }
-
-            h1 { font-size: 1.75rem; }
-            h2 { font-size: 1.5rem; }
-            h3 { font-size: 1.25rem; }
-
+            
+            h1 { font-size: 24px; }
+            h2 { font-size: 22px; }
+            h3 { font-size: 20px; }
+            
+            h2 + p, h3 + p, h2 + ul, h3 + ul {
+              page-break-before: avoid;
+            }
+            
             ul, ol {
-              break-inside: avoid-page;
-              page-break-inside: avoid;
               list-style-type: disc;
-              padding-left: 1.5rem;
-              margin: 1.25rem 0;
-            }
-
-            li {
-              break-inside: avoid;
+              padding-left: 25px;
+              margin: 20px 0;
               page-break-inside: avoid;
-              margin: 0.75rem 0;
-              color: #A1A1AA;
             }
-
+            
+            li {
+              margin: 12px 0;
+              color: #A1A1AA;
+              page-break-inside: avoid;
+            }
+            
             p {
+              margin: 20px 0;
+              color: #A1A1AA;
               orphans: 4;
               widows: 4;
-              margin: 1.25rem 0;
-              color: #A1A1AA;
             }
-
+            
             strong, b {
               color: #FACC15;
               font-weight: 600;
             }
-
+            
             em, i {
               font-style: italic;
               color: #D4D4D8;
+            }
+            
+            /* Force page breaks before major sections */
+            h2 {
+              page-break-before: always;
+            }
+            
+            /* But don't force a page break for the first h2 */
+            h2:first-of-type {
+              page-break-before: avoid;
             }
           </style>
         </head>
@@ -175,36 +173,7 @@ export async function POST(request: Request) {
     // Set content and generate PDF
     await page.setContent(html)
     
-    // Process the HTML to wrap sections with their headings
-    await page.evaluate(() => {
-      // Find all h2 and h3 headings
-      const headings = document.querySelectorAll('h2, h3');
-      
-      // For each heading, wrap it and its content until the next heading
-      headings.forEach((heading) => {
-        // Create a wrapper div
-        const wrapper = document.createElement('div');
-        wrapper.className = 'section-wrapper';
-        
-        // Insert the wrapper before the heading
-        if (heading.parentNode) {
-          heading.parentNode.insertBefore(wrapper, heading);
-          
-          // Move the heading into the wrapper
-          wrapper.appendChild(heading);
-          
-          // Move all siblings until the next heading into the wrapper
-          let nextSibling = wrapper.nextSibling;
-          while (nextSibling && !['H2', 'H3'].includes(nextSibling.nodeName)) {
-            const current = nextSibling;
-            nextSibling = nextSibling.nextSibling;
-            wrapper.appendChild(current);
-          }
-        }
-      });
-    });
-    
-    // Wait for fonts to load and DOM manipulation to complete
+    // Wait for fonts to load
     await new Promise(resolve => setTimeout(resolve, 2000))
 
     // Generate PDF with adjusted options
@@ -213,7 +182,6 @@ export async function POST(request: Request) {
       printBackground: true,
       preferCSSPageSize: true,
       displayHeaderFooter: false,
-      scale: 0.9, // Slightly scale down content to fit better
       margin: {
         top: '0',
         right: '0',
