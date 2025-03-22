@@ -1,44 +1,69 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { signIn, useSession } from 'next-auth/react'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 
 export default function PostQuizAuthPage() {
   const router = useRouter()
+  const searchParams = useSearchParams()
   const [loading, setLoading] = useState(false)
   const { status } = useSession()
 
-  // Ensure we have a report to show
+  // Get quiz answers and type from URL params
+  const answers = searchParams.get('answers')
+  const quizType = searchParams.get('quizType')
+
+  // Ensure we have quiz answers
   useEffect(() => {
-    const reportId = localStorage.getItem('lastReportId')
-    const reportContent = localStorage.getItem('lastReportContent')
-    if (!reportId || !reportContent) {
+    if (!answers || !quizType) {
       router.push('/quiz-selection')
       return
     }
 
-    // If user is already authenticated, go straight to report
+    // If user is already authenticated, process the quiz
     if (status === 'authenticated') {
-      // Store report content for email sending
-      sessionStorage.setItem('pendingReportContent', reportContent)
-      router.push('/report/strategy')
+      handleQuizSubmission()
     }
-  }, [router, status])
+  }, [router, status, answers, quizType])
+
+  const handleQuizSubmission = async () => {
+    if (!answers || !quizType) return
+
+    try {
+      const response = await fetch('/api/process-quiz', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          answers: JSON.parse(decodeURIComponent(answers)),
+          quizType
+        })
+      })
+
+      if (!response.ok) {
+        throw new Error('Failed to process quiz')
+      }
+
+      const data = await response.json()
+      router.push(`/report/${data.reportId}`)
+    } catch (error) {
+      console.error('Error processing quiz:', error)
+      router.push('/quiz-selection')
+    }
+  }
 
   const handleGoogleSignIn = async () => {
+    if (!answers || !quizType) return
+    
     setLoading(true)
     try {
-      // Store the report content in sessionStorage so we can access it after auth
-      const reportContent = localStorage.getItem('lastReportContent')
-      if (reportContent) {
-        sessionStorage.setItem('pendingReportContent', reportContent)
-      }
-      
+      // Keep the quiz answers in the URL during authentication
       await signIn('google', { 
-        callbackUrl: '/report/strategy'
+        callbackUrl: `/auth/post-quiz?answers=${answers}&quizType=${quizType}`
       })
     } catch {
       setLoading(false)
@@ -49,44 +74,36 @@ export default function PostQuizAuthPage() {
   if (status === 'authenticated') return null
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center p-4">
-      <div className="w-full max-w-md space-y-8">
+    <div className="min-h-screen flex flex-col items-center justify-center p-4 animate-fade-in">
+      <div className="max-w-md w-full space-y-8 bg-zinc-900 p-8 rounded-lg shadow-lg">
         <div className="text-center">
-          <h1 className="text-2xl font-bold mb-2">Your Career Strategy is Ready!</h1>
-          <p className="text-gray-600 dark:text-gray-400 mb-8">
-            We&apos;ve analyzed your responses and prepared a personalized career strategy for you. 
-            To view your results and receive them by email, please create an account or sign in.
+          <h2 className="text-3xl font-bold text-yellow-400 mb-2">
+            Your Career Report is Ready!
+          </h2>
+          <p className="text-zinc-400 mb-6">
+            Sign in to view your personalized career insights and recommendations.
           </p>
         </div>
 
         <div className="space-y-4">
-          <Link href="/signup?redirect=/report/strategy" className="w-full">
-            <Button 
-              variant="yellow" 
-              className="w-full font-semibold text-lg py-6"
-              disabled={loading}
-            >
-              Create Account to View Results
-            </Button>
-          </Link>
-
-          <div className="relative">
-            <div className="absolute inset-0 flex items-center">
-              <span className="w-full border-t" />
-            </div>
-            <div className="relative flex justify-center text-xs uppercase">
-              <span className="bg-background px-2 text-muted-foreground">Or</span>
-            </div>
-          </div>
-
           <Button
-            variant="outline"
             onClick={handleGoogleSignIn}
-            className="w-full py-6 text-lg font-semibold"
-            disabled={loading}
+            disabled={loading || !answers || !quizType}
+            className="w-full bg-yellow-500 text-yellow-950 hover:bg-yellow-400 font-bold py-3"
           >
-            Sign in with Google
+            {loading ? 'Signing in...' : 'Sign in with Google'}
           </Button>
+
+          <p className="text-center text-sm text-zinc-500">
+            By signing in, you agree to our{' '}
+            <Link href="/terms" className="text-yellow-500 hover:text-yellow-400">
+              Terms of Service
+            </Link>{' '}
+            and{' '}
+            <Link href="/privacy" className="text-yellow-500 hover:text-yellow-400">
+              Privacy Policy
+            </Link>
+          </p>
         </div>
       </div>
     </div>
