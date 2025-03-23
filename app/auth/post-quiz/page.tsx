@@ -1,33 +1,42 @@
 'use client'
 
-import { useEffect, useState, useCallback, Suspense } from 'react'
+import { useState, useEffect, useCallback, Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { signIn, useSession } from 'next-auth/react'
 import { Button } from '@/components/ui/button'
+import { Loader2 } from 'lucide-react'
 
+// Component that uses useSearchParams must be wrapped in Suspense
 function PostQuizContent() {
+  const [isProcessing, setIsProcessing] = useState(false)
+  const [loading, setLoading] = useState(false)
   const router = useRouter()
   const searchParams = useSearchParams()
-  const [loading, setLoading] = useState(false)
-  const [isProcessing, setIsProcessing] = useState(false)
   const { status } = useSession()
-
-  // Get quiz answers and type from URL params
-  const answers = searchParams.get('answers')
-  const quizType = searchParams.get('quizType')
+  
+  const tempId = searchParams.get('tempId')
 
   const handleQuizSubmission = useCallback(async () => {
-    if (!answers || !quizType) return
-
-    setIsProcessing(true)
     try {
+      setIsProcessing(true)
+
+      // Retrieve temporary quiz data
+      const tempResponse = await fetch(`/api/get-temp-quiz?tempId=${tempId}`)
+      
+      if (!tempResponse.ok) {
+        throw new Error('Failed to retrieve quiz data')
+      }
+      
+      const { answers, quizType } = await tempResponse.json()
+
+      // Process the quiz
       const response = await fetch('/api/process-quiz', {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json',
+          'Content-Type': 'application/json'
         },
         body: JSON.stringify({
-          answers: JSON.parse(decodeURIComponent(answers)),
+          answers,
           quizType
         })
       })
@@ -41,11 +50,11 @@ function PostQuizContent() {
       console.error('Error processing quiz:', error)
       setIsProcessing(false)
     }
-  }, [answers, quizType, router])
+  }, [tempId, router])
 
   // Process quiz when authenticated and has answers
   useEffect(() => {
-    if (!answers || !quizType) {
+    if (!tempId) {
       router.push('/quiz-selection')
       return
     }
@@ -54,58 +63,53 @@ function PostQuizContent() {
     if (status === 'authenticated') {
       handleQuizSubmission()
     }
-  }, [answers, quizType, status, router, handleQuizSubmission])
+  }, [status, tempId, handleQuizSubmission, router])
 
-  const handleGoogleSignIn = async () => {
-    if (!answers || !quizType) return
-    
+  const handleSignIn = () => {
     setLoading(true)
-    try {
-      await signIn('google', { 
-        callbackUrl: window.location.href,
-        redirect: true,
-      })
-    } catch {
-      setLoading(false)
-    }
+    // Use the current URL as the callback URL to preserve the tempId parameter
+    signIn('google', { callbackUrl: window.location.href })
   }
 
-  // Don't render anything if authenticated (will redirect)
-  if (status === 'authenticated') return null
-
-  if (isProcessing) {
+  if (status === 'loading') {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center p-4 space-y-4">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-yellow-400"></div>
-        <h2 className="text-2xl font-bold text-center">
-          Processing Your Career Assessment
-        </h2>
-        <p className="text-center text-zinc-400 max-w-md">
-          Please wait while we analyze your responses and generate your personalized career strategy...
-        </p>
+      <div className="min-h-screen flex items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin text-accent" />
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center p-4 space-y-8">
-      <div className="text-center space-y-2">
-        <h2 className="text-3xl font-bold text-yellow-400 mb-2">
-          Your Career Report is Ready!
-        </h2>
-        <p className="text-zinc-400 mb-6">
-          Sign in to view your personalized career insights and recommendations.
-        </p>
-      </div>
+    <div className="min-h-screen flex flex-col items-center justify-center p-4">
+      <div className="max-w-md w-full p-6 bg-card rounded-lg shadow-lg space-y-6">
+        <div className="space-y-2 text-center">
+          <h1 className="text-3xl font-bold">Almost There!</h1>
+          <p className="text-muted-foreground">
+            Sign in to see your personalized career strategy
+          </p>
+        </div>
 
-      <div className="space-y-4">
-        <Button
-          onClick={handleGoogleSignIn}
-          disabled={loading || !answers || !quizType}
-          className="w-full bg-yellow-500 text-yellow-950 hover:bg-yellow-400 font-bold py-3"
-        >
-          {loading ? 'Signing in...' : 'Sign in with Google'}
-        </Button>
+        {isProcessing ? (
+          <div className="flex flex-col items-center justify-center space-y-4">
+            <Loader2 className="h-8 w-8 animate-spin text-accent" />
+            <p>Processing your results...</p>
+          </div>
+        ) : (
+          <Button
+            onClick={handleSignIn}
+            disabled={loading}
+            className="w-full bg-accent text-white hover:bg-accent/90"
+          >
+            {loading ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                Signing in...
+              </>
+            ) : (
+              "Sign in with Google"
+            )}
+          </Button>
+        )}
       </div>
     </div>
   )
@@ -115,7 +119,7 @@ function PostQuizContent() {
 function LoadingState() {
   return (
     <div className="min-h-screen flex items-center justify-center">
-      <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-yellow-400"></div>
+      <Loader2 className="h-8 w-8 animate-spin text-accent" />
     </div>
   )
 }

@@ -240,8 +240,24 @@ export default function QuizPage() {
       
       try {
         if (!session?.user?.id) {
-          const encodedAnswers = encodeURIComponent(JSON.stringify(answers))
-          router.push(`/auth/post-quiz?answers=${encodedAnswers}&quizType=${quizType}`)
+          // Save answers to temporary MongoDB document instead of URL
+          const saveResponse = await fetch('/api/save-temp-quiz', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+              answers: { ...answers, [currentQuestion]: answer },
+              quizType
+            })
+          })
+
+          if (!saveResponse.ok) {
+            throw new Error('Failed to save quiz data')
+          }
+
+          const { tempId } = await saveResponse.json()
+          router.push(`/auth/post-quiz?tempId=${tempId}`)
           return
         }
 

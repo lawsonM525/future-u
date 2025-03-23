@@ -44,11 +44,18 @@ export async function POST(request: Request) {
       )
     }
 
-    const { answers } = await request.json()
+    const { answers, quizType } = await request.json()
 
     if (!answers) {
       return NextResponse.json(
         { error: 'Answers are required' },
+        { status: 400 }
+      )
+    }
+
+    if (!quizType) {
+      return NextResponse.json(
+        { error: 'Quiz type is required' },
         { status: 400 }
       )
     }
@@ -134,7 +141,8 @@ Break your report into these sections:
  - Integrate data-driven advice (e.g., trending career skills, innovative industry strategies) from the relevant career context.
  - Include motivational insights that reinforce persistence and the power of recommitment.
 
-Format each section with a clear title in bold, followed by detailed explanations. Use bullet points or numbered lists where appropriate, and ensure double line breaks between sections and points for clarity.`
+Format each section with a clear title in bold, followed by detailed explanations. Use bullet points or numbered lists where appropriate, and ensure double line breaks between sections and points for clarity.
+`
           },
           {
             role: "user",
