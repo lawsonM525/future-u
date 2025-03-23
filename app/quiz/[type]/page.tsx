@@ -270,7 +270,8 @@ export default function QuizPage() {
             answers: {
               ...answers,
               [currentQuestion]: answer
-            }
+            },
+            quizType
           }),
         })
 
