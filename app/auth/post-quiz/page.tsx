@@ -1,16 +1,14 @@
 'use client'
 
-import { useEffect, useState, Suspense } from 'react'
+import { useEffect, useState, useCallback, Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { signIn, useSession } from 'next-auth/react'
-import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 
 function PostQuizContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const [loading, setLoading] = useState(false)
-  const [error, setError] = useState<string | null>(null)
   const [isProcessing, setIsProcessing] = useState(false)
   const { status } = useSession()
 
@@ -18,7 +16,7 @@ function PostQuizContent() {
   const answers = searchParams.get('answers')
   const quizType = searchParams.get('quizType')
 
-  const handleQuizSubmission = async () => {
+  const handleQuizSubmission = useCallback(async () => {
     if (!answers || !quizType) return
 
     setIsProcessing(true)
@@ -38,14 +36,12 @@ function PostQuizContent() {
         throw new Error('Failed to process quiz')
       }
 
-      const data = await response.json()
-      router.push(`/report/latest`)
+      router.push('/report/latest')
     } catch (error) {
       console.error('Error processing quiz:', error)
-      setError('Failed to process quiz')
       setIsProcessing(false)
     }
-  }
+  }, [answers, quizType, router])
 
   // Process quiz when authenticated and has answers
   useEffect(() => {
@@ -58,7 +54,7 @@ function PostQuizContent() {
     if (status === 'authenticated') {
       handleQuizSubmission()
     }
-  }, [answers, quizType, status, router])
+  }, [answers, quizType, status, router, handleQuizSubmission])
 
   const handleGoogleSignIn = async () => {
     if (!answers || !quizType) return
