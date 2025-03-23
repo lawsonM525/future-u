@@ -16,7 +16,7 @@ export function Footer() {
               </li>
               <li>
                 <Link href="/team" className="text-zinc-500 hover:text-zinc-300 text-sm font-light">
-                  Our Team
+                  The Team
                 </Link>
               </li>
               <li>
@@ -29,21 +29,16 @@ export function Footer() {
 
           {/* Resources */}
           <div className="space-y-4">
-            <h3 className="text-zinc-400 font-semibold">Resources</h3>
+            <h3 className="text-zinc-400 font-semibold">1% Better Daily</h3>
             <ul className="space-y-2">
               <li>
-                <Link href="/blog" className="text-zinc-500 hover:text-zinc-300 text-sm font-light">
-                  Blog
-                </Link>
-              </li>
-              <li>
                 <Link href="/roadmap" className="text-zinc-500 hover:text-zinc-300 text-sm font-light">
-                  Release Roadmap
+                  Future U Roadmap
                 </Link>
               </li>
               <li>
                 <Link href="/feature-requests" className="text-zinc-500 hover:text-zinc-300 text-sm font-light">
-                  Feature Requests
+                  Request a feature
                 </Link>
               </li>
             </ul>
@@ -55,7 +50,7 @@ export function Footer() {
             <ul className="space-y-2">
               <li>
                 <Link href="/contact" className="text-zinc-500 hover:text-zinc-300 text-sm font-light">
-                  Contact Us
+                  Shoot us a message
                 </Link>
               </li>
               <li>
@@ -63,28 +58,15 @@ export function Footer() {
                   FAQ
                 </Link>
               </li>
-              <li>
-                <Link href="/help" className="text-zinc-500 hover:text-zinc-300 text-sm font-light">
-                  Help Center
-                </Link>
-              </li>
+              
             </ul>
           </div>
 
           {/* Legal */}
           <div className="space-y-4">
-            <h3 className="text-zinc-400 font-semibold">Legal</h3>
+            <h3 className="text-zinc-400 font-semibold">Policies</h3>
             <ul className="space-y-2">
-              <li>
-                <Link href="/privacy" className="text-zinc-500 hover:text-zinc-300 text-sm font-light">
-                  Privacy Policy
-                </Link>
-              </li>
-              <li>
-                <Link href="/terms" className="text-zinc-500 hover:text-zinc-300 text-sm font-light">
-                  Terms of Service
-                </Link>
-              </li>
+              
               <li>
                 <Link href="/cookies" className="text-zinc-500 hover:text-zinc-300 text-sm font-light">
                   Cookie Policy
