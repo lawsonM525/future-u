@@ -4,6 +4,7 @@ import { Timeline } from '@/models/Timeline'
 import { auth } from '@/app/utils/authOptions'
 
 export const dynamic = 'force-dynamic'
+export const fetchCache = 'force-no-store'
 
 export async function GET() {
   try {
@@ -25,8 +26,8 @@ export async function GET() {
     
     if (!timeline) {
       return NextResponse.json(
-        { error: 'No timeline found. Please complete a quiz first.' },
-        { status: 404 }
+        { checkpoints: [] },
+        { status: 200 }
       )
     }
 

@@ -39,7 +39,7 @@ function PostQuizContent() {
       }
 
       const data = await response.json()
-      router.push(`/report/${data.reportId}`)
+      router.push(`/report/latest`)
     } catch (error) {
       console.error('Error processing quiz:', error)
       setError('Failed to process quiz')
@@ -47,7 +47,7 @@ function PostQuizContent() {
     }
   }
 
-  // Ensure we have quiz answers
+  // Process quiz when authenticated and has answers
   useEffect(() => {
     if (!answers || !quizType) {
       router.push('/quiz-selection')
@@ -58,27 +58,17 @@ function PostQuizContent() {
     if (status === 'authenticated') {
       handleQuizSubmission()
     }
-  }, [answers, quizType, status, router, handleQuizSubmission])
+  }, [answers, quizType, status, router])
 
   const handleGoogleSignIn = async () => {
     if (!answers || !quizType) return
     
     setLoading(true)
     try {
-      // Keep the quiz answers in the URL during authentication
-      const result = await signIn('google', { 
-        callbackUrl: `/auth/post-quiz?answers=${answers}&quizType=${quizType}`,
-        redirect: false,
+      await signIn('google', { 
+        callbackUrl: window.location.href,
+        redirect: true,
       })
-
-      if (result?.error) {
-        setError('Failed to sign in')
-        setLoading(false)
-        return
-      }
-
-      // Process the quiz after successful sign-in
-      await handleQuizSubmission()
     } catch {
       setLoading(false)
     }
@@ -101,55 +91,25 @@ function PostQuizContent() {
     )
   }
 
-  if (error) {
-    return (
-      <div className="min-h-screen flex flex-col items-center justify-center p-4 space-y-4">
-        <div className="text-center space-y-4">
-          <h2 className="text-2xl font-bold text-red-500">Something Went Wrong</h2>
-          <p className="text-zinc-400 max-w-md mx-auto">{error}</p>
-          <Button 
-            onClick={() => router.push('/quiz-selection')}
-            className="bg-yellow-500 text-yellow-950 hover:bg-yellow-400"
-          >
-            Try Again
-          </Button>
-        </div>
-      </div>
-    )
-  }
-
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center p-4 animate-fade-in">
-      <div className="max-w-md w-full space-y-8 bg-zinc-900 p-8 rounded-lg shadow-lg">
-        <div className="text-center">
-          <h2 className="text-3xl font-bold text-yellow-400 mb-2">
-            Your Career Report is Ready!
-          </h2>
-          <p className="text-zinc-400 mb-6">
-            Sign in to view your personalized career insights and recommendations.
-          </p>
-        </div>
+    <div className="min-h-screen flex flex-col items-center justify-center p-4 space-y-8">
+      <div className="text-center space-y-2">
+        <h2 className="text-3xl font-bold text-yellow-400 mb-2">
+          Your Career Report is Ready!
+        </h2>
+        <p className="text-zinc-400 mb-6">
+          Sign in to view your personalized career insights and recommendations.
+        </p>
+      </div>
 
-        <div className="space-y-4">
-          <Button
-            onClick={handleGoogleSignIn}
-            disabled={loading || !answers || !quizType}
-            className="w-full bg-yellow-500 text-yellow-950 hover:bg-yellow-400 font-bold py-3"
-          >
-            {loading ? 'Signing in...' : 'Sign in with Google'}
-          </Button>
-
-          <p className="text-center text-sm text-zinc-500">
-            By signing in, you agree to our{' '}
-            <Link href="/terms" className="text-yellow-500 hover:text-yellow-400">
-              Terms of Service
-            </Link>{' '}
-            and{' '}
-            <Link href="/privacy" className="text-yellow-500 hover:text-yellow-400">
-              Privacy Policy
-            </Link>
-          </p>
-        </div>
+      <div className="space-y-4">
+        <Button
+          onClick={handleGoogleSignIn}
+          disabled={loading || !answers || !quizType}
+          className="w-full bg-yellow-500 text-yellow-950 hover:bg-yellow-400 font-bold py-3"
+        >
+          {loading ? 'Signing in...' : 'Sign in with Google'}
+        </Button>
       </div>
     </div>
   )
@@ -158,9 +118,8 @@ function PostQuizContent() {
 // Loading state while the page is being client-side rendered
 function LoadingState() {
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center p-4">
+    <div className="min-h-screen flex items-center justify-center">
       <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-yellow-400"></div>
-      <p className="mt-4 text-zinc-400">Loading...</p>
     </div>
   )
 }
