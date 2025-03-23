@@ -17,15 +17,15 @@ export function Timeline({ checkpoints }: TimelineProps) {
           {checkpoints.map((checkpoint, index) => (
             <div key={checkpoint.year} className="relative pl-8">
               <div className="absolute left-0 w-8 flex items-center">
-                <div className="w-3 h-3 rounded-full bg-accent" />
-                <div className="flex-1 h-0.5 bg-accent/20" />
               </div>
               <div className="space-y-2">
-                <div className="flex items-center gap-2">
-                  <span className="text-lg font-bold text-accent">{checkpoint.year}</span>
-                  <span className="text-xl font-semibold">{checkpoint.title}</span>
+                <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2">
+                  <div className="flex items-center gap-2">
+                    <span className="text-lg font-bold text-accent">{checkpoint.year}</span>
+                    <span className="text-xl font-semibold">{checkpoint.title}</span>
+                  </div>
                   {index === checkpoints.length - 1 && (
-                    <span className="ml-2 px-2 py-0.5 text-sm font-medium bg-yellow-100 text-yellow-800 rounded-full">Hero Level 🏆</span>
+                    <span className="mt-1 sm:mt-0 sm:ml-2 px-2 py-0.5 text-sm font-medium bg-yellow-100 text-yellow-800 rounded-full">Hero Level 🏆</span>
                   )}
                 </div>
                 <p className="text-muted-foreground">{checkpoint.description}</p>

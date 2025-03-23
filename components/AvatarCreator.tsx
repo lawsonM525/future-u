@@ -81,7 +81,6 @@ export default function AvatarCreator({
   ...avatarOptions 
 }: AvatarCreatorProps) {
   const [avatarUrl, setAvatarUrl] = useState<string>('')
-  const [currentOptions, setCurrentOptions] = useState(avatarOptions)
 
   const randomizeAvatar = () => {
     const randomOptions: AvatarOptions = {
@@ -98,22 +97,13 @@ export default function AvatarCreator({
       backgroundType: ['solid'],
     }
     
-    setCurrentOptions(randomOptions)
+    // Save to localStorage
+    localStorage.setItem('avatarPreferences', JSON.stringify(randomOptions))
+    
     if (onRandomize) {
       onRandomize()
     }
-    
-    // Save to localStorage
-    localStorage.setItem('avatarPreferences', JSON.stringify(randomOptions))
   }
-
-  useEffect(() => {
-    // Try to load saved preferences
-    const savedPreferences = localStorage.getItem('avatarPreferences')
-    if (savedPreferences) {
-      setCurrentOptions(JSON.parse(savedPreferences))
-    }
-  }, [])
 
   useEffect(() => {
     const generateAvatar = async () => {
@@ -124,7 +114,7 @@ export default function AvatarCreator({
         backgroundColor: ['efd200'] as ColorString[],
         backgroundType: ['solid'] as BackgroundType[],
         randomizeIds: false,
-        ...currentOptions
+        ...avatarOptions
       }
       
       const avatar = createAvatar(lorelei, options)
@@ -133,7 +123,7 @@ export default function AvatarCreator({
     }
 
     generateAvatar()
-  }, [seed, size, currentOptions])
+  }, [seed, size, avatarOptions])
 
   if (!avatarUrl) {
     return <div className={`animate-pulse bg-gray-200 rounded-full ${className}`} style={{ width: size, height: size }} />

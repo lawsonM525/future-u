@@ -22,9 +22,24 @@ export default function DashboardPage() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [timeline, setTimeline] = useState<TimelineCheckpoint[]>([])
+  const [avatarPreferences, setAvatarPreferences] = useState({})
 
   // Get first name only
   const firstName = session?.user?.name ? session.user.name.split(' ')[0] : ''
+
+  useEffect(() => {
+    // Load avatar preferences from localStorage
+    if (typeof window !== 'undefined') {
+      const savedPreferences = localStorage.getItem('avatarPreferences')
+      if (savedPreferences) {
+        try {
+          setAvatarPreferences(JSON.parse(savedPreferences))
+        } catch (e) {
+          console.error('Error parsing avatar preferences:', e)
+        }
+      }
+    }
+  }, [])
 
   useEffect(() => {
     const fetchTimeline = async () => {
@@ -84,7 +99,11 @@ export default function DashboardPage() {
           <CardContent className="p-6 md:p-8">
             <div className="flex flex-col md:flex-row items-center gap-6">
               <div className="w-full md:w-1/3 flex justify-center">
-                <AvatarCreator seed={session?.user?.email || ''} size={180} />
+                <AvatarCreator 
+                  seed={session?.user?.email || ''} 
+                  size={180} 
+                  {...avatarPreferences}
+                />
               </div>
               <div className="w-full md:w-2/3 space-y-4 text-center md:text-left">
                 <CardTitle className="text-3xl font-bold text-accent">
@@ -100,6 +119,18 @@ export default function DashboardPage() {
                   >
                     Customize Avatar
                   </Button>
+                  
+                </div>
+                <div className="flex flex-wrap gap-3 justify-center md:justify-start">
+                  <Button
+                    onClick={() => router.push('/')} 
+                    variant="outline"
+                    size="sm"
+                    className="rounded-full text-sm px-4 py-1 h-8 bg-background text-muted-foreground hover:bg-accent/90"
+                  >
+                    Back to Home
+                  </Button>
+                  
                 </div>
               </div>
             </div>

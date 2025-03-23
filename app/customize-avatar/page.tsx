@@ -3,12 +3,13 @@
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { useSession } from 'next-auth/react'
-import { redirect, useRouter } from 'next/navigation'
+import { useRouter } from 'next/navigation'
 import AvatarCreator from '@/components/AvatarCreator'
 import { lorelei } from '@dicebear/collection'
 import type { JSONSchema7 } from 'json-schema'
 import { toast } from 'react-hot-toast'
 import { Switch } from '../../components/ui/switch'
+import { Button } from '../../components/ui/button'
 
 interface SchemaProperty {
   type: string
@@ -25,18 +26,8 @@ interface AvatarOption {
 
 type AvatarOptions = Record<string, AvatarOption>
 
-type AvatarPreferences = {
-  [key: string]: string | number | Array<string>
-}
-
-type OptionValue = string | number | Array<string>
-
-// Helper function to safely get array value
-const getArrayValue = (value: string | number | Array<string>, index: number): string | undefined => {
-  if (Array.isArray(value)) {
-    return value[index]
-  }
-  return undefined
+interface AvatarPreferences {
+  [key: string]: string | number | string[] | boolean | undefined
 }
 
 // List of options we want to expose to users
@@ -53,6 +44,11 @@ const ALLOWED_OPTIONS = [
 ] as const
 
 type OptionKey = typeof ALLOWED_OPTIONS[number]
+
+// Function to check if a string is a valid option key
+const isOptionKey = (key: string): key is OptionKey => {
+  return (ALLOWED_OPTIONS as readonly string[]).includes(key)
+}
 
 // Nice display names for options
 const OPTION_LABELS: Record<OptionKey, string> = {
@@ -81,7 +77,7 @@ const OPTION_LABELS: Record<OptionKey, string> = {
 const OPTION_GROUPS = [
   {
     title: 'Base Features',
-    options: ['head', 'skinColor']
+    options: ['head']
   },
   {
     title: 'Hair & Accessories',
@@ -101,6 +97,42 @@ const OPTION_GROUPS = [
   }
 ] as const
 
+// Define a comprehensive skin color palette
+const SKIN_COLOR_PALETTE = [
+  // Light tones
+  { color: 'ffffff', name: 'White (Default)' },
+  { color: 'ffdbac', name: 'Porcelain' },
+  { color: 'f1c27d', name: 'Light Beige' },
+  { color: 'e0ac69', name: 'Beige' },
+  
+  // Medium tones
+  { color: 'c68642', name: 'Light Brown' },
+  { color: 'a67c52', name: 'Medium Brown' },
+  { color: '8d5524', name: 'Chestnut' },
+  
+  // Dark tones
+  { color: '704214', name: 'Dark Brown' },
+  { color: '5c3213', name: 'Deep Brown' },
+  { color: '4a2703', name: 'Rich Brown' },
+  { color: '33190a', name: 'Dark Chocolate' },
+  
+  // Special tones
+  { color: 'f8d25c', name: 'Golden' },
+  { color: 'e5a073', name: 'Peachy' },
+  { color: 'd48a70', name: 'Rosy' },
+  { color: 'aa6651', name: 'Terra Cotta' },
+  
+  // Wild colors
+  { color: '40e0d0', name: 'Turquoise' },
+  { color: 'ff5555', name: 'Red' },
+  { color: '9370db', name: 'Purple' },
+  { color: '3cb371', name: 'Sea Green' },
+  { color: '1e90ff', name: 'Dodger Blue' },
+  { color: 'ff69b4', name: 'Hot Pink' },
+  { color: '00ced1', name: 'Dark Turquoise' },
+  { color: '8a2be2', name: 'Blue Violet' }
+] as const
+
 // Define default skin colors with white as default
 const DEFAULT_SKIN_COLORS = [
   'ffffff', // White (default)
@@ -111,14 +143,14 @@ const DEFAULT_SKIN_COLORS = [
 ] as const
 
 export default function CustomizeAvatarPage() {
+  const router = useRouter()
   const { data: session } = useSession({
     required: true,
     onUnauthenticated() {
-      redirect('/auth/signin')
+      router.push('/auth/signin')
     }
   })
 
-  const router = useRouter()
   const [options, setOptions] = useState<AvatarOptions>({})
   const [selectedOptions, setSelectedOptions] = useState<AvatarPreferences>({
     skinColor: ['ffffff'], // Set white as default
@@ -184,26 +216,28 @@ export default function CustomizeAvatarPage() {
   }
 
   const handleOptionChange = (key: string, value: string | number | string[] | boolean) => {
-    setSelectedOptions(prev => {
-      const newOptions = { ...prev }
-      
-      // Handle boolean toggles
-      if (typeof value === 'boolean') {
-        if (value) {
-          // When toggle is turned on, set probability to 100
-          newOptions[key] = ['variant01'] // Set a default variant
-          newOptions[`${key}Probability`] = 100
+    if (isOptionKey(key)) {
+      setSelectedOptions(prev => {
+        const newOptions = { ...prev }
+        
+        // Handle boolean toggles
+        if (typeof value === 'boolean') {
+          if (value) {
+            // When toggle is turned on, set the option and probability
+            newOptions[key] = ['variant01'] // Default variant for boolean toggles
+            newOptions[`${key}Probability`] = 100
+          } else {
+            // When toggle is turned off, set probability to 0
+            delete newOptions[key]
+            newOptions[`${key}Probability`] = 0
+          }
         } else {
-          // When toggle is turned off, set probability to 0
-          delete newOptions[key]
-          newOptions[`${key}Probability`] = 0
+          newOptions[key] = value
         }
-      } else {
-        newOptions[key] = value as OptionValue
-      }
-      
-      return newOptions
-    })
+        
+        return newOptions
+      })
+    }
   }
 
   if (!session?.user?.email) return null
@@ -219,17 +253,33 @@ export default function CustomizeAvatarPage() {
           </div>
 
           <div className="flex flex-col lg:flex-row gap-8">
-            {/* Preview Section */}
+            {/* Preview Section - Sticky on mobile */}
             <div className="lg:w-1/3">
-              <div className="bg-zinc-900 rounded-lg p-8 sticky top-8">
-                <div className="flex flex-col items-center gap-4">
+              <div className="bg-zinc-900 rounded-lg p-8 w-full sticky top-4">
+                <h2 className="text-xl font-semibold text-yellow-400 mb-4 text-center">Preview</h2>
+                <div className="flex justify-center">
                   <AvatarCreator 
                     seed={userEmail} 
                     size={200} 
                     showRandomizeButton={true}
+                    onRandomize={() => {
+                      // Load from localStorage after randomization
+                      const savedPrefs = localStorage.getItem('avatarPreferences')
+                      if (savedPrefs) {
+                        setSelectedOptions(JSON.parse(savedPrefs))
+                      }
+                    }}
                     {...selectedOptions} 
                   />
-                  <p className="text-sm text-zinc-500">Preview</p>
+                </div>
+                <div className="mt-6 flex justify-center">
+                  <Button 
+                    onClick={handleSave} 
+                    disabled={isSaving}
+                    className="bg-yellow-500 hover:bg-yellow-600 text-black font-medium px-6 py-2 rounded-md transition-colors"
+                  >
+                    {isSaving ? 'Saving...' : 'Save Changes'}
+                  </Button>
                 </div>
               </div>
             </div>
@@ -262,30 +312,9 @@ export default function CustomizeAvatarPage() {
                           )
                         }
 
-                        // Special handling for skin color
-                        if (key === 'skinColor') {
-                          return (
-                            <div key={key} className="col-span-2">
-                              <label className="text-sm font-medium text-zinc-200 block mb-2">
-                                {OPTION_LABELS[key as OptionKey]}
-                              </label>
-                              <div className="flex flex-wrap gap-2">
-                                {DEFAULT_SKIN_COLORS.map(color => (
-                                  <button
-                                    key={color}
-                                    onClick={() => handleOptionChange(key, [color])}
-                                    className={`w-8 h-8 rounded-full border-2 ${
-                                      getArrayValue(selectedOptions[key], 0) === color 
-                                        ? 'border-yellow-400' 
-                                        : 'border-transparent'
-                                    }`}
-                                    style={{ backgroundColor: `#${color}` }}
-                                    title={color === 'ffffff' ? 'White (Default)' : `Skin Tone #${color}`}
-                                  />
-                                ))}
-                              </div>
-                            </div>
-                          )
+                        // Hide skin color from the regular options as we'll have a dedicated card for it
+                        if (key === 'skinColor' as OptionKey) {
+                          return null
                         }
 
                         // Regular select options
@@ -313,6 +342,86 @@ export default function CustomizeAvatarPage() {
                     </div>
                   </div>
                 ))}
+
+                {/* Dedicated Skin Color Card */}
+                <div className="bg-zinc-900 rounded-lg p-6">
+                  <h2 className="text-xl font-semibold text-yellow-400 mb-4">Skin Color</h2>
+                  <div className="space-y-6">
+                    <div>
+                      <h3 className="text-lg font-medium text-zinc-200 mb-2">Natural Tones</h3>
+                      <p className="text-zinc-400 text-sm mb-4">Choose a natural skin tone for your character</p>
+                      
+                      <div className="grid grid-cols-3 sm:grid-cols-5 gap-4 justify-items-center">
+                        {/* White (Default) - Make it larger and more prominent */}
+                        <button
+                          onClick={() => handleOptionChange('skinColor', ['ffffff'])}
+                          className={`w-16 h-16 rounded-full border-4 transition-all transform hover:scale-105 ${
+                            Array.isArray(selectedOptions.skinColor) && selectedOptions.skinColor[0] === 'ffffff' 
+                              ? 'border-yellow-400 ring-4 ring-yellow-400/30' 
+                              : 'border-zinc-700'
+                          }`}
+                          style={{ backgroundColor: '#ffffff' }}
+                          title="White (Default)"
+                        >
+                          {Array.isArray(selectedOptions.skinColor) && selectedOptions.skinColor[0] === 'ffffff' && (
+                            <span className="absolute -bottom-6 left-1/2 transform -translate-x-1/2 text-xs text-zinc-400">
+                              Default
+                            </span>
+                          )}
+                        </button>
+                        
+                        {/* Comprehensive skin tone palette - first 15 colors */}
+                        {SKIN_COLOR_PALETTE.slice(1, 15).map(({ color, name }) => (
+                          <button
+                            key={color}
+                            onClick={() => handleOptionChange('skinColor', [color])}
+                            className={`w-12 h-12 rounded-full border-2 transition-all hover:scale-105 ${
+                              Array.isArray(selectedOptions.skinColor) && selectedOptions.skinColor[0] === color 
+                                ? 'border-yellow-400 ring-2 ring-yellow-400/30' 
+                                : 'border-zinc-700'
+                            }`}
+                            style={{ backgroundColor: `#${color}` }}
+                            title={name}
+                          >
+                            {Array.isArray(selectedOptions.skinColor) && selectedOptions.skinColor[0] === color && (
+                              <span className="absolute -bottom-6 left-1/2 transform -translate-x-1/2 text-xs text-zinc-400 whitespace-nowrap">
+                                {name}
+                              </span>
+                            )}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                    
+                    <div>
+                      <h3 className="text-lg font-medium text-zinc-200 mb-2">Wild Colors</h3>
+                      <p className="text-zinc-400 text-sm mb-4">Or choose a fun, vibrant color!</p>
+                      
+                      <div className="grid grid-cols-4 gap-4 justify-items-center">
+                        {/* Wild color palette - remaining colors */}
+                        {SKIN_COLOR_PALETTE.slice(15).map(({ color, name }) => (
+                          <button
+                            key={color}
+                            onClick={() => handleOptionChange('skinColor', [color])}
+                            className={`w-12 h-12 rounded-full border-2 transition-all hover:scale-105 ${
+                              Array.isArray(selectedOptions.skinColor) && selectedOptions.skinColor[0] === color 
+                                ? 'border-yellow-400 ring-2 ring-yellow-400/30' 
+                                : 'border-zinc-700'
+                            }`}
+                            style={{ backgroundColor: `#${color}` }}
+                            title={name}
+                          >
+                            {Array.isArray(selectedOptions.skinColor) && selectedOptions.skinColor[0] === color && (
+                              <span className="absolute -bottom-6 left-1/2 transform -translate-x-1/2 text-xs text-zinc-400 whitespace-nowrap">
+                                {name}
+                              </span>
+                            )}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                </div>
               </div>
 
               {/* Save Button */}
