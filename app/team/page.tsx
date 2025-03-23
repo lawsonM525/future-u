@@ -31,8 +31,7 @@ export default function TeamPage() {
             <h2 className="text-2xl font-bold">Hi, it&apos;s Michelle!! 👋</h2>
             
             <p className="text-lg mb-8 max-w-2xl mx-auto">
-              I&apos;m Michelle Lawson, the founder of Future U. With a background in tech and finance, 
-              I&apos;m passionate about helping others find clarity in their career paths.
+              It&apos;s just me for now, but you can join me if you&apos;d like! 🤭
             </p>
             
             <p className="text-zinc-400">
