@@ -133,6 +133,24 @@ export default function ReportPage() {
   return (
     <div className="min-h-screen bg-background text-foreground p-8">
       <div className="max-w-4xl mx-auto space-y-8">
+
+        {/* Action Buttons */}
+        <div className="flex gap-4 justify-center mt-8">
+          <Button
+            variant="outline"
+            className="border-accent hover:bg-accent/20"
+            onClick={() => router.push('/dashboard')}
+          >
+            Go to Dashboard
+          </Button>
+          <Button
+            variant="outline"
+            className="border-accent hover:bg-accent/20"
+            onClick={() => router.push('/quiz-selection')}
+          >
+            Retake Quiz
+          </Button>
+        </div>
         <Card className="border-accent bg-card">
           <CardHeader className="space-y-2">
             <CardTitle className="text-2xl font-bold text-accent">Your Career Strategy</CardTitle>
@@ -179,23 +197,7 @@ export default function ReportPage() {
           </CardContent>
         </Card>
 
-        {/* Action Buttons */}
-        <div className="flex gap-4 justify-center mt-8">
-          <Button
-            variant="outline"
-            className="border-accent hover:bg-accent/20"
-            onClick={() => router.push('/dashboard')}
-          >
-            Go to Dashboard
-          </Button>
-          <Button
-            variant="outline"
-            className="border-accent hover:bg-accent/20"
-            onClick={() => router.push('/quiz-selection')}
-          >
-            Retake Quiz
-          </Button>
-        </div>
+        
       </div>
     </div>
   )
