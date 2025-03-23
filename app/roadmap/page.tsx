@@ -16,10 +16,10 @@ export default function RoadmapPage() {
         <h1 className="text-4xl md:text-5xl font-bold mb-6 text-center">🌟 Future U Roadmap 🌟</h1>
         
         <p className="text-lg text-center mb-3">
-          We're building Future U to be your comprehensive guide from your present self to your dream future self, severy step of the way.
+          We&apos;re building Future U to be your comprehensive guide from your present self to your dream future self, severy step of the way.
         </p>
         <p className="text-lg text-center mb-12">
-          Here's what we've already done and what we're working on next:
+          Here&apos;s what we&apos;ve already done and what we&apos;re working on next:
         </p>
 
         {/* Available Now Section */}
@@ -36,7 +36,7 @@ export default function RoadmapPage() {
             </h3>
             
             <p className="text-md text-gray-200">
-              Take the quiz and get a personalized report with your strengths, where you're heading, and the steps and milestones
+              Take the quiz and get a personalized report with your strengths, where you&apos;re heading, and the steps and milestones
               that you can take and check off on the way there. Knowing what steps you need to take helps you to actually move
               forward in that direction.
             </p>
@@ -54,11 +54,11 @@ export default function RoadmapPage() {
             </p>
             
             <p className="text-md text-gray-200 mt-2">
-             You get a personalized design based on your quiz results—perfect for reminding yourself or showing the world what you're working toward.
+             You get a personalized design based on your quiz results—perfect for reminding yourself or showing the world what you&apos;re working toward.
             </p>
             <div className="mt-4 p-4 bg-yellow-500/10 rounded-lg">
               <p className="text-sm text-yellow-200">
-                🎨 We're currently looking for an animator to make this more cutesy! 
+                🎨 We&apos;re currently looking for an animator to make this more cutesy! 
                 <Link href="/careers" className="ml-1 underline hover:text-yellow-300">
                   Check out our careers page
                 </Link>
@@ -82,18 +82,18 @@ export default function RoadmapPage() {
             </h3>
             
             <p className="text-md text-gray-200 mb-4">
-              Build a customized character of your future self that represents who you're trying to become.
+              Build a customized character of your future self that represents who you&apos;re trying to become.
             </p>
             
             <ul className="list-disc pl-6 text-gray-300 space-y-1">
               <li>Start with a random default character</li>
-              <li>Customize it to represent who you're trying to be - that CEO, that poet, that rockstar 🎸</li>
+              <li>Customize it to represent who you&apos;re trying to be - that CEO, that poet, that rockstar 🎸</li>
               <li>You can save an image of this character to use as your profile picture!</li>
             </ul>
 
             <div className="mt-4 p-4 bg-yellow-500/10 rounded-lg">
               <p className="text-sm text-yellow-200">
-                🎨 We're currently looking for an illustrator to help out with this! 
+                🎨 We&apos;re currently looking for an illustrator to help out with this! 
                 <Link href="/careers" className="ml-1 underline hover:text-yellow-300">
                   Check out our careers page
                 </Link>
@@ -109,14 +109,14 @@ export default function RoadmapPage() {
             </h3>
             
             <p className="text-md text-gray-200 mb-4">
-              Based on your strategy report, you'll be given weekly tasks you can complete to help you get closer and closer to your Future U.
+              Based on your strategy report, you&apos;ll be given weekly tasks you can complete to help you get closer and closer to your Future U.
               By checking off those tasks, you earn more points in an XP system.
             </p>
             
             <ul className="list-disc pl-6 text-gray-300 space-y-1">
-              <li>We'll send over a weekly scorecard to let you know what you've completed</li>
+              <li>We&apos;ll send over a weekly scorecard to let you know what you&apos;ve completed</li>
               <li>Share your progress with friends and your social media community</li>
-              <li>Let them know that you're taking yourself seriously and you're on track</li>
+              <li>Let them know that you&apos;re taking yourself seriously and you&apos;re on track</li>
             </ul>
           </div>
           
@@ -147,11 +147,11 @@ export default function RoadmapPage() {
             </h3>
             
             <p className="text-md text-gray-200">
-              Future U is so great because it's not simply an AI generated guide. It's based on lots and lots of data from real humans with real 
+              Future U is so great because it&apos;s not simply an AI generated guide. It&apos;s based on lots and lots of data from real humans with real 
               career advice and real insights. 
             </p>
             <p className="text-md text-gray-200 mt-2">
-             We're making a page where you can go through these stories and get inspired. 
+             We&apos;re making a page where you can go through these stories and get inspired. 
               See people talking about their past self to their present self, and just know that everything is possible and you can 
               achieve whatever you want.
             </p>

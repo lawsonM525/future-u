@@ -16,7 +16,7 @@ export default function CareersPage() {
         <h1 className="text-4xl md:text-5xl font-bold mb-6 text-center">Join the Future U Team</h1>
         
         <p className="text-lg text-center mb-12">
-          We're looking for passionate individuals to help us guide people to their dream future.
+          We&apos;re looking for passionate individuals to help us guide people to their dream future.
           Check out our open positions below and apply today!
         </p>
 
@@ -39,12 +39,12 @@ export default function CareersPage() {
             </div>
             
             <p className="text-md text-gray-200 mb-4">
-              We're looking for a talented illustrator to help create customizable avatars for our users. You'll be working
+              We&apos;re looking for a talented illustrator to help create customizable avatars for our users. You&apos;ll be working
               on designing characters that represent different career paths and personalities, helping our users visualize
               their future selves.
             </p>
             
-            <h3 className="text-xl font-semibold mb-2">What you'll do:</h3>
+            <h3 className="text-xl font-semibold mb-2">What you&apos;ll do:</h3>
             <ul className="list-disc pl-6 text-gray-300 space-y-1 mb-4">
               <li>Design customizable character illustrations for the Future U Avatar feature</li>
               <li>Create visual assets that represent different career paths and personalities</li>
@@ -84,11 +84,11 @@ export default function CareersPage() {
             </div>
             
             <p className="text-md text-gray-200 mb-4">
-              We're seeking a creative animator to help bring our visual timeline and avatar features to life. You'll create
-              engaging animations that showcase users' career paths and milestones in a visually compelling way.
+              We&apos;re seeking a creative animator to help bring our visual timeline and avatar features to life. You&apos;ll create
+              engaging animations that showcase users&apos; career paths and milestones in a visually compelling way.
             </p>
             
-            <h3 className="text-xl font-semibold mb-2">What you'll do:</h3>
+            <h3 className="text-xl font-semibold mb-2">What you&apos;ll do:</h3>
             <ul className="list-disc pl-6 text-gray-300 space-y-1 mb-4">
               <li>Create animations for our shareable timeline feature</li>
               <li>Develop micro-interactions and motion effects for the platform</li>
@@ -114,11 +114,11 @@ export default function CareersPage() {
         
         {/* Contact Section */}
         <div className="mt-12 bg-yellow-900/20 rounded-xl p-6">
-          <h3 className="text-xl font-semibold mb-4">Don't see the right fit?</h3>
+          <h3 className="text-xl font-semibold mb-4">Don&apos;t see the right fit?</h3>
           
           <p className="text-md mb-4">
-            We're always looking for talented individuals to join our team. Reach out to us with your resume and tell us how
-            you can contribute to Future U's mission!
+            We&apos;re always looking for talented individuals to join our team. Reach out to us with your resume and tell us how
+            you can contribute to Future U&apos;s mission!
           </p>
           
           <Link href="/contact">
