@@ -36,7 +36,7 @@ export default function WhyFutureUPage() {
           </p>
 
           <p className="mb-6">
-            But the difference between dreaming and doing isn&apos;t talent. It&apos;s clarity. It&apos;s knowing what you want, understanding the steps you need to take, and having the courage to take them—one at a time.
+            But the difference between dreaming and doing isn&apos;t talent. It&apos;s clarity. It&apos;s knowing what you want, understanding the steps you need to take, and having the courage to take them — one at a time.
           </p>
 
           <p className="mb-6">
@@ -52,11 +52,19 @@ export default function WhyFutureUPage() {
           </p>
           
           <p className="mb-6">
-            And to give you the motivation, structure, and belief to follow through—so one day, you look up and realize... you became the person you used to dream about.
+            And to give you the motivation, structure, and belief to follow through—so one day, you look back and realize... you've become the person you onced dreamed of.
           </p>
 
-          <p className="mb-10">
-            This isn&apos;t about hustle culture. It&apos;s about deliberate self-trust. It&apos;s about mapping out your future—then walking into it.
+          <p className="mb-6">
+            This isn&apos;t about hustle culture.  It&apos;s about mapping out your future—then walking into it.
+          </p>
+
+          <p className="mb-6">
+          It&apos;s about deliberate self-trust.
+          </p>
+
+          <p className="mb-12">
+          It&apos;s about mapping out your future—then walking into it.
           </p>
         </div>
       </div>

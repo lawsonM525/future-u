@@ -186,7 +186,7 @@ export default function ReportPage() {
             className="border-accent hover:bg-accent/20"
             onClick={() => router.push('/dashboard')}
           >
-            Back to Dashboard
+            Go to Dashboard
           </Button>
           <Button
             variant="outline"

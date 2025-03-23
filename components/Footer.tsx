@@ -16,7 +16,7 @@ export function Footer() {
               </li>
               <li>
                 <Link href="/team" className="text-zinc-500 hover:text-zinc-300 text-sm font-light">
-                  The Team
+                  Team
                 </Link>
               </li>
               <li>
@@ -66,7 +66,7 @@ export function Footer() {
             <h3 className="text-zinc-400 font-semibold">Policies</h3>
             <ul className="space-y-2">
               <li>
-                <Link href="/cookies" className="text-zinc-500 hover:text-zinc-300 text-sm font-light">
+                <Link href="/cookie-policy" className="text-zinc-500 hover:text-zinc-300 text-sm font-light">
                   Cookie Policy
                 </Link>
               </li>
