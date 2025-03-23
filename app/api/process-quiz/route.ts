@@ -149,7 +149,7 @@ Format each section with a clear title in bold, followed by detailed explanation
 
       // Then, generate the timeline
       const timelineResponse = await openai.chat.completions.create({
-        model: "gpt-4",
+        model: "gpt-4o",
         messages: [
           {
             role: "system",
