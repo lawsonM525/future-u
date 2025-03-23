@@ -37,7 +37,7 @@ export function Footer() {
                 </Link>
               </li>
               <li>
-                <Link href="/feature-requests" className="text-zinc-500 hover:text-zinc-300 text-sm font-light">
+                <Link href="/feature-request" className="text-zinc-500 hover:text-zinc-300 text-sm font-light">
                   Request a feature
                 </Link>
               </li>
@@ -55,10 +55,9 @@ export function Footer() {
               </li>
               <li>
                 <Link href="/faq" className="text-zinc-500 hover:text-zinc-300 text-sm font-light">
-                  FAQ
+                  Join the Discord
                 </Link>
               </li>
-              
             </ul>
           </div>
 
@@ -66,7 +65,6 @@ export function Footer() {
           <div className="space-y-4">
             <h3 className="text-zinc-400 font-semibold">Policies</h3>
             <ul className="space-y-2">
-              
               <li>
                 <Link href="/cookies" className="text-zinc-500 hover:text-zinc-300 text-sm font-light">
                   Cookie Policy
@@ -79,7 +77,7 @@ export function Footer() {
         {/* Copyright */}
         <div className="mt-8 pt-8 border-t border-zinc-800">
           <p className="text-center text-zinc-500 text-sm font-light">
-            Copyright © {new Date().getFullYear()} FutureU by Michelle Lawson. All rights reserved.
+            Copyright {new Date().getFullYear()} FutureU by Michelle Lawson. All rights reserved.
           </p>
         </div>
       </div>

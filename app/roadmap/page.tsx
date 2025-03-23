@@ -13,11 +13,13 @@ export default function RoadmapPage() {
           <span>Back to Home</span>
         </Link>
         
-        <h1 className="text-4xl md:text-5xl font-bold mb-6 text-center">🌟 Future U Roadmap</h1>
+        <h1 className="text-4xl md:text-5xl font-bold mb-6 text-center">🌟 Future U Roadmap 🌟</h1>
         
+        <p className="text-lg text-center mb-3">
+          We're building Future U to be your comprehensive guide from your present self to your dream future self, severy step of the way.
+        </p>
         <p className="text-lg text-center mb-12">
-          We're building Future U to be your go-to space for clarity, motivation, and good vibes as you grow your career.
-          Here's what's already live—and what's on the way:
+          Here's what we've already done and what we're working on next:
         </p>
 
         {/* Available Now Section */}
@@ -27,17 +29,41 @@ export default function RoadmapPage() {
             <span>Available Now</span>
           </h2>
           
-          <div className="bg-white/5 backdrop-blur-sm rounded-xl p-6 transition hover:bg-white/10">
+          <div className="bg-white/5 backdrop-blur-sm rounded-xl p-6 mb-6 transition hover:bg-white/10">
             <h3 className="text-xl font-semibold mb-2 flex items-center">
               <span className="mr-2">📄</span>
               <span>Future U Strategy Report</span>
             </h3>
             
             <p className="text-md text-gray-200">
-              Take the quiz and get a personalized report with career paths, key goals, and steps to grow. 
-              It's made to help you move forward with direction—and yes, you can download it as a cute 
-              little PDF to keep forever.
+              Take the quiz and get a personalized report with your strengths, where you're heading, and the steps and milestones
+              that you can take and check off on the way there. Knowing what steps you need to take helps you to actually move
+              forward in that direction.
             </p>
+          </div>
+
+          {/* timeline */}
+          <div className="bg-white/5 backdrop-blur-sm rounded-xl p-6 mb-6 transition hover:bg-white/10">
+            <h3 className="text-xl font-semibold mb-2 flex items-center">
+              <span className="mr-2">📸</span>
+              <span> Visual Timeline</span>
+            </h3>
+            
+            <p className="text-md text-gray-200">
+              See a summary of your future path with a timeline graphic that you can post on Instagram stories, LinkedIn, or anywhere else.
+            </p>
+            
+            <p className="text-md text-gray-200 mt-2">
+             You get a personalized design based on your quiz results—perfect for reminding yourself or showing the world what you're working toward.
+            </p>
+            <div className="mt-4 p-4 bg-yellow-500/10 rounded-lg">
+              <p className="text-sm text-yellow-200">
+                🎨 We're currently looking for an animator to make this more cutesy! 
+                <Link href="/careers" className="ml-1 underline hover:text-yellow-300">
+                  Check out our careers page
+                </Link>
+              </p>
+            </div>
           </div>
         </div>
 
@@ -51,20 +77,28 @@ export default function RoadmapPage() {
           {/* Feature 1 */}
           <div className="bg-white/5 backdrop-blur-sm rounded-xl p-6 mb-6 transition hover:bg-white/10">
             <h3 className="text-xl font-semibold mb-2 flex items-center">
-              <span className="mr-2">🔮</span>
-              <span>Future You Dashboard</span>
+              <span className="mr-2">👩‍✈️</span>
+              <span>Future U Avatar</span>
             </h3>
             
             <p className="text-md text-gray-200 mb-4">
-              Build a version of your "future me" based on your quiz results.
-              You'll be able to:
+              Build a customized character of your future self that represents who you're trying to become.
             </p>
             
             <ul className="list-disc pl-6 text-gray-300 space-y-1">
-              <li>Pick a career vibe (startup founder, quant queen, indie hacker, etc.)</li>
-              <li>View your timeline with future milestones</li>
-              <li>Check in on your progress as you go</li>
+              <li>Start with a random default character</li>
+              <li>Customize it to represent who you're trying to be - that CEO, that poet, that rockstar 🎸</li>
+              <li>You can save an image of this character to use as your profile picture!</li>
             </ul>
+
+            <div className="mt-4 p-4 bg-yellow-500/10 rounded-lg">
+              <p className="text-sm text-yellow-200">
+                🎨 We're currently looking for an illustrator to help out with this! 
+                <Link href="/careers" className="ml-1 underline hover:text-yellow-300">
+                  Check out our careers page
+                </Link>
+              </p>
+            </div>
           </div>
           
           {/* Feature 2 */}
@@ -75,15 +109,14 @@ export default function RoadmapPage() {
             </h3>
             
             <p className="text-md text-gray-200 mb-4">
-              Track your progress and earn glow points for taking small steps—like updating your resume, 
-              practicing a coding question, or sending a cold email.
-              You'll get:
+              Based on your strategy report, you'll be given weekly tasks you can complete to help you get closer and closer to your Future U.
+              By checking off those tasks, you earn more points in an XP system.
             </p>
             
             <ul className="list-disc pl-6 text-gray-300 space-y-1">
-              <li>A weekly scorecard showing what you completed</li>
-              <li>A growing XP total to reflect your momentum</li>
-              <li>A visual report you can share on socials or just save for yourself</li>
+              <li>We'll send over a weekly scorecard to let you know what you've completed</li>
+              <li>Share your progress with friends and your social media community</li>
+              <li>Let them know that you're taking yourself seriously and you're on track</li>
             </ul>
           </div>
           
@@ -95,7 +128,7 @@ export default function RoadmapPage() {
             </h3>
             
             <p className="text-md text-gray-200 mb-4">
-              Each week, get a gentle (or bold) nudge from your future self.
+              Each week, get an email check-in to remind you and encourage you along the way with some of our favorite quotes.
               Choose your tone:
             </p>
             
@@ -104,10 +137,6 @@ export default function RoadmapPage() {
               <li>Brutally honest baddie</li>
               <li>Wise Ghanaian uncle</li>
             </ul>
-            
-            <p className="text-md text-gray-200 mt-4">
-              Your future U will send encouragement, reminders, and some well-timed real talk to keep you moving.
-            </p>
           </div>
           
           {/* Feature 4 */}
@@ -117,23 +146,14 @@ export default function RoadmapPage() {
               <span>Career Path Explorer</span>
             </h3>
             
-            <p className="text-md text-gray-200 mb-4">
-              Get inspired by real stories.
-              Scroll through anonymous submissions from people sharing how they got where they are—from internships to dream jobs.
-              See their "past me → now me" journey, and tag yourself in the version you're working toward.
-            </p>
-          </div>
-          
-          {/* Feature 5 */}
-          <div className="bg-white/5 backdrop-blur-sm rounded-xl p-6 mb-6 transition hover:bg-white/10">
-            <h3 className="text-xl font-semibold mb-2 flex items-center">
-              <span className="mr-2">📸</span>
-              <span>Shareable Visual Timeline</span>
-            </h3>
-            
             <p className="text-md text-gray-200">
-              Show off your future path with a timeline graphic you can post on Instagram stories, LinkedIn, or anywhere else.
-              You'll get a personalized design based on your quiz results—perfect for manifesting or just showing the world what you're working toward.
+              Future U is so great because it's not simply an AI generated guide. It's based on lots and lots of data from real humans with real 
+              career advice and real insights. 
+            </p>
+            <p className="text-md text-gray-200 mt-2">
+             We're making a page where you can go through these stories and get inspired. 
+              See people talking about their past self to their present self, and just know that everything is possible and you can 
+              achieve whatever you want.
             </p>
           </div>
         </div>
@@ -150,9 +170,11 @@ export default function RoadmapPage() {
             Let us know!!!
           </p>
           
-          <Button variant="yellow" className="w-full md:w-auto">
-            Send Feedback
-          </Button>
+          <Link href="/feature-request">
+            <Button variant="yellow" className="w-full md:w-auto">
+              Send Feedback
+            </Button>
+          </Link>
         </div>
       </div>
     </div>
