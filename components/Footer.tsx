@@ -54,7 +54,7 @@ export function Footer() {
                 </Link>
               </li>
               <li>
-                <Link href="/faq" className="text-zinc-500 hover:text-zinc-300 text-sm font-light">
+                <Link  href="https://discord.gg/jUhhj25H" className="text-zinc-500 hover:text-zinc-300 text-sm font-light">
                   Join the Discord
                 </Link>
               </li>
