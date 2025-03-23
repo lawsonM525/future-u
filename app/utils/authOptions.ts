@@ -16,7 +16,8 @@ export const { handlers: authHandlers, auth } = NextAuth({
           access_type: "offline",
           response_type: "code"
         }
-      }
+      },
+      checks: ["state"] // Disable PKCE
     }),
   ],
   callbacks: {
