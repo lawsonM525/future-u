@@ -10,8 +10,8 @@ export function Footer() {
             <h3 className="text-zinc-400 font-semibold">About</h3>
             <ul className="space-y-2">
               <li>
-                <Link href="/why-futureu" className="text-zinc-500 hover:text-zinc-300 text-sm font-light">
-                  Why FutureU?
+                <Link href="/why-future-u" className="text-zinc-500 hover:text-zinc-300 text-sm font-light">
+                  Why Future U?
                 </Link>
               </li>
               <li>
