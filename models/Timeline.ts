@@ -2,6 +2,7 @@ import mongoose from 'mongoose'
 
 export interface TimelineCheckpoint {
   year: number
+  title: string
   description: string
 }
 
@@ -14,6 +15,10 @@ const TimelineSchema = new mongoose.Schema({
   checkpoints: [{
     year: {
       type: Number,
+      required: true
+    },
+    title: {
+      type: String,
       required: true
     },
     description: {

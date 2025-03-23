@@ -3,7 +3,7 @@ import { OpenAI } from 'openai'
 import { Pinecone } from '@pinecone-database/pinecone'
 import { connect } from '@/lib/mongodb'
 import { Report } from '@/models/Report'
-import { Timeline, TimelineCheckpoint } from '@/models/Timeline'
+import { Timeline } from '@/models/Timeline'
 import { auth } from '@/app/utils/authOptions'
 
 // Validate environment variables
@@ -165,7 +165,31 @@ Format each section with a clear title in bold, followed by detailed explanation
         messages: [
           {
             role: "system",
-            content: "Based on the career strategy report, create a 5-year timeline from 2025 to 2030. For each year, provide a clear checkpoint description of where the person should be in their journey. Make it specific, measurable, and aligned with their ultimate career goals. The checkpoints should build progressively, leading to their 'hero level' by 2030. Format each checkpoint as 'YYYY: Description'"
+            content: `You're creating a motivational timeline designed to excite the user and make their future feel real, personal, and worth chasing. Based on the full strategy in the career report, create a vivid, specific 5-year timeline (2025–2030) that outlines the user's journey toward their dream career.
+
+For each year:
+- Start with a bold, inspiring milestone title (like a chapter header in their story). Start 2025 with "Present U"
+- Include 1-2 sentences that describe what the user has achieved, using language that feels emotional, personal, and grounded in action.
+- Highlight key accomplishments, career wins, or habits that helped them level up that year.
+- Speak directly to the user with a "You did this!" tone—make it feel like a reflection from their future self.
+- End 2030 with their "Future U" moment, where they've become the version of themselves they once dreamed of.
+
+Return the timeline as a JSON object with an array of checkpoints. Each checkpoint should have:
+- year: the year (number between 2025-2030)
+- title: the bold, inspiring milestone title
+- description: the 1-2 sentence description of achievements
+
+Format example:
+{
+  "checkpoints": [
+    {
+      "year": 2025,
+      "title": "Present U: Taking the First Steps",
+      "description": "You've set clear goals and started learning the fundamentals. Your consistent habit of daily practice is already setting you apart!"
+    },
+    ...more years...
+  ]
+}`
           },
           {
             role: "user",
@@ -173,32 +197,21 @@ Format each section with a clear title in bold, followed by detailed explanation
           }
         ],
         temperature: 0.7,
-        max_tokens: 1000
+        max_tokens: 1000,
+        response_format: { type: "json_object" }
       }, { signal: controller.signal })
 
-      const timelineContent = timelineResponse.choices[0].message.content
-
-      if (!timelineContent) {
+      const content = timelineResponse.choices[0].message.content
+      
+      if (!content) {
         throw new Error('Failed to generate timeline')
       }
-
-      // Parse the timeline content into structured data
-      // Expected format from GPT:
-      // 2025: Description for 2025
-      // 2026: Description for 2026
-      // etc.
-      const timelineCheckpoints: TimelineCheckpoint[] = timelineContent
-        .split('\n')
-        .filter((line: string) => line.trim())
-        .map((line: string) => {
-          const match = line.match(/(\d{4}):\s*(.+)/)
-          if (!match) return null
-          return {
-            year: parseInt(match[1]),
-            description: match[2].trim()
-          }
-        })
-        .filter((checkpoint): checkpoint is TimelineCheckpoint => checkpoint !== null)
+      
+      const timelineData = JSON.parse(content)
+      
+      if (!timelineData.checkpoints || !Array.isArray(timelineData.checkpoints)) {
+        throw new Error('Invalid timeline format')
+      }
 
       // Create report document
       const report = new Report({
@@ -221,7 +234,7 @@ Format each section with a clear title in bold, followed by detailed explanation
       // Save the timeline
       await Timeline.create({
         userId: session.user.id,
-        checkpoints: timelineCheckpoints,
+        checkpoints: timelineData.checkpoints,
       })
 
       // Clear timeout
