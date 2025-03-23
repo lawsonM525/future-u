@@ -37,6 +37,10 @@ export const fetchCache = 'force-no-store'
 export async function POST(request: Request) {
   try {
     const session = await auth()
+    
+    // Debug session data
+    console.log('Session in process-quiz:', JSON.stringify(session?.user || 'No session'));
+    
     if (!session?.user?.id) {
       return NextResponse.json(
         { error: 'Authentication required' },

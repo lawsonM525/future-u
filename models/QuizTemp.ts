@@ -3,6 +3,8 @@ import mongoose, { Schema, Document } from 'mongoose'
 export interface QuizTempDocument extends Document {
   answers: Record<number, string>
   quizType: string
+  userId?: string
+  processed: boolean
   createdAt: Date
 }
 
@@ -14,6 +16,14 @@ const QuizTempSchema = new Schema({
   quizType: {
     type: String,
     required: true
+  },
+  userId: {
+    type: String,
+    default: null
+  },
+  processed: {
+    type: Boolean,
+    default: false
   },
   createdAt: {
     type: Date,

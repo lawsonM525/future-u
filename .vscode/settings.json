@@ -4,6 +4,6 @@
     "gitdoc.ai.customInstructions": "lowercase messages with simple language",
     "github.copilot.editor.enableAutoCompletions": false,
     "gitdoc.excludeBranches": [
-        
+
     ]
 }

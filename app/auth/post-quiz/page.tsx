@@ -10,6 +10,7 @@ import { Loader2 } from 'lucide-react'
 function PostQuizContent() {
   const [isProcessing, setIsProcessing] = useState(false)
   const [loading, setLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
   const router = useRouter()
   const searchParams = useSearchParams()
   const { status } = useSession()
@@ -19,36 +20,29 @@ function PostQuizContent() {
   const handleQuizSubmission = useCallback(async () => {
     try {
       setIsProcessing(true)
+      setError(null)
 
-      // Retrieve temporary quiz data
-      const tempResponse = await fetch(`/api/get-temp-quiz?tempId=${tempId}`)
-      
-      if (!tempResponse.ok) {
-        throw new Error('Failed to retrieve quiz data')
-      }
-      
-      const { answers, quizType } = await tempResponse.json()
-
-      // Process the quiz
-      const response = await fetch('/api/process-quiz', {
+      // Process the temporary quiz using the new endpoint
+      const response = await fetch('/api/process-temp-quiz', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({
-          answers,
-          quizType
+          tempId
         })
       })
-
+      
       if (!response.ok) {
-        throw new Error('Failed to process quiz')
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to process quiz');
       }
 
       router.push('/report/latest')
     } catch (error) {
-      console.error('Error processing quiz:', error)
-      setIsProcessing(false)
+      console.error('Error processing quiz:', error);
+      setError(error instanceof Error ? error.message : 'An unexpected error occurred');
+      setIsProcessing(false);
     }
   }, [tempId, router])
 
@@ -89,12 +83,25 @@ function PostQuizContent() {
           </p>
         </div>
 
-        {isProcessing ? (
+        {error && (
+          <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative">
+            <strong className="font-bold">Error: </strong>
+            <span className="block sm:inline">{error}</span>
+            <Button 
+              onClick={() => router.push('/quiz-selection')}
+              className="mt-3 w-full bg-accent text-white hover:bg-accent/90"
+            >
+              Return to Quiz Selection
+            </Button>
+          </div>
+        )}
+
+        {isProcessing && !error ? (
           <div className="flex flex-col items-center justify-center space-y-4">
             <Loader2 className="h-8 w-8 animate-spin text-accent" />
             <p>Processing your results...</p>
           </div>
-        ) : (
+        ) : !error && (
           <Button
             onClick={handleSignIn}
             disabled={loading}
