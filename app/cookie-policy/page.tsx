@@ -21,7 +21,7 @@ export default function CookiePolicyPage() {
           
           <h2 className="text-2xl font-semibold mt-8 mb-4">Introduction</h2>
           <p>
-            Future U ("we," "our," or "us") uses cookies and similar technologies on our website. This Cookie Policy explains how we use cookies, how they help us provide you with a better experience, and what choices you have regarding their use.
+            Future U (&quot;we,&quot; &quot;our,&quot; or &quot;us&quot;) uses cookies and similar technologies on our website. This Cookie Policy explains how we use cookies, how they help us provide you with a better experience, and what choices you have regarding their use.
           </p>
           
           <h2 className="text-2xl font-semibold mt-8 mb-4">What Are Cookies?</h2>
@@ -97,7 +97,7 @@ export default function CookiePolicyPage() {
           
           <h3 className="text-xl font-semibold mt-6 mb-3">Analytics Cookies</h3>
           <p>
-            These cookies collect information about how visitors use our website, which pages visitors go to most often, and if they get error messages from web pages. These cookies don't collect information that identifies a visitor.
+            These cookies collect information about how visitors use our website, which pages visitors go to most often, and if they get error messages from web pages. These cookies don&apos;t collect information that identifies a visitor.
           </p>
           <table className="w-full border-collapse mb-6">
             <thead>
@@ -132,7 +132,7 @@ export default function CookiePolicyPage() {
           </p>
           
           <ul className="list-disc pl-6 mb-6">
-            <li><strong>Session Token:</strong> This cookie contains an encrypted JWT (JSON Web Token) with information about your current session. It's used to keep you logged in.</li>
+            <li><strong>Session Token:</strong> This cookie contains an encrypted JWT (JSON Web Token) with information about your current session. It&apos;s used to keep you logged in.</li>
             <li><strong>CSRF Token:</strong> This cookie helps protect against Cross-Site Request Forgery attacks by ensuring requests come from legitimate sources.</li>
             <li><strong>Callback URL:</strong> This cookie remembers where to redirect you after authentication.</li>
           </ul>
@@ -159,7 +159,7 @@ export default function CookiePolicyPage() {
           
           <h2 className="text-2xl font-semibold mt-8 mb-4">Changes to This Cookie Policy</h2>
           <p>
-            We may update our Cookie Policy from time to time. We will notify you of any changes by posting the new Cookie Policy on this page and updating the "Last updated" date at the top of this page.
+            We may update our Cookie Policy from time to time. We will notify you of any changes by posting the new Cookie Policy on this page and updating the &quot;Last updated&quot; date at the top of this page.
           </p>
           
           <h2 className="text-2xl font-semibold mt-8 mb-4">Contact Us</h2>

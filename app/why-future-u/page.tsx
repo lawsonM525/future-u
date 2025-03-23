@@ -52,7 +52,7 @@ export default function WhyFutureUPage() {
           </p>
           
           <p className="mb-6">
-            And to give you the motivation, structure, and belief to follow through—so one day, you look back and realize... you've become the person you onced dreamed of.
+            And to give you the motivation, structure, and belief to follow through—so one day, you look back and realize... you&apos;ve become the person you once dreamed of.
           </p>
 
           <p className="mb-6">

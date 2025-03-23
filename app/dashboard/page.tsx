@@ -96,7 +96,7 @@ export default function DashboardPage() {
                     onClick={() => router.push('/customize-avatar')}
                     variant="outline"
                     size="sm"
-                    className="rounded-full text-sm px-4 py-1 h-8 hover:bg-accent/20"
+                    className="rounded-full text-sm px-4 py-1 h-8 bg-accent text-accent-foreground hover:bg-accent/90"
                   >
                     Customize Avatar
                   </Button>
@@ -114,12 +114,12 @@ export default function DashboardPage() {
                 <h3 className="text-2xl font-bold text-accent">Your Career Strategy</h3>
                 <p className="text-muted-foreground">
                   Your career strategy is your comprehensive report that shows you your strengths 
-                  and exactly how you're going to get from present you to future you.
+                  and exactly how you&apos;re going to get from present you to future you.
                 </p>
                 <div className="flex justify-start pt-2">
                   {timeline.length > 0 ? (
                     <Button
-                      className="bg-accent text-accent-foreground hover:bg-accent/90 flex items-center gap-2"
+                      className="bg-accent text-accent-foreground hover:bg-accent/90  flex items-center gap-2"
                       onClick={() => router.push('/report/latest')}
                     >
                       View Career Strategy
@@ -152,17 +152,15 @@ export default function DashboardPage() {
         
         {/* Retake Quiz Button - Full Width */}
         {timeline.length > 0 && (
-          <Card className="mt-6">
-            <CardContent className="p-6">
-              <Button
-                onClick={() => router.push('/quiz-selection')}
-                variant="outline"
-                className="w-full hover:bg-accent/20"
-              >
-                Retake Quiz
-              </Button>
-            </CardContent>
-          </Card>
+          <Button
+          onClick={() => router.push('/quiz-selection')}
+          variant="outline"
+          className="w-full bg-accent text-accent-foreground hover:bg-accent/90 rounded-full py-6 text-lg font-medium"
+        >
+          Retake Quiz
+        </Button>
+
+          
         )}
       </div>
     </div>

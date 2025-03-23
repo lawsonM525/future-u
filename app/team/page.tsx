@@ -28,10 +28,11 @@ export default function TeamPage() {
           </div>
           
           <div className="text-center max-w-lg mx-auto space-y-4">
-            <h2 className="text-2xl font-bold">Hi, it's Michelle!! 👋</h2>
+            <h2 className="text-2xl font-bold">Hi, it&apos;s Michelle!! 👋</h2>
             
-            <p className="text-lg text-zinc-300">
-              It's just me for now, but you can join me if you'd like!! 🤭
+            <p className="text-lg mb-8 max-w-2xl mx-auto">
+              I&apos;m Michelle Lawson, the founder of Future U. With a background in tech and finance, 
+              I&apos;m passionate about helping others find clarity in their career paths.
             </p>
             
             <p className="text-zinc-400">

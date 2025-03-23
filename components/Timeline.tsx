@@ -7,9 +7,9 @@ interface TimelineProps {
 
 export function Timeline({ checkpoints }: TimelineProps) {
   return (
-    <Card className="border-accent">
+    <Card>
       <CardHeader>
-        <CardTitle className="text-2xl font-bold text-accent">Your Journey to Hero Level</CardTitle>
+        <CardTitle className="text-2xl font-bold text-accent">Your Journey to Future U</CardTitle>
       </CardHeader>
       <CardContent className="relative">
         <div className="absolute left-4 top-0 bottom-0 w-0.5 bg-accent/20" />
