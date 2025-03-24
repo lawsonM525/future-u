@@ -4,10 +4,12 @@ import { useEffect, useState } from 'react';
 import { isBrowserSafe } from '@/app/utils/browserDetection';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ExternalLink } from 'lucide-react';
+import { ExternalLink, CheckCircle } from 'lucide-react';
+import { toast } from '@/components/ui/use-toast';
 
-export function BrowserWarning() {
+export function BrowserWarning(): JSX.Element | null {
   const [isUnsafeBrowser, setIsUnsafeBrowser] = useState(false);
+  const [copied, setCopied] = useState(false);
 
   useEffect(() => {
     // Check if we're in a browser environment
@@ -15,12 +17,43 @@ export function BrowserWarning() {
       const userAgent = window.navigator.userAgent;
       setIsUnsafeBrowser(!isBrowserSafe(userAgent));
     }
+    // No return value needed for this effect
   }, []);
+
+  // Reset copy status after 3 seconds
+  useEffect(() => {
+    if (copied) {
+      const timer = setTimeout(() => {
+        setCopied(false);
+      }, 3000);
+      return () => clearTimeout(timer);
+    }
+    // Return undefined for paths where we don't need cleanup
+    return undefined;
+  }, [copied]);
 
   // Don't render anything if the browser is safe
   if (!isUnsafeBrowser) {
     return null;
   }
+
+  const copyLinkToClipboard = (): void => {
+    const url = window.location.href;
+    navigator.clipboard.writeText(url)
+      .then(() => {
+        setCopied(true);
+        toast({
+          title: "Link copied!",
+          description: "You can now paste it or click 'Open in Browser' within the app you're in",
+          duration: 3000,
+        });
+      })
+      .catch(err => {
+        console.error('Failed to copy URL:', err);
+        // Still provide feedback even if clipboard fails
+        setCopied(true);
+      });
+  };
 
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
@@ -39,17 +72,27 @@ export function BrowserWarning() {
           </p>
           <div className="flex flex-col space-y-2 pt-2">
             <Button 
-              onClick={() => {
-                // Copy the current URL
-                const url = window.location.href;
-                navigator.clipboard.writeText(url).catch(err => console.error('Failed to copy URL:', err));
-                alert('URL copied to clipboard! Please paste it in your browser.');
-              }}
+              onClick={copyLinkToClipboard}
               className="flex items-center justify-center gap-2"
+              disabled={copied}
             >
-              <ExternalLink size={16} />
-              Copy Link to Clipboard
+              {copied ? (
+                <>
+                  <CheckCircle size={16} />
+                  Link Copied!
+                </>
+              ) : (
+                <>
+                  <ExternalLink size={16} />
+                  Copy Link to Clipboard
+                </>
+              )}
             </Button>
+            {copied && (
+              <p className="text-sm text-center mt-2 text-accent">
+                You can now paste it or click &apos;Open in Browser&apos; within the app you&apos;re in
+              </p>
+            )}
           </div>
         </CardContent>
       </Card>
