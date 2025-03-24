@@ -8,7 +8,6 @@ import { ExternalLink } from 'lucide-react';
 
 export function BrowserWarning() {
   const [isUnsafeBrowser, setIsUnsafeBrowser] = useState(false);
-  const [isVisible, setIsVisible] = useState(true);
 
   useEffect(() => {
     // Check if we're in a browser environment
@@ -18,8 +17,8 @@ export function BrowserWarning() {
     }
   }, []);
 
-  // Don't render anything if the browser is safe or the warning is dismissed
-  if (!isUnsafeBrowser || !isVisible) {
+  // Don't render anything if the browser is safe
+  if (!isUnsafeBrowser) {
     return null;
   }
 
@@ -50,13 +49,6 @@ export function BrowserWarning() {
             >
               <ExternalLink size={16} />
               Copy Link to Clipboard
-            </Button>
-            <Button 
-              variant="outline" 
-              onClick={() => setIsVisible(false)}
-              className="mt-2"
-            >
-              Dismiss Warning
             </Button>
           </div>
         </CardContent>
