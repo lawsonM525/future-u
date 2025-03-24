@@ -56,7 +56,7 @@ export default function WhyFutureUPage() {
           </p>
 
           <p className="mb-6">
-            This isn&apos;t about hustle culture.  It&apos;s about mapping out your future—then walking into it.
+            This isn&apos;t about hustle culture. 
           </p>
 
           <p className="mb-6">
