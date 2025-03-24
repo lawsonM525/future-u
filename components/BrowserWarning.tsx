@@ -31,9 +31,10 @@ export function BrowserWarning() {
         </CardHeader>
         <CardContent className="space-y-4">
           <p>
-            It looks like you&apos;re using an in-app browser. Please open Future U in your device&apos;s
-            standard browser (Chrome, Safari, Firefox, etc.) to continue.
+            It looks like you&apos;re using an in-app browser. 
           </p>
+          <p>Please open Future U in your device&apos;s
+          standard browser (Chrome, Safari, Firefox, etc.) to continue.</p>
           <p className="text-sm opacity-80">
             In-app browsers can cause issues with authentication and other features. :/
           </p>
