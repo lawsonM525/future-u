@@ -40,11 +40,11 @@ export async function POST(request: Request) {
     }
 
     // Send email
-    await sendCareerReport(
-      session.user.email,
-      session.user.name,
-      report.data
-    )
+      await sendCareerReport(
+        session.user.email,
+        session.user.name,
+        report.content
+      )
 
     return NextResponse.json({ success: true })
   } catch (error) {
