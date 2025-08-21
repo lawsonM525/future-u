@@ -1,4 +1,4 @@
-import { Inter } from 'next/font/google'
+import { Space_Grotesk, Righteous, Rubik_Mono_One } from 'next/font/google'
 import { ThemeProvider } from '@/components/theme-provider'
 import './globals.css'
 import { Providers } from './providers'
@@ -7,7 +7,23 @@ import { Footer } from '@/components/Footer'
 import Script from 'next/script'
 import { BrowserWarning } from '@/components/BrowserWarning'
 
-const inter = Inter({ subsets: ['latin'] })
+const spaceGrotesk = Space_Grotesk({ 
+  subsets: ['latin'],
+  weight: ['300', '400', '500', '600', '700'],
+  variable: '--font-space-grotesk'
+})
+
+const righteous = Righteous({ 
+  subsets: ['latin'],
+  weight: '400',
+  variable: '--font-righteous'
+})
+
+const rubikMonoOne = Rubik_Mono_One({ 
+  subsets: ['latin'],
+  weight: '400',
+  variable: '--font-rubik-mono-one'
+})
 
 export const metadata = {
   title: 'Future U',
@@ -39,7 +55,7 @@ export default function RootLayout({
           }}
         />
       </head>
-      <body className={`${inter.className} bg-background text-foreground min-h-screen flex flex-col`}>
+      <body className={`${spaceGrotesk.className} ${righteous.variable} ${rubikMonoOne.variable} bg-background text-foreground min-h-screen flex flex-col`}>
         <ThemeProvider attribute="class" defaultTheme="dark">
           <Providers>
             <BrowserWarning />

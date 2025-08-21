@@ -9,6 +9,12 @@ const config: Config = {
   ],
   theme: {
   	extend: {
+  		fontFamily: {
+  			'sans': ['var(--font-space-grotesk)', 'sans-serif'],
+  			'space-grotesk': ['var(--font-space-grotesk)', 'sans-serif'],
+  			'righteous': ['var(--font-righteous)', 'sans-serif'],
+  			'rubik-mono-one': ['var(--font-rubik-mono-one)', 'monospace'],
+  		},
   		colors: {
   			background: 'hsl(var(--background))',
   			foreground: 'hsl(var(--foreground))',

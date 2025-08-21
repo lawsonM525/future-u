@@ -3,405 +3,348 @@
 import { useState, useEffect, useCallback } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import { useSession } from 'next-auth/react'
+import { motion, AnimatePresence } from 'framer-motion'
+import { useQuiz } from '@/lib/quiz-context'
+import { getQuizConfig, getQuizSections } from '@/lib/quiz-data'
+import { useQuizPersistence } from '@/lib/hooks/useQuizPersistence'
+import { QuizWelcome } from '@/components/quiz/QuizWelcome'
+import { QuizQuestion } from '@/components/quiz/QuizQuestion'
+import { QuizProgress } from '@/components/quiz/QuizProgress'
+import { QuizSectionTransition } from '@/components/quiz/QuizSectionTransition'
 import { Button } from '@/components/ui/button'
-import { Textarea } from '@/components/ui/textarea'
-import { Progress } from '@/components/ui/progress'
-
-const quizData = {
-  test: { 
-    questions: 3, 
-    name: 'Test Quiz',
-    prompts: [
-      "What is your current job title?",
-      "What industry do you want towork in?",
-      "What's your dream job?"
-    ]
-  },
-  quickie: { 
-    questions: 10, 
-    name: 'The Quickie',
-    prompts: [
-      "What are your career goals for the next 5 years?",
-      "What skills do you currently possess?",
-      "What industry interests you the most?",
-      "Describe your ideal work environment.",
-      "What's your educational background?",
-      "What are your salary expectations?",
-      "What skills would you like to develop?",
-      "What's your preferred work style?",
-      "What challenges are you facing in your career?",
-      "What motivates you professionally?"
-    ]
-  },
-  medium: { 
-    questions: 40, 
-    name: 'I\'ve Got Some Time',
-    prompts: [
-      // Current Situation (20 questions)
-      "What's your current job or role in life?",
-      "How would you describe yourself in one sentence today?",
-      "What skills do you use most often in your work?",
-      "What's one skill you feel confident in?",
-      "How satisfied are you with your current career path? (1-10)",
-      "What's a challenge you're facing in your work right now?",
-      "Where do you live, and how do you feel about it?",
-      "How do you feel about your current work-life balance?",
-      "What's one thing you'd like to change about your daily life?",
-      "How do you feel about your current financial situation?",
-      "What's one financial goal you're working toward?",
-      "Who are the people you spend the most time with?",
-      "How do you feel about your current relationships?",
-      "What's one value you prioritize the most in your life right now?",
-      "What's one fear you feel is holding you back today?",
-      "How do you usually spend your free time?",
-      "What's one professional goal you're working toward?",
-      "How do you feel about your current industry or field?",
-      "What's the biggest financial challenge you're facing right now?",
-      "How connected do you feel to your community?",
-
-      // Future Aspirations (20 questions)
-      "What's your dream job?",
-      "What's the biggest dream you've ever had?",
-      "What's one skill you want to build for your career?",
-      "What impact do you want to have on the world?",
-      "If you could create your own job, what would it look like?",
-      "What's a problem in the world you'd love to solve?",
-      "What industry excites you the most right now?",
-      "What's one accomplishment that would make you feel fulfilled?",
-      "Where do you want to live in 10 years?",
-      "What's your ideal daily routine?",
-      "What kind of work-life balance would make you happiest?",
-      "What's one value you'll never compromise on?",
-      "What kind of person do you want to be in 10 years?",
-      "What's one thing about yourself you're most proud of?",
-      "What's an activity you can do for hours without getting bored?",
-      "What's one topic you'd love to learn more about?",
-      "If you could turn a hobby into a career, what would it be?",
-      "What unique contribution do you want to make?",
-      "What does financial success mean to you?",
-      "Who's living a life you admire, and why?"
-    ]
-  },
-  'deep-dive': { 
-    questions: 100, 
-    name: 'The Deep Dive',
-    prompts: [
-      // Current Identity & Values (20 questions)
-      "What's your current job or role in life?",
-      "How would you describe yourself in one sentence today?",
-      "What's one value you prioritize most in your life right now?",
-      "What's one thing about yourself you feel confident in?",
-      "What's one fear you feel is holding you back today?",
-      "How do you usually spend your free time?",
-      "What's one word to describe your current mindset?",
-      "What's one belief about yourself that you're questioning?",
-      "What's something you've recently accomplished that you're proud of?",
-      "What's one habit you wish you could change?",
-      "What motivates you the most right now?",
-      "What's one word that describes the life you want?",
-      "What's your biggest strength?",
-      "What's your biggest weakness?",
-      "What makes you unique?",
-      "What's one thing you'd never compromise on?",
-      "What's your personal definition of success?",
-      "What's one thing you wish others knew about you?",
-      "What's one life experience that shaped who you are?",
-      "What's one thing you're currently struggling with?",
-
-      // Current Career & Skills (20 questions)
-      "What skills do you use most often in your work?",
-      "What's one skill you feel particularly confident in?",
-      "What's one skill you'd like to improve?",
-      "How satisfied are you with your current career path? (1-10)",
-      "What's one thing you've learned on the job recently?",
-      "What's a challenge you're facing in your work right now?",
-      "What's one professional goal you're working toward?",
-      "How do you feel about your current industry or field?",
-      "What's one thing you wish was different about your current job?",
-      "What's your favorite part of your current work?",
-      "What's your least favorite part of your current work?",
-      "How do you handle work-related stress?",
-      "What's your preferred working style?",
-      "How do you like to learn new things?",
-      "What's one professional relationship you'd like to improve?",
-      "What's one work achievement you're proud of?",
-      "What's one work-related decision you regret?",
-      "How do you measure success in your current role?",
-      "What's one thing you'd change about your work environment?",
-      "What's one professional opportunity you wish you had?",
-
-      // Current Lifestyle & Finances (20 questions)
-      "Where do you live, and how do you feel about it?",
-      "What does your daily routine usually look like?",
-      "How do you spend your weekends?",
-      "What's your current work-life balance like?",
-      "How do you feel about your current financial situation?",
-      "What's one financial goal you're working toward?",
-      "What's the biggest financial challenge you're facing?",
-      "How do you usually make decisions about money?",
-      "What's one purchase you've made recently that you regret?",
-      "What's one thing you wish you could afford right now?",
-      "How do you feel about your ability to manage money?",
-      "What's your relationship with saving and spending?",
-      "How do you feel about your current living space?",
-      "What's one thing you'd change about your lifestyle?",
-      "How do you typically handle stress?",
-      "What's your relationship with health and wellness?",
-      "How do you spend your free time?",
-      "What's one habit you'd like to develop?",
-      "What's one thing you'd like to simplify in your life?",
-      "How do you recharge when you're feeling drained?",
-
-      // Future Dreams & Aspirations (20 questions)
-      "What's your biggest dream?",
-      "What's your dream job?",
-      "If success were guaranteed, what would you do?",
-      "What impact do you want to have on the world?",
-      "Where do you see yourself in 10 years?",
-      "What's one skill you want to master?",
-      "What's a problem in the world you'd love to solve?",
-      "What industry excites you the most?",
-      "What's one accomplishment that would make you feel fulfilled?",
-      "What's your ideal daily routine?",
-      "What kind of work-life balance do you want?",
-      "What's one value you'll never compromise on?",
-      "What kind of person do you want to become?",
-      "What's one thing you'd regret not trying?",
-      "What's something you've always wanted to learn?",
-      "If you could create your perfect job, what would it be?",
-      "What's one way you'd like to make a difference?",
-      "What does your ideal future look like?",
-      "What's one bold move you'd like to make?",
-      "What's one legacy you'd like to leave behind?",
-
-      // Action Steps & Implementation (20 questions)
-      "What's one small step you could take today toward your goals?",
-      "What's holding you back from pursuing your dreams?",
-      "What resources do you need to achieve your goals?",
-      "Who could help you achieve your goals?",
-      "What skills do you need to develop?",
-      "What's one habit you need to build?",
-      "What's one thing you need to let go of?",
-      "What's your timeline for achieving your goals?",
-      "What's your backup plan if things don't work out?",
-      "How will you measure your progress?",
-      "What's one obstacle you need to overcome?",
-      "What support system do you need to build?",
-      "What's one risk you need to take?",
-      "What's one boundary you need to set?",
-      "What's one commitment you need to make to yourself?",
-      "What's one thing you need to learn more about?",
-      "What's one connection you need to make?",
-      "What's one change you need to implement?",
-      "What's one decision you need to make?",
-      "What's your first step forward from here?"
-    ]
-  }
-}
+import { AlertCircle, Loader2 } from 'lucide-react'
 
 export default function QuizPage() {
   const params = useParams()
   const router = useRouter()
   const { data: session } = useSession()
   const quizType = params.type as string
+  
+  const {
+    currentQuizType,
+    currentQuestionIndex,
+    answers,
+    completedSections,
+    startQuiz,
+    saveAnswer,
+    navigateToQuestion,
+    markSectionComplete,
+    clearQuizProgress,
+    canResumeQuiz,
+    getQuizCompletion
+  } = useQuiz()
 
-  const [currentQuestion, setCurrentQuestion] = useState(1)
-  const [answer, setAnswer] = useState('')
-  const [isAnimating, setIsAnimating] = useState(false)
-  const [answers, setAnswers] = useState<Record<number, string>>({})
   const [isProcessing, setIsProcessing] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [showWelcome, setShowWelcome] = useState(true)
+  const [showSectionTransition, setShowSectionTransition] = useState(false)
+  const [currentAnswer, setCurrentAnswer] = useState('')
+  const [navigationDirection, setNavigationDirection] = useState(0)
 
-  const quiz = quizData[quizType as keyof typeof quizData]
-  const questions = quiz?.questions ?? 0
-  const prompts = quiz?.prompts ?? []
+  // Enable quiz persistence for authenticated users
+  useQuizPersistence({ enabled: !showWelcome })
 
-  const handleNext = useCallback(async () => {
-    if (!quiz || isSubmitting) return
+  const quizConfig = getQuizConfig(quizType)
+  const sections = getQuizSections(quizType)
+  const questions = quizConfig?.questions || []
+  const currentQuestion = questions[currentQuestionIndex]
+  
+  // Calculate current section
+  const currentSection = sections.find(section => 
+    section.questions.some(q => q.id === currentQuestion?.id)
+  )
+  const currentSectionIndex = sections.findIndex(s => s.id === currentSection?.id)
 
-    setAnswers(prev => ({
-      ...prev,
-      [currentQuestion]: answer
-    }))
+  // Check if we can resume
+  const hasExistingProgress = canResumeQuiz(quizType)
+  const savedProgress = hasExistingProgress ? {
+    answeredQuestions: Object.keys(answers).length,
+    totalQuestions: questions.length,
+    lastUpdated: new Date()
+  } : undefined
 
-    if (currentQuestion < questions) {
-      setIsAnimating(true)
-      setTimeout(() => {
-        setCurrentQuestion(currentQuestion + 1)
-        setAnswer('')
-        setIsAnimating(false)
-      }, 300)
-    } else {
-      if (isSubmitting) return // Prevent double submission
-      setIsSubmitting(true)
-      setIsProcessing(true)
-      setError(null)
-      
-      try {
-        if (!session?.user?.id) {
-          // Save answers to temporary MongoDB document instead of URL
-          const saveResponse = await fetch('/api/save-temp-quiz', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-              answers: { ...answers, [currentQuestion]: answer },
-              quizType
-            })
-          })
-
-          if (!saveResponse.ok) {
-            throw new Error('Failed to save quiz data')
-          }
-
-          const { tempId } = await saveResponse.json()
-          router.push(`/auth/post-quiz?tempId=${tempId}`)
-          return
-        }
-
-        const response = await fetch('/api/process-quiz', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ 
-            answers: {
-              ...answers,
-              [currentQuestion]: answer
-            },
-            quizType
-          }),
-        })
-
-        if (!response.ok) {
-          throw new Error('Failed to process quiz')
-        }
-
-        const data = await response.json()
-        router.push(`/report/${data.reportId}`)
-      } catch (err) {
-        console.error('Error:', err)
-        setError('Failed to process quiz. Please try again.')
-        setIsSubmitting(false)
-      } finally {
-        setIsProcessing(false)
-      }
-    }
-  }, [quiz, currentQuestion, questions, answer, answers, session, router, quizType, isSubmitting])
-
-  const handlePrevious = useCallback(() => {
-    if (currentQuestion > 1) {
-      setIsAnimating(true)
-      setTimeout(() => {
-        setCurrentQuestion(prev => prev - 1)
-        setAnswer(answers[currentQuestion - 1] || '')
-        setIsAnimating(false)
-      }, 300)
-    }
-  }, [currentQuestion, answers])
-
-  const handleKeyPress = useCallback((e: KeyboardEvent) => {
-    if (e.key === 'Enter' && !e.shiftKey && answer.trim()) {
-      handleNext()
-    }
-  }, [answer, handleNext])
+  // Calculate progress
+  const overallProgress = (Object.keys(answers).length / questions.length) * 100
+  
+  // Calculate time remaining (rough estimate)
+  const questionsRemaining = questions.length - Object.keys(answers).length
+  const avgTimePerQuestion = 0.5 // minutes
+  const estimatedTimeRemaining = Math.ceil(questionsRemaining * avgTimePerQuestion)
+  const timeRemainingText = estimatedTimeRemaining > 60 
+    ? `${Math.floor(estimatedTimeRemaining / 60)}h ${estimatedTimeRemaining % 60}m`
+    : `${estimatedTimeRemaining}m`
 
   useEffect(() => {
-    if (!quizData[quizType as keyof typeof quizData]) {
+    if (!quizConfig) {
       router.push('/quiz-selection')
       return
     }
-  }, [quizType, router])
+
+    // If we have a different quiz in progress, clear it
+    if (currentQuizType && currentQuizType !== quizType) {
+      clearQuizProgress()
+    }
+  }, [quizType, quizConfig, router, currentQuizType, clearQuizProgress])
 
   useEffect(() => {
-    localStorage.removeItem('lastReportId')
-    localStorage.removeItem('lastReportContent')
-    sessionStorage.removeItem('pendingReportContent')
+    // Load the current answer when navigating between questions
+    if (currentQuestion) {
+      setCurrentAnswer(answers[currentQuestion.id] || '')
+    }
+  }, [currentQuestion, answers])
+
+  const handleStart = useCallback(() => {
+    startQuiz(quizType)
+    setShowWelcome(false)
+  }, [startQuiz, quizType])
+
+  const handleResume = useCallback(() => {
+    // Progress is already loaded in context
+    setShowWelcome(false)
   }, [])
 
-  useEffect(() => {
-    window.addEventListener('keydown', handleKeyPress)
-    return () => {
-      window.removeEventListener('keydown', handleKeyPress)
-    }
-  }, [handleKeyPress])
+  const handleAnswerChange = useCallback((answer: string) => {
+    setCurrentAnswer(answer)
+  }, [])
 
-  if (!quiz) {
+  const handleNext = useCallback(async () => {
+    if (!currentQuestion) return
+
+    // Save the current answer
+    saveAnswer(currentQuestion.id, currentAnswer)
+
+    // Check if this completes a section
+    if (sections.length > 0 && currentSection) {
+      const sectionQuestions = currentSection.questions
+      const lastQuestionInSection = sectionQuestions[sectionQuestions.length - 1]
+      
+      if (currentQuestion.id === lastQuestionInSection.id) {
+        // Mark section as complete
+        markSectionComplete(currentSectionIndex)
+        
+        // Check if there's a next section
+        if (currentSectionIndex < sections.length - 1) {
+          setShowSectionTransition(true)
+          return
+        }
+      }
+    }
+
+    // Check if this is the last question
+    if (currentQuestionIndex === questions.length - 1) {
+      await handleSubmit()
+    } else {
+      setNavigationDirection(1)
+      navigateToQuestion(currentQuestionIndex + 1)
+    }
+  }, [currentQuestion, currentAnswer, currentQuestionIndex, questions.length, 
+      saveAnswer, navigateToQuestion, sections, currentSection, currentSectionIndex, 
+      markSectionComplete])
+
+  const handlePrevious = useCallback(() => {
+    if (currentQuestionIndex > 0) {
+      setNavigationDirection(-1)
+      navigateToQuestion(currentQuestionIndex - 1)
+    }
+  }, [currentQuestionIndex, navigateToQuestion])
+
+  const handleContinueFromTransition = useCallback(() => {
+    setShowSectionTransition(false)
+    navigateToQuestion(currentQuestionIndex + 1)
+  }, [currentQuestionIndex, navigateToQuestion])
+
+  const handleSubmit = async () => {
+    setIsProcessing(true)
+    setError(null)
+    
+    try {
+      // Save final answer
+      if (currentQuestion) {
+        saveAnswer(currentQuestion.id, currentAnswer)
+      }
+
+      const finalAnswers = {
+        ...answers,
+        [currentQuestion.id]: currentAnswer
+      }
+
+      if (!session?.user?.id) {
+        // Save to temporary storage for unauthenticated users
+        const response = await fetch('/api/save-temp-quiz', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ answers: finalAnswers, quizType })
+        })
+
+        if (!response.ok) throw new Error('Failed to save quiz data')
+
+        const { tempId } = await response.json()
+        clearQuizProgress()
+        router.push(`/auth/post-quiz?tempId=${tempId}`)
+        return
+      }
+
+      // Process quiz for authenticated users
+      const response = await fetch('/api/process-quiz', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ answers: finalAnswers, quizType })
+      })
+
+      if (!response.ok) throw new Error('Failed to process quiz')
+
+      const data = await response.json()
+      clearQuizProgress()
+      router.push(`/report/${data.reportId}`)
+    } catch (err) {
+      console.error('Error:', err)
+      setError('Failed to process quiz. Please try again.')
+    } finally {
+      setIsProcessing(false)
+    }
+  }
+
+  if (!quizConfig) {
     return null // Will redirect in useEffect
   }
 
   if (isProcessing) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center p-4 space-y-4">
-        {!error ? (
-          <>
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-accent"></div>
-            <h2 className="text-2xl font-bold text-center">
-              Processing Your Responses
-            </h2>
-            <p className="text-center text-muted-foreground">
-              This may take a minute while we analyze your answers and generate personalized career insights...
-            </p>
-          </>
-        ) : (
-          <div className="text-center space-y-4">
-            <h2 className="text-2xl font-bold text-red-500">
-              {typeof error === 'string' && error.includes('too long to process') ? 'Request Timeout' : 'Something Went Wrong'}
-            </h2>
-            <p className="text-muted-foreground max-w-md mx-auto">{error}</p>
-            <Button 
-              onClick={() => {
-                setError(null)
-                setIsProcessing(false)
-              }}
-              className="bg-accent text-accent-foreground hover:bg-accent/90"
-            >
-              Try Again
-            </Button>
-          </div>
-        )}
+        <motion.div
+          initial={{ opacity: 0, scale: 0.9 }}
+          animate={{ opacity: 1, scale: 1 }}
+          className="text-center space-y-4"
+        >
+          <Loader2 className="h-12 w-12 animate-spin text-accent mx-auto" />
+          <h2 className="text-2xl font-bold">Processing Your Responses</h2>
+          <p className="text-muted-foreground max-w-md">
+            This may take a minute while we analyze your answers and generate personalized career insights...
+          </p>
+        </motion.div>
+      </div>
+    )
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center p-4">
+        <motion.div
+          initial={{ opacity: 0, scale: 0.9 }}
+          animate={{ opacity: 1, scale: 1 }}
+          className="text-center space-y-4 max-w-md"
+        >
+          <AlertCircle className="h-12 w-12 text-destructive mx-auto" />
+          <h2 className="text-2xl font-bold">Something went wrong</h2>
+          <p className="text-muted-foreground">{error}</p>
+          <Button
+            onClick={() => {
+              setError(null)
+              setIsProcessing(false)
+            }}
+            className="bg-accent text-accent-foreground hover:bg-accent/90"
+          >
+            Try Again
+          </Button>
+        </motion.div>
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center p-4 animate-fade-in">
-      <h1 className="text-3xl font-bold mb-6 animate-slide-up">
-        Question {currentQuestion}: {prompts[currentQuestion - 1]}
-      </h1>
-      <Progress 
-        value={(currentQuestion / questions) * 100} 
-        className="w-full max-w-md mb-4 animate-slide-up bg-gray-200"
-        style={{
-          '--tw-progress-fill-color': 'hsl(var(--accent))',
-        } as React.CSSProperties}
-      />
-      <p className="mb-4 animate-slide-up">Question {currentQuestion} of {questions}</p>
-      <Textarea
-        placeholder="Your answer (1-100 words)"
-        value={answer}
-        onChange={(e) => setAnswer(e.target.value)}
-        className={`w-full max-w-md mb-4 transition-opacity duration-300 ${isAnimating ? 'opacity-0' : 'opacity-100'}`}
-      />
-      <div className="flex space-x-4">
-        <Button 
-          onClick={handlePrevious} 
-          disabled={currentQuestion === 1 || isAnimating}
-          className="bg-accent text-accent-foreground hover:bg-accent/90 animate-slide-up font-bold"
+    <div className="min-h-screen flex flex-col p-4">
+      {/* Progress Header */}
+      {!showWelcome && (
+        <motion.div
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="mb-8"
         >
-          Previous
-        </Button>
-        <Button 
-          onClick={handleNext} 
-          disabled={answer.trim().length === 0 || answer.trim().split(/\s+/).length > 100}
-          className="bg-accent text-accent-foreground hover:bg-accent/90 animate-slide-up font-bold"
-        >
-          {currentQuestion === questions ? 'Finish' : 'Next'}
-        </Button>
+          <QuizProgress
+            currentProgress={overallProgress}
+            sections={sections}
+            completedSections={completedSections}
+            currentSection={currentSection?.id}
+            estimatedTimeRemaining={timeRemainingText}
+          />
+        </motion.div>
+      )}
+
+      {/* Main Content */}
+      <div className="flex-1 flex items-center justify-center">
+        <AnimatePresence mode="wait">
+          {showWelcome ? (
+            <motion.div
+              key="welcome"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="w-full"
+            >
+              <QuizWelcome
+                quizConfig={quizConfig}
+                savedProgress={savedProgress}
+                onStart={handleStart}
+                onResume={handleResume}
+              />
+            </motion.div>
+          ) : showSectionTransition && sections.length > 0 ? (
+            <motion.div
+              key="transition"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="w-full"
+            >
+              <QuizSectionTransition
+                completedSection={sections[currentSectionIndex]}
+                nextSection={sections[currentSectionIndex + 1] || null}
+                onContinue={handleContinueFromTransition}
+                questionsAnswered={sections[currentSectionIndex].questions.length}
+                sectionIndex={currentSectionIndex}
+              />
+            </motion.div>
+          ) : currentQuestion ? (
+            <motion.div
+              key={`question-${currentQuestion.id}`}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="w-full"
+            >
+              <QuizQuestion
+                question={currentQuestion}
+                answer={currentAnswer}
+                onAnswerChange={handleAnswerChange}
+                onNext={handleNext}
+                onPrevious={handlePrevious}
+                canGoNext={currentAnswer.trim().length > 0 && 
+                  currentAnswer.trim().split(/\s+/).length <= (currentQuestion.maxWords || 100)}
+                canGoPrevious={currentQuestionIndex > 0}
+                isLastQuestion={currentQuestionIndex === questions.length - 1}
+                currentIndex={currentQuestionIndex + 1}
+                totalQuestions={questions.length}
+              />
+            </motion.div>
+          ) : null}
+        </AnimatePresence>
       </div>
-      <a href="/" className="text-gray-500 mt-4">Back to Home</a>
+
+      {/* Footer */}
+      {!showWelcome && (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          className="mt-8 text-center"
+        >
+          <a 
+            href="/" 
+            className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+          >
+            Exit Quiz
+          </a>
+        </motion.div>
+      )}
     </div>
   )
 }

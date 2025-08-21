@@ -41,3 +41,8 @@ we're in prod!! with MVP at least.
 We're back on it! my fingers are trembling... too much caffeine maybe? i added the timeline feature yesterday and pushed to prod but didnt bother to test it so let's see how it's doing!
 also, i need to remove the whole "by signing up, you agree to our terms of service and privacy policy" bs.
 and yep, something broke!! yay! well let's see if i can get gitdoc to work today, im on cursor this time, then i can code on windsurf, and cursor pushes to github.
+
+
+07/16/25 20:46
+TODOS:
+- Progress bare needs contrasting colors (maybe yellow and white?) .. how do we market this... need a banging marketing strategy!!!

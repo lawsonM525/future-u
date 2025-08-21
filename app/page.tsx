@@ -55,7 +55,7 @@ export default function LandingPage() {
           </>
         ) : (
           <>
-            <h1 className="text-4xl font-bold mb-6 animate-slide-up">Welcome to Future U</h1>
+            <h1 className="text-4xl font-bold mb-6 animate-slide-up font-rubik-mono-one">Welcome to Future U</h1>
             <p className="text-xl mb-8 text-center max-w-2xl animate-slide-up">
               Your Future, Mapped Out.
             </p>
@@ -63,7 +63,7 @@ export default function LandingPage() {
               <Button 
                 variant="yellow"
                 size="lg" 
-                className="animate-slide-up font-bold"
+                className="animate-slide-up font-bold rounded-full"
               >
                 Start Your Journey
               </Button>

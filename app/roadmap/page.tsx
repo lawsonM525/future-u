@@ -3,17 +3,22 @@
 import Link from 'next/link'
 import { ArrowLeft } from 'lucide-react'
 import { Button } from '@/components/ui/button'
+import { StarSprite } from '@/components/ui/star-sprite'
 
 export default function RoadmapPage() {
   return (
     <div className="min-h-screen px-4 py-8 md:px-8 animate-fade-in">
       <div className="max-w-3xl mx-auto">
-        <Link href="/" className="inline-flex items-center text-yellow-500 hover:text-yellow-600 transition mb-8">
+        <Link href="/" className="inline-flex items-center text-yellow-500/60 hover:text-yellow-500 transition mb-8">
           <ArrowLeft className="mr-2 h-4 w-4" />
           <span>Back to Home</span>
         </Link>
         
-        <h1 className="text-4xl md:text-5xl font-bold mb-6 text-center">🌟 Future U Roadmap 🌟</h1>
+        <h1 className="text-3xl md:text-4xl font-bold mb-6 text-center flex items-center justify-center gap-3 font-rubik-mono-one">
+          <StarSprite size={64} />
+          Future U Roadmap
+          <StarSprite size={64} />
+        </h1>
         
         <p className="text-lg text-center mb-3">
           We&apos;re building Future U to be your comprehensive guide from your present self to your dream future self, severy step of the way.

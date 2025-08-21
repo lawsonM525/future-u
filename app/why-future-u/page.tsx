@@ -28,7 +28,7 @@ export default function WhyFutureUPage() {
           </p>
           
           <p className="mb-1">
-            Want to cure hunger, write poetry from a farm, or become the best in your field?  
+            Want to cure hunger? Write poetry from a farm? Become the best in your field?  
           </p>
 
           <p className="mb-6">
@@ -36,7 +36,7 @@ export default function WhyFutureUPage() {
           </p>
 
           <p className="mb-6">
-            But the difference between dreaming and doing isn&apos;t talent. It&apos;s clarity. It&apos;s knowing what you want, understanding the steps you need to take, and having the courage to take them — one at a time.
+            But the difference between dreaming and doing isn&apos;t talent. It&apos;s clarity. It&apos;s knowing what you want, understanding the steps you need to take, and having the courage to take them - one at a time.
           </p>
 
           <p className="mb-6">
@@ -52,7 +52,7 @@ export default function WhyFutureUPage() {
           </p>
           
           <p className="mb-6">
-            And to give you the motivation, structure, and belief to follow through—so one day, you look back and realize... you&apos;ve become the person you once dreamed of.
+            And to give you the motivation, structure, and belief to follow through, so one day, you look back and realize... you&apos;ve become the person you once dreamed of.
           </p>
 
           <p className="mb-6">
@@ -64,7 +64,7 @@ export default function WhyFutureUPage() {
           </p>
 
           <p className="mb-12">
-          It&apos;s about mapping out your future—then walking into it.
+          It&apos;s about mapping out your future... and then walking into it.
           </p>
         </div>
       </div>
