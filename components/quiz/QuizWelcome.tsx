@@ -97,7 +97,7 @@ export function QuizWelcome({
         transition={{ delay: 0.4 }}
         className="space-y-3"
       >
-        <h3 className="font-semibold text-foreground">What you'll get:</h3>
+        <h3 className="font-semibold text-foreground">What you&apos;ll get:</h3>
         <ul className="space-y-2">
           {quizConfig.features.map((feature, index) => (
             <motion.li

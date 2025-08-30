@@ -1,17 +1,16 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { getServerSession } from 'next-auth'
-import { authOptions } from '@/lib/auth'
+import { auth } from '@/app/utils/authOptions'
 import { QuizProgress } from '@/models/QuizProgress'
-import dbConnect from '@/lib/mongodb'
+import { connect } from '@/lib/mongodb'
 
 export async function GET(request: NextRequest) {
   try {
-    const session = await getServerSession(authOptions)
+    const session = await auth()
     if (!session?.user?.id) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    await dbConnect()
+    await connect()
 
     const { searchParams } = new URL(request.url)
     const quizType = searchParams.get('quizType')
@@ -44,12 +43,12 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
-    const session = await getServerSession(authOptions)
+    const session = await auth()
     if (!session?.user?.id) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    await dbConnect()
+    await connect()
 
     const body = await request.json()
     const {
@@ -117,12 +116,12 @@ export async function POST(request: NextRequest) {
 
 export async function DELETE(request: NextRequest) {
   try {
-    const session = await getServerSession(authOptions)
+    const session = await auth()
     if (!session?.user?.id) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    await dbConnect()
+    await connect()
 
     const { searchParams } = new URL(request.url)
     const quizType = searchParams.get('quizType')

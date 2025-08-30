@@ -1,6 +1,6 @@
 'use client'
 
-import { motion, AnimatePresence } from 'framer-motion'
+import { motion } from 'framer-motion'
 import { Textarea } from '@/components/ui/textarea'
 import { Button } from '@/components/ui/button'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
@@ -30,7 +30,7 @@ const questionVariants = {
     opacity: 1,
     scale: 1,
     transition: {
-      type: "spring",
+      type: "spring" as const,
       stiffness: 300,
       damping: 30,
       opacity: { duration: 0.2 }
@@ -41,7 +41,7 @@ const questionVariants = {
     opacity: 0,
     scale: 0.95,
     transition: {
-      type: "spring",
+      type: "spring" as const,
       stiffness: 300,
       damping: 30,
       opacity: { duration: 0.2 }

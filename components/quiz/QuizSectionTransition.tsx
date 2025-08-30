@@ -58,7 +58,7 @@ export function QuizSectionTransition({
           {completedSection.title} Complete!
         </h2>
         <p className="text-muted-foreground">
-          You've answered {questionsAnswered} questions in this section. Great job!
+          You&apos;ve answered {questionsAnswered} questions in this section. Great job!
         </p>
       </motion.div>
 
@@ -117,7 +117,7 @@ export function QuizSectionTransition({
         transition={{ delay: 1.2 }}
         className="text-sm text-muted-foreground italic max-w-md mx-auto"
       >
-        "Every step forward is a step toward achieving something bigger and better than your current situation."
+        &ldquo;Every step forward is a step toward achieving something bigger and better than your current situation.&rdquo;
       </motion.p>
     </motion.div>
   )

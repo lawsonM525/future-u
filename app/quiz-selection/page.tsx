@@ -113,7 +113,7 @@ export default function QuizSelection() {
             className="text-center space-y-4"
           >
             <p className="text-sm text-muted-foreground">
-              Not sure which to choose? Start with "The Quickie" for a taste of what FutureU can offer
+              Not sure which to choose? Start with &ldquo;The Quickie&rdquo; for a taste of what FutureU can offer
             </p>
             
             <Link 

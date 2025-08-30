@@ -58,7 +58,7 @@ export function useQuizPersistence(options: UseQuizPersistenceOptions = {}) {
 
   // Debounced save function (saves after 2 seconds of inactivity)
   const debouncedSave = useCallback(
-    debounce(saveProgress, 2000),
+    () => debounce(saveProgress, 2000)(),
     [saveProgress]
   )
 

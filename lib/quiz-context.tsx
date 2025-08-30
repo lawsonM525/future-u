@@ -1,13 +1,7 @@
 'use client'
 
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react'
-import { useSession } from 'next-auth/react'
 
-interface QuizAnswer {
-  questionId: number
-  answer: string
-  timestamp: Date
-}
 
 interface QuizProgress {
   quizType: string
@@ -44,10 +38,8 @@ interface QuizContextType {
 const QuizContext = createContext<QuizContextType | undefined>(undefined)
 
 const QUIZ_STORAGE_KEY = 'futureU_quizProgress'
-const QUIZ_HISTORY_KEY = 'futureU_quizHistory'
 
 export function QuizProvider({ children }: { children: React.ReactNode }) {
-  const { data: session } = useSession()
   const [currentQuizType, setCurrentQuizType] = useState<string | null>(null)
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0)
   const [answers, setAnswers] = useState<Record<number, string>>({})

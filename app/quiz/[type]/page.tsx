@@ -30,8 +30,7 @@ export default function QuizPage() {
     navigateToQuestion,
     markSectionComplete,
     clearQuizProgress,
-    canResumeQuiz,
-    getQuizCompletion
+    canResumeQuiz
   } = useQuiz()
 
   const [isProcessing, setIsProcessing] = useState(false)
@@ -39,7 +38,6 @@ export default function QuizPage() {
   const [showWelcome, setShowWelcome] = useState(true)
   const [showSectionTransition, setShowSectionTransition] = useState(false)
   const [currentAnswer, setCurrentAnswer] = useState('')
-  const [navigationDirection, setNavigationDirection] = useState(0)
 
   // Enable quiz persistence for authenticated users
   useQuizPersistence({ enabled: !showWelcome })
@@ -134,16 +132,14 @@ export default function QuizPage() {
     if (currentQuestionIndex === questions.length - 1) {
       await handleSubmit()
     } else {
-      setNavigationDirection(1)
       navigateToQuestion(currentQuestionIndex + 1)
     }
   }, [currentQuestion, currentAnswer, currentQuestionIndex, questions.length, 
       saveAnswer, navigateToQuestion, sections, currentSection, currentSectionIndex, 
-      markSectionComplete])
+      markSectionComplete]) // handleSubmit is defined below, so we can't include it here
 
   const handlePrevious = useCallback(() => {
     if (currentQuestionIndex > 0) {
-      setNavigationDirection(-1)
       navigateToQuestion(currentQuestionIndex - 1)
     }
   }, [currentQuestionIndex, navigateToQuestion])
