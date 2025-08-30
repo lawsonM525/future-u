@@ -15,9 +15,9 @@ export default function RoadmapPage() {
         </Link>
         
         <h1 className="text-3xl md:text-4xl font-bold mb-6 text-center flex items-center justify-center gap-3 font-rubik-mono-one">
-          <StarSprite size={100} />
+          <StarSprite size={128} />
           Future U Roadmap
-          <StarSprite size={100} />
+          <StarSprite size={128} />
         </h1>
         
         <p className="text-lg text-center mb-3">

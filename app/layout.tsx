@@ -54,6 +54,12 @@ export default function RootLayout({
             `,
           }}
         />
+        <Script
+          defer
+          data-website-id="68b369d183c35f185a6d208d"
+          data-domain="future-u.app"
+          src="https://datafa.st/js/script.js"
+        />
       </head>
       <body className={`${spaceGrotesk.className} ${righteous.variable} ${rubikMonoOne.variable} bg-background text-foreground min-h-screen flex flex-col`}>
         <ThemeProvider attribute="class" defaultTheme="dark">
