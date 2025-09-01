@@ -37,8 +37,13 @@ export function Footer() {
                 </Link>
               </li>
               <li>
-                <Link href="/feature-request" className="text-zinc-500 hover:text-zinc-300 text-sm font-light">
+                <Link href="https://lwsnlabs.featurebase.app/?b=68b4751d77012e1594a760c9" className="text-zinc-500 hover:text-zinc-300 text-sm font-light">
                   Request a feature
+                </Link>
+              </li>
+              <li>
+                <Link href="https://lwsnlabs.featurebase.app/?b=68b4751d77012e1594a760c9" className="text-zinc-500 hover:text-zinc-300 text-sm font-light">
+                  Report a bug
                 </Link>
               </li>
             </ul>
