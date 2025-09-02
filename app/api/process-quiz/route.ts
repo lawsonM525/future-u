@@ -3,7 +3,7 @@ import { OpenAI } from 'openai'
 import { Pinecone } from '@pinecone-database/pinecone'
 import { connect } from '@/lib/mongodb'
 import { Report } from '@/models/Report'
-import { Timeline } from '@/models/Timeline'
+// Timeline generation has been split into a separate endpoint to avoid long runtimes
 import { auth } from '@/app/utils/authOptions'
 
 // Validate environment variables
@@ -159,59 +159,7 @@ Format each section with a clear title in bold, followed by detailed explanation
 
       const reportContent = completion.choices[0].message.content
 
-      // Then, generate the timeline
-      const timelineResponse = await openai.chat.completions.create({
-        model: "gpt-4o",
-        messages: [
-          {
-            role: "system",
-            content: `You're creating a motivational timeline designed to excite the user and make their future feel real, personal, and worth chasing. Based on the full strategy in the career report, create a vivid, specific 5-year timeline (2025–2030) that outlines the user's journey toward their dream career.
-
-For each year:
-- Start with a bold, inspiring milestone title (like a chapter header in their story). Start 2025 with "Present U"
-- Include 1-2 sentences that describe what the user has achieved, using language that feels emotional, personal, and grounded in action.
-- Highlight key accomplishments, career wins, or habits that helped them level up that year.
-- Speak directly to the user with a "You did this!" tone—make it feel like a reflection from their future self.
-- End 2030 with their "Future U" moment, where they've become the version of themselves they once dreamed of.
-
-Return the timeline as a JSON object with an array of checkpoints. Each checkpoint should have:
-- year: the year (number between 2025-2030)
-- title: the bold, inspiring milestone title
-- description: the 1-2 sentence description of achievements
-
-Format example:
-{
-  "checkpoints": [
-    {
-      "year": 2025,
-      "title": "Present U: Taking the First Steps",
-      "description": "You've set clear goals and started learning the fundamentals. Your consistent habit of daily practice is already setting you apart!"
-    },
-    ...more years...
-  ]
-}`
-          },
-          {
-            role: "user",
-            content: `Create a 5-year timeline based on this career strategy report: ${reportContent}`
-          }
-        ],
-        temperature: 0.7,
-        max_tokens: 1000,
-        response_format: { type: "json_object" }
-      }, { signal: controller.signal })
-
-      const content = timelineResponse.choices[0].message.content
-      
-      if (!content) {
-        throw new Error('Failed to generate timeline')
-      }
-      
-      const timelineData = JSON.parse(content)
-      
-      if (!timelineData.checkpoints || !Array.isArray(timelineData.checkpoints)) {
-        throw new Error('Invalid timeline format')
-      }
+      // Timeline generation moved to /api/generate-timeline to reduce request duration
 
       // Create report document
       const report = new Report({
@@ -231,11 +179,7 @@ Format example:
 
       await report.save()
 
-      // Save the timeline
-      await Timeline.create({
-        userId: session.user.id,
-        checkpoints: timelineData.checkpoints,
-      })
+      // Timeline will be generated asynchronously by calling /api/generate-timeline
 
       // Clear timeout
       clearTimeout(timeoutId)

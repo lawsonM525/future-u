@@ -5,6 +5,7 @@ import { Textarea } from '@/components/ui/textarea'
 import { Button } from '@/components/ui/button'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
 import { QuizQuestion as QuizQuestionType } from '@/lib/quiz-data'
+import { useEffect, useRef } from 'react'
 
 interface QuizQuestionProps {
   question: QuizQuestionType
@@ -12,6 +13,7 @@ interface QuizQuestionProps {
   onAnswerChange: (answer: string) => void
   onNext: () => void
   onPrevious: () => void
+  onSkip: () => void
   canGoNext: boolean
   canGoPrevious: boolean
   isLastQuestion: boolean
@@ -55,6 +57,7 @@ export function QuizQuestion({
   onAnswerChange,
   onNext,
   onPrevious,
+  onSkip,
   canGoNext,
   canGoPrevious,
   isLastQuestion,
@@ -73,6 +76,21 @@ export function QuizQuestion({
   const wordCount = answer.trim().split(/\s+/).filter(word => word.length > 0).length
   const maxWords = question.maxWords || 100
   const isOverLimit = wordCount > maxWords
+
+  // Autofocus management for textarea on question change
+  const textareaRef = useRef<HTMLTextAreaElement | null>(null)
+  useEffect(() => {
+    const el = textareaRef.current
+    if (!el) return
+    const id = window.setTimeout(() => {
+      try {
+        el.focus()
+        const len = el.value.length
+        el.setSelectionRange(len, len)
+      } catch {}
+    }, 60) // allow small delay for animation
+    return () => window.clearTimeout(id)
+  }, [question.id])
 
   return (
     <motion.div
@@ -107,6 +125,7 @@ export function QuizQuestion({
         className="space-y-2"
       >
         <Textarea
+          ref={textareaRef}
           value={answer}
           onChange={(e) => onAnswerChange(e.target.value)}
           onKeyDown={handleKeyPress}
@@ -158,16 +177,26 @@ export function QuizQuestion({
           Question {currentIndex} of {totalQuestions}
         </span>
 
-        <Button
-          onClick={onNext}
-          disabled={!canGoNext}
-          className="bg-accent text-accent-foreground hover:bg-accent/90 group"
-        >
-          {isLastQuestion ? 'Finish' : 'Next'}
-          {!isLastQuestion && (
-            <ChevronRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
-          )}
-        </Button>
+        <div className="flex items-center gap-2">
+          <Button
+            onClick={onSkip}
+            variant="ghost"
+            className="group"
+            aria-label="Skip this question"
+          >
+            Skip
+          </Button>
+          <Button
+            onClick={onNext}
+            disabled={!canGoNext}
+            className="bg-accent text-accent-foreground hover:bg-accent/90 group"
+          >
+            {isLastQuestion ? 'Finish' : 'Next'}
+            {!isLastQuestion && (
+              <ChevronRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
+            )}
+          </Button>
+        </div>
       </motion.div>
 
       {/* Keyboard Hint */}

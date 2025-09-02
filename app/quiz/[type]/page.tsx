@@ -105,6 +105,80 @@ export default function QuizPage() {
     setCurrentAnswer(answer)
   }, [])
   
+  const handleSkip = useCallback(async () => {
+    if (!currentQuestion) return
+
+    // Save skipped answer
+    saveAnswer(currentQuestion.id, '[question skipped]')
+
+    // Section completion logic (same as handleNext)
+    if (sections.length > 0 && currentSection) {
+      const sectionQuestions = currentSection.questions
+      const lastQuestionInSection = sectionQuestions[sectionQuestions.length - 1]
+      if (currentQuestion.id === lastQuestionInSection.id) {
+        markSectionComplete(currentSectionIndex)
+        if (currentSectionIndex < sections.length - 1) {
+          setShowSectionTransition(true)
+          return
+        }
+      }
+    }
+
+    // If last question, submit with the skipped placeholder
+    if (currentQuestionIndex === questions.length - 1) {
+      setIsProcessing(true)
+      setError(null)
+      try {
+        const finalAnswers = {
+          ...answers,
+          [currentQuestion.id]: '[question skipped]'
+        }
+
+        if (!session?.user?.id) {
+          const response = await fetch('/api/save-temp-quiz', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ answers: finalAnswers, quizType })
+          })
+          if (!response.ok) throw new Error('Failed to save quiz data')
+          const { tempId } = await response.json()
+          clearQuizProgress()
+          router.push(`/auth/post-quiz?tempId=${tempId}`)
+          return
+        }
+
+        const response = await fetch('/api/process-quiz', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ answers: finalAnswers, quizType })
+        })
+        if (!response.ok) throw new Error('Failed to process quiz')
+
+        const data = await response.json()
+        try {
+          fetch('/api/generate-timeline', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ reportId: data.reportId })
+          }).catch((e) => console.error('Timeline generation request failed:', e))
+        } catch (e) {
+          console.error('Error initiating timeline generation:', e)
+        }
+        clearQuizProgress()
+        router.push(`/report/${data.reportId}`)
+      } catch (err) {
+        console.error('Error:', err)
+        setError('Failed to process quiz. Please try again.')
+      } finally {
+        setIsProcessing(false)
+      }
+      return
+    }
+
+    // Otherwise, go to next question
+    navigateToQuestion(currentQuestionIndex + 1)
+  }, [currentQuestion, sections, currentSection, markSectionComplete, currentSectionIndex, setShowSectionTransition, currentQuestionIndex, questions.length, saveAnswer, answers, session, quizType, clearQuizProgress, router, navigateToQuestion])
+
   const handleSubmit = useCallback(async () => {
     setIsProcessing(true)
     setError(null)
@@ -146,6 +220,18 @@ export default function QuizPage() {
       if (!response.ok) throw new Error('Failed to process quiz')
 
       const data = await response.json()
+
+      // Trigger timeline generation asynchronously; do not block navigation
+      try {
+        fetch('/api/generate-timeline', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ reportId: data.reportId })
+        }).catch((e) => console.error('Timeline generation request failed:', e))
+      } catch (e) {
+        console.error('Error initiating timeline generation:', e)
+      }
+
       clearQuizProgress()
       router.push(`/report/${data.reportId}`)
     } catch (err) {
@@ -316,6 +402,7 @@ export default function QuizPage() {
                 onAnswerChange={handleAnswerChange}
                 onNext={handleNext}
                 onPrevious={handlePrevious}
+                onSkip={handleSkip}
                 canGoNext={currentAnswer.trim().length > 0 && 
                   currentAnswer.trim().split(/\s+/).length <= (currentQuestion.maxWords || 100)}
                 canGoPrevious={currentQuestionIndex > 0}
