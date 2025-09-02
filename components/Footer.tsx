@@ -18,12 +18,7 @@ export function Footer() {
                 <Link href="/team" className="text-zinc-500 hover:text-zinc-300 text-sm font-light">
                   Team
                 </Link>
-              </li>
-              <li>
-                <Link href="/careers" className="text-zinc-500 hover:text-zinc-300 text-sm font-light">
-                  Careers
-                </Link>
-              </li>
+              </li> 
             </ul>
           </div>
 

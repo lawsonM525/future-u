@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button'
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card'
 import { Progress } from '@/components/ui/progress'
 import { Clock, ChevronRight, CheckCircle2, TrendingUp } from 'lucide-react'
+import type { ReactNode } from 'react'
 
 interface QuizOption {
   title: string
@@ -14,7 +15,7 @@ interface QuizOption {
   href: string
   estimatedTime: string
   difficulty: 'Easy' | 'Medium' | 'Advanced'
-  icon: string
+  icon: ReactNode
   features: string[]
   savedProgress?: number
 }

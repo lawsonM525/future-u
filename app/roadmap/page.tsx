@@ -14,7 +14,7 @@ export default function RoadmapPage() {
           <span>Back to Home</span>
         </Link>
         
-        <h1 className="text-3xl md:text-4xl font-bold mb-6 text-center flex items-center justify-center gap-3 font-rubik-mono-one">
+        <h1 className="text-2xl md:text-3xl font-bold mb-6 text-center flex items-center justify-center gap-3 font-rubik-mono-one">
           <StarSprite size={128} />
           Future U Roadmap
           <StarSprite size={128} />
@@ -175,7 +175,7 @@ export default function RoadmapPage() {
             Let us know!!!
           </p>
           
-          <Link href="/feature-request">
+          <Link href="https://lwsnlabs.featurebase.app/?b=68b4751d77012e1594a760c9">
             <Button variant="yellow" className="w-full md:w-auto">
               Send Feedback
             </Button>

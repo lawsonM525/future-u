@@ -104,52 +104,8 @@ export default function QuizPage() {
   const handleAnswerChange = useCallback((answer: string) => {
     setCurrentAnswer(answer)
   }, [])
-
-  const handleNext = useCallback(async () => {
-    if (!currentQuestion) return
-
-    // Save the current answer
-    saveAnswer(currentQuestion.id, currentAnswer)
-
-    // Check if this completes a section
-    if (sections.length > 0 && currentSection) {
-      const sectionQuestions = currentSection.questions
-      const lastQuestionInSection = sectionQuestions[sectionQuestions.length - 1]
-      
-      if (currentQuestion.id === lastQuestionInSection.id) {
-        // Mark section as complete
-        markSectionComplete(currentSectionIndex)
-        
-        // Check if there's a next section
-        if (currentSectionIndex < sections.length - 1) {
-          setShowSectionTransition(true)
-          return
-        }
-      }
-    }
-
-    // Check if this is the last question
-    if (currentQuestionIndex === questions.length - 1) {
-      await handleSubmit()
-    } else {
-      navigateToQuestion(currentQuestionIndex + 1)
-    }
-  }, [currentQuestion, currentAnswer, currentQuestionIndex, questions.length, 
-      saveAnswer, navigateToQuestion, sections, currentSection, currentSectionIndex, 
-      markSectionComplete]) // handleSubmit is defined below, so we can't include it here
-
-  const handlePrevious = useCallback(() => {
-    if (currentQuestionIndex > 0) {
-      navigateToQuestion(currentQuestionIndex - 1)
-    }
-  }, [currentQuestionIndex, navigateToQuestion])
-
-  const handleContinueFromTransition = useCallback(() => {
-    setShowSectionTransition(false)
-    navigateToQuestion(currentQuestionIndex + 1)
-  }, [currentQuestionIndex, navigateToQuestion])
-
-  const handleSubmit = async () => {
+  
+  const handleSubmit = useCallback(async () => {
     setIsProcessing(true)
     setError(null)
     
@@ -198,7 +154,53 @@ export default function QuizPage() {
     } finally {
       setIsProcessing(false)
     }
-  }
+  }, [currentQuestion, saveAnswer, currentAnswer, answers, session, clearQuizProgress, router, quizType])
+
+  const handleNext = useCallback(async () => {
+    if (!currentQuestion) return
+
+    // Save the current answer
+    saveAnswer(currentQuestion.id, currentAnswer)
+
+    // Check if this completes a section
+    if (sections.length > 0 && currentSection) {
+      const sectionQuestions = currentSection.questions
+      const lastQuestionInSection = sectionQuestions[sectionQuestions.length - 1]
+      
+      if (currentQuestion.id === lastQuestionInSection.id) {
+        // Mark section as complete
+        markSectionComplete(currentSectionIndex)
+        
+        // Check if there's a next section
+        if (currentSectionIndex < sections.length - 1) {
+          setShowSectionTransition(true)
+          return
+        }
+      }
+    }
+
+    // Check if this is the last question
+    if (currentQuestionIndex === questions.length - 1) {
+      await handleSubmit()
+    } else {
+      navigateToQuestion(currentQuestionIndex + 1)
+    }
+  }, [currentQuestion, currentAnswer, currentQuestionIndex, questions.length, 
+      saveAnswer, navigateToQuestion, sections, currentSection, currentSectionIndex, 
+      markSectionComplete, handleSubmit])
+
+  const handlePrevious = useCallback(() => {
+    if (currentQuestionIndex > 0) {
+      navigateToQuestion(currentQuestionIndex - 1)
+    }
+  }, [currentQuestionIndex, navigateToQuestion])
+
+  const handleContinueFromTransition = useCallback(() => {
+    setShowSectionTransition(false)
+    navigateToQuestion(currentQuestionIndex + 1)
+  }, [currentQuestionIndex, navigateToQuestion])
+
+  
 
   if (!quizConfig) {
     return null // Will redirect in useEffect

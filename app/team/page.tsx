@@ -31,7 +31,7 @@ export default function TeamPage() {
             <h2 className="text-2xl font-bold">Hi, it&apos;s Michelle!! 👋</h2>
             
             <p className="text-lg mb-8 max-w-2xl mx-auto">
-              It&apos;s just me for now, but you can join me if you&apos;d like! 🤭
+              It&apos;s just me for now! 🤭
             </p>
             
             <p className="text-zinc-400">
@@ -45,15 +45,6 @@ export default function TeamPage() {
                 michellelawson.me
               </a>
             </p>
-            
-            <div className="pt-6">
-              <Link 
-                href="/careers" 
-                className="inline-block px-6 py-3 bg-yellow-500 hover:bg-yellow-600 text-black font-medium rounded-full transition"
-              >
-                Join the team!
-              </Link>
-            </div>
           </div>
         </div>
       </div>

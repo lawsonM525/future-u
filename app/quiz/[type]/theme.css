@@ -1,0 +1,26 @@
+/* Scoped quiz theme variables */
+.quizTheme {
+  /* Base colors from provided scheme */
+  --black: 0 0% 0%;            /* #000000 */
+  --eerie-black: 0 0% 11%;     /* #1c1c1c */
+  --cream: 59 100% 92%;        /* #fffed5 */
+  --canary: 54 99% 50%;        /* #fee402 */
+  --jonquil: 48 100% 50%;      /* #fdca00 */
+
+  /* Map to app theme tokens used by Tailwind (hsl(var(--token))) */
+  --background: var(--black);
+  --foreground: var(--cream);
+
+  /* Match selection page cards: white bg, dark text */
+  --card: 0 0% 100%;            /* white */
+  --card-foreground: 222.2 84% 4.9%; /* near-black */
+
+  --popover: var(--black);
+  --popover-foreground: var(--cream);
+
+  /* Accent = canary yellow; foreground = black for contrast on yellow */
+  --accent: var(--canary);
+  --accent-foreground: var(--black);
+
+  /* Optional: keep other tokens inherited from global theme for consistency */
+}

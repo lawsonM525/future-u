@@ -3,6 +3,7 @@
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { useSession, signOut } from 'next-auth/react'
+import { StarSprite } from '@/components/ui/star-sprite'
 
 export default function LandingPage() {
   const { data: session } = useSession()
@@ -55,15 +56,31 @@ export default function LandingPage() {
           </>
         ) : (
           <>
-            <h1 className="text-4xl font-bold mb-6 animate-slide-up font-rubik-mono-one">Welcome to Future U</h1>
-            <p className="text-xl mb-8 text-center max-w-2xl animate-slide-up">
+          <h1 className="text-lg md:text-4xl font-bold animate-slide-up text-center flex items-center justify-center gap-3 font-rubik-mono-one">
+                    {/* Left star: small on mobile, large on md+ */}
+                    <span className="inline-block md:hidden transition-transform duration-200 ease-out hover:scale-[1.2]">
+                      <StarSprite size={64} />
+                    </span>
+                    <span className="hidden md:inline-block transition-transform duration-200 ease-out hover:scale-[1.2]">
+                      <StarSprite size={128} />
+                    </span>
+                    Welcome to Future U
+                    {/* Right star: small on mobile, large on md+ */}
+                    <span className="inline-block md:hidden transition-transform duration-200 ease-out hover:scale-[1.2]">
+                      <StarSprite size={64} />
+                    </span>
+                    <span className="hidden md:inline-block transition-transform duration-200 ease-out hover:scale-[1.2]">
+                      <StarSprite size={128} />
+                    </span>
+                  </h1>
+            <p className="text-md mb-8 text-center max-w-2xl animate-slide-up">
               Your Future, Mapped Out.
             </p>
             <Link href="/quiz-selection">
               <Button 
                 variant="yellow"
                 size="lg" 
-                className="animate-slide-up font-bold rounded-full"
+                className="animate-slide-up font-bold rounded-full transition-transform duration-200 ease-out hover:scale-110"
               >
                 Start Your Journey
               </Button>

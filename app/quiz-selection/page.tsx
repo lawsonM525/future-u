@@ -4,7 +4,9 @@ import { motion } from 'framer-motion'
 import { useQuiz } from '@/lib/quiz-context'
 import { QuizSelectionCard } from '@/components/quiz/QuizSelectionCard'
 import Link from 'next/link'
-import { ArrowLeft, Sparkles } from 'lucide-react'
+import { ArrowLeft } from 'lucide-react'
+import { SpriteSheet } from '@/components/ui/sprite-sheet'
+import { StarSprite } from '@/components/ui/star-sprite'
 
 const quizOptions = [
   {
@@ -14,7 +16,16 @@ const quizOptions = [
     href: '/quiz/quickie',
     estimatedTime: '5-10 min',
     difficulty: 'Easy' as const,
-    icon: '⚡',
+    icon: (
+      <SpriteSheet
+        src="/sprites/lightning-bolt-2x2.png"
+        rows={2}
+        cols={2}
+        size={48}
+        fps={10}
+        ariaLabel="Lightning bolt animation"
+      />
+    ),
     features: ['Quick insights', 'Career direction', 'Next steps']
   },
   {
@@ -24,17 +35,36 @@ const quizOptions = [
     href: '/quiz/medium',
     estimatedTime: '20-30 min',
     difficulty: 'Medium' as const,
-    icon: '🎯',
+    icon: (
+      <SpriteSheet
+        src="/sprites/twirling-sun-3x3.png"
+        rows={3}
+        cols={3}
+        size={52}
+        fps={6}
+        ariaLabel="Twirling sun animation"
+      />
+    ),
     features: ['Detailed analysis', 'Personalized roadmap', 'Skill gap analysis']
   },
   {
     title: 'The Deep Dive',
-    description: 'Comprehensive career exploration. Thorough goal and situation assessment.',
+    description: 'One hundred questions. Are you up for the challenge? 👀',
     questions: 100,
     href: '/quiz/deep-dive',
     estimatedTime: '45-60 min',
     difficulty: 'Advanced' as const,
-    icon: '🚀',
+    icon: (
+      <SpriteSheet
+        src="/sprites/rotating-sparkles-3x3.png"
+        rows={3}
+        cols={3}
+        size={52}
+        fps={10}
+        pingPong={false}
+        ariaLabel="Rotating sparkles animation"
+      />
+    ),
     features: ['Complete career analysis', '5-year roadmap', 'Industry transition guide']
   },
 ]
@@ -85,7 +115,7 @@ export default function QuizSelection() {
               }}
               className="inline-block"
             >
-              <Sparkles className="h-12 w-12 text-accent mx-auto" />
+              <StarSprite size={100} />
             </motion.div>
             
             <h1 className="text-4xl md:text-5xl font-bold">Choose Your Journey</h1>

@@ -3,8 +3,10 @@
 import { motion } from 'framer-motion'
 import { Button } from '@/components/ui/button'
 import { Progress } from '@/components/ui/progress'
-import { Clock, RotateCcw, PlayCircle, Award } from 'lucide-react'
+import { Card } from '@/components/ui/card'
+import { Clock, RotateCcw, PlayCircle } from 'lucide-react'
 import { QuizConfig } from '@/lib/quiz-data'
+import { SpriteSheet } from '@/components/ui/sprite-sheet'
 
 interface QuizWelcomeProps {
   quizConfig: QuizConfig
@@ -54,7 +56,14 @@ export function QuizWelcome({
         >
           <div className="relative">
             <div className="absolute inset-0 bg-accent/20 rounded-full blur-xl" />
-            <Award className="h-16 w-16 text-accent relative" />
+              <SpriteSheet
+              src="sprites/sparkles-3x3.png"
+              rows={3}
+              cols={3}
+              size={64}
+              fps={15}
+              ariaLabel="Sparkles animation"
+              />
           </div>
         </motion.div>
         
@@ -71,23 +80,23 @@ export function QuizWelcome({
         transition={{ delay: 0.3 }}
         className="grid grid-cols-1 md:grid-cols-3 gap-4"
       >
-        <div className="bg-muted/50 rounded-lg p-4 text-center">
+        <Card className="p-4 bg-muted/20 text-center">
           <div className="text-2xl font-bold text-accent">{quizConfig.totalQuestions}</div>
           <div className="text-sm text-muted-foreground">Questions</div>
-        </div>
-        <div className="bg-muted/50 rounded-lg p-4 text-center">
+        </Card>
+        <Card className="p-4 bg-muted/20 text-center">
           <div className="text-2xl font-bold text-accent flex items-center justify-center gap-1">
             <Clock className="h-5 w-5" />
             {quizConfig.estimatedTime}
           </div>
           <div className="text-sm text-muted-foreground">Estimated Time</div>
-        </div>
-        <div className="bg-muted/50 rounded-lg p-4 text-center">
+        </Card>
+        <Card className="p-4 bg-muted/20 text-center">
           <div className="text-2xl font-bold text-accent">
             {quizConfig.sections ? quizConfig.sections.length : 1}
           </div>
           <div className="text-sm text-muted-foreground">Sections</div>
-        </div>
+        </Card>
       </motion.div>
 
       {/* Features */}
@@ -187,7 +196,7 @@ export function QuizWelcome({
         className="text-center text-sm text-muted-foreground space-y-2"
       >
         <p>💡 Your progress is automatically saved as you go</p>
-        <p>⏰ You can pause and resume anytime within 24 hours</p>
+        <p>💡 You can pause and resume anytime within 24 hours</p>
       </motion.div>
     </motion.div>
   )
