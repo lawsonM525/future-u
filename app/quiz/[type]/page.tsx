@@ -396,20 +396,27 @@ export default function QuizPage() {
               exit={{ opacity: 0 }}
               className="w-full"
             >
-              <QuizQuestion
-                question={currentQuestion}
-                answer={currentAnswer}
-                onAnswerChange={handleAnswerChange}
-                onNext={handleNext}
-                onPrevious={handlePrevious}
-                onSkip={handleSkip}
-                canGoNext={currentAnswer.trim().length > 0 && 
-                  currentAnswer.trim().split(/\s+/).length <= (currentQuestion.maxWords || 100)}
-                canGoPrevious={currentQuestionIndex > 0}
-                isLastQuestion={currentQuestionIndex === questions.length - 1}
-                currentIndex={currentQuestionIndex + 1}
-                totalQuestions={questions.length}
-              />
+              {(() => {
+                const isChoice = currentQuestion.type === 'choice' || Array.isArray(currentQuestion.options)
+                const canProceed = isChoice
+                  ? currentAnswer.split(/[;,]/).map(t => t.trim()).filter(Boolean).length > 0
+                  : (currentAnswer.trim().length > 0 && currentAnswer.trim().split(/\s+/).length <= (currentQuestion.maxWords || 100))
+                return (
+                  <QuizQuestion
+                    question={currentQuestion}
+                    answer={currentAnswer}
+                    onAnswerChange={handleAnswerChange}
+                    onNext={handleNext}
+                    onPrevious={handlePrevious}
+                    onSkip={handleSkip}
+                    canGoNext={canProceed}
+                    canGoPrevious={currentQuestionIndex > 0}
+                    isLastQuestion={currentQuestionIndex === questions.length - 1}
+                    currentIndex={currentQuestionIndex + 1}
+                    totalQuestions={questions.length}
+                  />
+                )
+              })()}
             </motion.div>
           ) : null}
         </AnimatePresence>

@@ -4,9 +4,10 @@ import { motion } from 'framer-motion'
 import { Button } from '@/components/ui/button'
 import { Progress } from '@/components/ui/progress'
 import { Card } from '@/components/ui/card'
-import { Clock, RotateCcw, PlayCircle } from 'lucide-react'
+import { Clock, RotateCcw, PlayCircle, ArrowLeft } from 'lucide-react'
 import { QuizConfig } from '@/lib/quiz-data'
 import { SpriteSheet } from '@/components/ui/sprite-sheet'
+import Link from 'next/link'
 
 interface QuizWelcomeProps {
   quizConfig: QuizConfig
@@ -198,6 +199,23 @@ export function QuizWelcome({
         <p>💡 Your progress is automatically saved as you go</p>
         <p>💡 You can pause and resume anytime within 24 hours</p>
       </motion.div>
+
+      {/* Link to Quiz Selection */}
+      <motion.div
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="max-w-7xl mx-auto w-full mb-8"
+      >
+        <Link 
+          href="/quiz-selection" 
+          className="inline-flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors mb-8"
+        >
+          <ArrowLeft className="h-4 w-4" />
+          Back to Quizzes
+        </Link>
+      </motion.div>
+
+ 
     </motion.div>
   )
 }

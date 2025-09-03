@@ -4,17 +4,28 @@ import { connect } from '@/lib/mongodb'
 import { Report } from '@/models/Report'
 import { Timeline, TimelineCheckpoint } from '@/models/Timeline'
 import { auth } from '@/app/utils/authOptions'
+import type { IReport } from '@/models/Report'
 
 export const dynamic = 'force-dynamic'
 export const fetchCache = 'force-no-store'
 export const maxDuration = 300
 
-function extractJson(content: string): any {
+function extractJson(content: string): unknown {
   // Remove markdown code fences if present
   const trimmed = content.trim()
   const fenceMatch = trimmed.match(/```(?:json)?\n([\s\S]*?)\n```/i)
   const jsonStr = fenceMatch ? fenceMatch[1] : trimmed
   return JSON.parse(jsonStr)
+}
+
+function isTimelineResponse(val: unknown): val is { checkpoints: unknown[] } {
+  if (typeof val !== 'object' || val === null) return false
+  const maybe = val as { checkpoints?: unknown }
+  return Array.isArray(maybe.checkpoints)
+}
+
+function isAbortError(e: unknown): boolean {
+  return typeof e === 'object' && e !== null && 'name' in e && (e as { name?: unknown }).name === 'AbortError'
 }
 
 export async function POST(request: Request) {
@@ -41,7 +52,7 @@ export async function POST(request: Request) {
     await connect()
 
     // Load report
-    let reportDoc: any | null = null
+    let reportDoc: IReport | null = null
     if (reportId) {
       reportDoc = await Report.findOne({ _id: reportId, userId: session.user.id })
     } else {
@@ -90,26 +101,28 @@ export async function POST(request: Request) {
       const content = completion.choices[0].message.content || '{}'
 
       // Parse JSON robustly
-      let parsed: any
+      let parsed: unknown
       try {
         parsed = extractJson(content)
-      } catch (e) {
+      } catch {
         // Retry with a minimal repair: strip non-json characters
         const fallback = content.replace(/^.*?(\{[\s\S]*\}).*$/, '$1')
-        parsed = JSON.parse(fallback)
+        parsed = JSON.parse(fallback) as unknown
       }
 
-      if (!parsed || !Array.isArray(parsed.checkpoints)) {
+      if (!isTimelineResponse(parsed)) {
         throw new Error('Model response missing checkpoints array')
       }
 
       // Validate and coerce checkpoints
       const checkpoints: TimelineCheckpoint[] = parsed.checkpoints
-        .map((cp: any) => ({
-          year: Number(cp.year),
-          title: String(cp.title || '').trim(),
-          description: String(cp.description || '').trim()
-        }))
+        .map((raw) => {
+          const cp = raw as Record<string, unknown>
+          const year = Number(cp.year)
+          const title = String((cp.title ?? '') as string).trim()
+          const description = String((cp.description ?? '') as string).trim()
+          return { year, title, description }
+        })
         .filter((cp: TimelineCheckpoint) => Number.isFinite(cp.year) && !!cp.title && !!cp.description)
 
       if (checkpoints.length === 0) {
@@ -128,8 +141,8 @@ export async function POST(request: Request) {
         timelineId: timeline._id.toString(),
         checkpoints
       })
-    } catch (err: any) {
-      if (err?.name === 'AbortError') {
+    } catch (err: unknown) {
+      if (isAbortError(err)) {
         return NextResponse.json(
           { error: 'Timeline generation timed out' },
           { status: 408 }

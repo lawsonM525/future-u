@@ -72,60 +72,170 @@ export const quizConfigs: Record<string, QuizConfig> = {
       {
         id: 1,
         prompt: "What are your career goals for the next 5 years?",
+        type: 'choice',
+        options: [
+          "Level up my title",
+          "Switch industries",
+          "Start a startup",
+          "Go remote forever",
+          "Become a people manager",
+          "Deepen my expertise",
+          "Do what I love (and get paid)",
+          "Take a sabbatical then relaunch"
+        ],
         placeholder: "Where do you see yourself professionally?",
         maxWords: 100
       },
       {
         id: 2,
         prompt: "What skills do you currently possess?",
+        type: 'choice',
+        options: [
+          "Coding",
+          "Design",
+          "Data analysis",
+          "Writing",
+          "Marketing",
+          "Sales",
+          "Project management",
+          "Product sense",
+          "Ops/Execution",
+          "People skills"
+        ],
         placeholder: "List your top skills and expertise",
         maxWords: 100
       },
       {
         id: 3,
         prompt: "What industry interests you the most?",
+        type: 'choice',
+        options: [
+          "Tech",
+          "Healthcare",
+          "Finance",
+          "Creative/Media",
+          "Climate/Sustainability",
+          "Education",
+          "Government/Public Sector",
+          "Nonprofit/Social Impact",
+          "E-commerce",
+          "Sports/Entertainment"
+        ],
         placeholder: "Which field excites you?",
         maxWords: 100
       },
       {
         id: 4,
         prompt: "Describe your ideal work environment.",
+        type: 'choice',
+        options: [
+          "Remote",
+          "Hybrid",
+          "In-office",
+          "Small team",
+          "Big org",
+          "Async/low-meeting",
+          "Fast-paced",
+          "Chill vibes",
+          "Dog-friendly"
+        ],
         placeholder: "Remote? Office? Team size? Culture?",
         maxWords: 100
       },
       {
         id: 5,
         prompt: "What's your educational background?",
+        type: 'choice',
+        options: [
+          "High school",
+          "Associate's",
+          "Bachelor's",
+          "Master's",
+          "PhD",
+          "Bootcamp",
+          "Self-taught",
+          "YouTube University"
+        ],
         placeholder: "Degrees, certifications, courses...",
         maxWords: 100
       },
       {
         id: 6,
         prompt: "What are your salary expectations?",
+        type: 'choice',
+        options: [
+          "Experience-based (let's discuss)",
+          "$50k-$80k",
+          "$80k-$120k",
+          "$120k-$180k",
+          "$180k+",
+          "Bag secured ( SEVEN figures)",
+          "Open to equity-heavy comp"
+        ],
         placeholder: "Be honest about your financial goals",
         maxWords: 100
       },
       {
         id: 7,
         prompt: "What skills would you like to develop?",
+        type: 'choice',
+        options: [
+          "Leadership",
+          "Coding/Automation",
+          "Design/UI",
+          "Data/AI",
+          "Public speaking",
+          "Sales",
+          "Networking",
+          "Writing",
+          "Time management",
+          "Negotiation"
+        ],
         placeholder: "What do you want to learn next?",
         maxWords: 100
       },
       {
         id: 8,
         prompt: "What's your preferred work style?",
+        type: 'choice',
+        options: ["Independent", "Collaborative", "Structured", "Flexible", "Remote", "On-site"],
         placeholder: "Independent? Collaborative? Structured?",
         maxWords: 100
       },
       {
         id: 9,
         prompt: "What challenges are you facing in your career?",
+        type: 'choice',
+        options: [
+          "Lack of clarity",
+          "Imposter syndrome",
+          "No experience",
+          "Weak portfolio/resume",
+          "Limited network",
+          "Burnout",
+          "No time",
+          "Job market yikes",
+          "Interview nerves"
+        ],
         placeholder: "What's holding you back?",
         maxWords: 100
       },
       {
         id: 10,
         prompt: "What motivates you professionally?",
+        type: 'choice',
+        options: [
+          "Moneeyyyy",
+          "Impact",
+          "Recognition",
+          "Learning",
+          "Autonomy",
+          "Career growth",
+          "Work-life balance",
+          "Stability",
+          "Fun team",
+          "Mission-driven work"
+        ],
         placeholder: "What drives you to succeed?",
         maxWords: 100
       }
@@ -161,6 +271,20 @@ export const quizConfigs: Record<string, QuizConfig> = {
         id: 1,
         section: 'current-situation',
         prompt: "What's your current job or role in life?",
+        type: 'choice',
+        options: [
+          "Student",
+          "Full-time employee",
+          "Part-time",
+          "Freelancer/Contractor",
+          "Entrepreneur",
+          "Career explorer",
+          "Caregiver",
+          "Between gigs",
+          "Content creator",
+          "Retired",
+          "Other"
+        ],
         placeholder: "Your current position or situation",
         maxWords: 100
       },
@@ -168,6 +292,20 @@ export const quizConfigs: Record<string, QuizConfig> = {
         id: 2,
         section: 'current-situation',
         prompt: "How would you describe yourself in one sentence today?",
+        type: 'choice',
+        options: [
+          "Focused",
+          "Curious",
+          "Ambitious",
+          "Overwhelmed (but vibing)",
+          "Creative",
+          "Analytical",
+          "Calm & consistent",
+          "Burnt out (recharging)",
+          "Team player",
+          "Lone wolf",
+          "Chaotic good"
+        ],
         placeholder: "A brief self-description",
         maxWords: 100
       },
@@ -175,6 +313,19 @@ export const quizConfigs: Record<string, QuizConfig> = {
         id: 3,
         section: 'current-situation',
         prompt: "What skills do you use most often in your work?",
+        type: 'choice',
+        options: [
+          "Communication",
+          "Writing",
+          "Design/UI",
+          "Coding/Automation",
+          "Data analysis",
+          "Project management",
+          "Customer support",
+          "Sales",
+          "Research",
+          "Problem-solving"
+        ],
         placeholder: "Your most-used abilities",
         maxWords: 100
       },
@@ -182,6 +333,19 @@ export const quizConfigs: Record<string, QuizConfig> = {
         id: 4,
         section: 'current-situation',
         prompt: "What's one skill you feel confident in?",
+        type: 'choice',
+        options: [
+          "Public speaking",
+          "Organization",
+          "Troubleshooting",
+          "Collaboration",
+          "Visual design",
+          "Storytelling",
+          "Negotiation",
+          "Teaching",
+          "Documentation",
+          "Time management"
+        ],
         placeholder: "Your strongest skill",
         maxWords: 100
       },
@@ -197,6 +361,19 @@ export const quizConfigs: Record<string, QuizConfig> = {
         id: 6,
         section: 'current-situation',
         prompt: "What's a challenge you're facing in your work right now?",
+        type: 'choice',
+        options: [
+          "Time management",
+          "Prioritization",
+          "Motivation",
+          "Communication gaps",
+          "Ambiguous goals",
+          "Lack of mentorship",
+          "Tooling/tech debt",
+          "Burnout",
+          "Imposter syndrome",
+          "Job market yikes"
+        ],
         placeholder: "Current work obstacles",
         maxWords: 100
       },
@@ -204,6 +381,19 @@ export const quizConfigs: Record<string, QuizConfig> = {
         id: 7,
         section: 'current-situation',
         prompt: "Where do you live, and how do you feel about it?",
+        type: 'choice',
+        options: [
+          "Big city — love it",
+          "Big city — meh",
+          "Suburbs — cozy",
+          "Rural — peaceful",
+          "Remote — digital nomad",
+          "Campus life",
+          "With family — saving coins",
+          "With roommates — chaotic neutral",
+          "On the move — traveling",
+          "Prefer not to say"
+        ],
         placeholder: "Your location and feelings about it",
         maxWords: 100
       },
@@ -211,6 +401,17 @@ export const quizConfigs: Record<string, QuizConfig> = {
         id: 8,
         section: 'current-situation',
         prompt: "How do you feel about your current work-life balance?",
+        type: 'choice',
+        options: [
+          "Balanced-ish",
+          "Too much work",
+          "Too much life (help)",
+          "Always on-call",
+          "4-day week please",
+          "Boundaries solid",
+          "What is balance?",
+          "Depends on season"
+        ],
         placeholder: "Your thoughts on balance",
         maxWords: 100
       },
@@ -218,6 +419,19 @@ export const quizConfigs: Record<string, QuizConfig> = {
         id: 9,
         section: 'current-situation',
         prompt: "What's one thing you'd like to change about your daily life?",
+        type: 'choice',
+        options: [
+          "More sleep",
+          "More exercise",
+          "Less screen time",
+          "Healthier meals",
+          "Earlier mornings",
+          "Later mornings",
+          "Fewer meetings",
+          "More deep work",
+          "More social time",
+          "More outdoors"
+        ],
         placeholder: "Something you want to improve",
         maxWords: 100
       },
@@ -225,6 +439,17 @@ export const quizConfigs: Record<string, QuizConfig> = {
         id: 10,
         section: 'current-situation',
         prompt: "How do you feel about your current financial situation?",
+        type: 'choice',
+        options: [
+          "Comfortable",
+          "Stable but cautious",
+          "Making it work",
+          "Tight right now",
+          "Feast or famine",
+          "Building wealth era",
+          "Debt snowballing",
+          "Prefer not to say"
+        ],
         placeholder: "Your financial comfort level",
         maxWords: 100
       },
@@ -232,6 +457,19 @@ export const quizConfigs: Record<string, QuizConfig> = {
         id: 11,
         section: 'current-situation',
         prompt: "What's one financial goal you're working toward?",
+        type: 'choice',
+        options: [
+          "Emergency fund",
+          "Pay off debt",
+          "Save for big purchase",
+          "Invest regularly",
+          "Salary increase",
+          "Build side income",
+          "Start a business",
+          "F-U money",
+          "Travel fund",
+          "Education fund"
+        ],
         placeholder: "A money-related objective",
         maxWords: 100
       },
@@ -239,6 +477,19 @@ export const quizConfigs: Record<string, QuizConfig> = {
         id: 12,
         section: 'current-situation',
         prompt: "Who are the people you spend the most time with?",
+        type: 'choice',
+        options: [
+          "Coworkers",
+          "Family",
+          "Partner",
+          "Friends",
+          "Roommates",
+          "Pets (they count)",
+          "Online communities",
+          "Clients/Customers",
+          "Classmates",
+          "Myself tbh"
+        ],
         placeholder: "Your inner circle",
         maxWords: 100
       },
@@ -246,6 +497,18 @@ export const quizConfigs: Record<string, QuizConfig> = {
         id: 13,
         section: 'current-situation',
         prompt: "How do you feel about your current relationships?",
+        type: 'choice',
+        options: [
+          "Supportive",
+          "Complicated",
+          "Drifting",
+          "Strong and growing",
+          "Need new circles",
+          "Could communicate better",
+          "Lonely lately",
+          "Energizing",
+          "Draining"
+        ],
         placeholder: "Your social connections",
         maxWords: 100
       },
@@ -253,6 +516,19 @@ export const quizConfigs: Record<string, QuizConfig> = {
         id: 14,
         section: 'current-situation',
         prompt: "What's one value you prioritize the most in your life right now?",
+        type: 'choice',
+        options: [
+          "Freedom",
+          "Stability",
+          "Growth",
+          "Creativity",
+          "Community",
+          "Learning",
+          "Health",
+          "Integrity",
+          "Adventure",
+          "Impact"
+        ],
         placeholder: "Your core value",
         maxWords: 100
       },
@@ -260,6 +536,18 @@ export const quizConfigs: Record<string, QuizConfig> = {
         id: 15,
         section: 'current-situation',
         prompt: "What's one fear you feel is holding you back today?",
+        type: 'choice',
+        options: [
+          "Failure",
+          "Rejection",
+          "Not enough time",
+          "Financial risk",
+          "Looking silly",
+          "Starting over",
+          "Success (and pressure)",
+          "Letting others down",
+          "The unknown"
+        ],
         placeholder: "Something that worries you",
         maxWords: 100
       },
@@ -267,6 +555,19 @@ export const quizConfigs: Record<string, QuizConfig> = {
         id: 16,
         section: 'current-situation',
         prompt: "How do you usually spend your free time?",
+        type: 'choice',
+        options: [
+          "Reading",
+          "Gaming",
+          "Gym/Fitness",
+          "Cooking",
+          "Creating content",
+          "Music",
+          "Outdoors",
+          "Volunteering",
+          "Family time",
+          "Doomscrolling"
+        ],
         placeholder: "Your leisure activities",
         maxWords: 100
       },
@@ -274,6 +575,19 @@ export const quizConfigs: Record<string, QuizConfig> = {
         id: 17,
         section: 'current-situation',
         prompt: "What's one professional goal you're working toward?",
+        type: 'choice',
+        options: [
+          "Promotion",
+          "Career pivot",
+          "Build portfolio",
+          "Certification",
+          "New job",
+          "Salary bump",
+          "Leadership role",
+          "Publish work",
+          "Speak at an event",
+          "Start side project"
+        ],
         placeholder: "A career objective",
         maxWords: 100
       },
@@ -281,6 +595,17 @@ export const quizConfigs: Record<string, QuizConfig> = {
         id: 18,
         section: 'current-situation',
         prompt: "How do you feel about your current industry or field?",
+        type: 'choice',
+        options: [
+          "Love it",
+          "It's fine",
+          "Mixed feelings",
+          "Over it",
+          "Switching soon",
+          "New here",
+          "Lots of potential",
+          "Uncertain future"
+        ],
         placeholder: "Your thoughts on your sector",
         maxWords: 100
       },
@@ -288,6 +613,18 @@ export const quizConfigs: Record<string, QuizConfig> = {
         id: 19,
         section: 'current-situation',
         prompt: "What's the biggest financial challenge you're facing right now?",
+        type: 'choice',
+        options: [
+          "High cost of living",
+          "Debt",
+          "Income variability",
+          "Low salary",
+          "Unexpected expenses",
+          "Savings discipline",
+          "Budgeting",
+          "Healthcare costs",
+          "Family obligations"
+        ],
         placeholder: "Money-related difficulties",
         maxWords: 100
       },
@@ -295,6 +632,17 @@ export const quizConfigs: Record<string, QuizConfig> = {
         id: 20,
         section: 'current-situation',
         prompt: "How connected do you feel to your community?",
+        type: 'choice',
+        options: [
+          "Very connected",
+          "Somewhat",
+          "Not much",
+          "Online-only vibes",
+          "Building community",
+          "New to area",
+          "Prefer lone wolf",
+          "Actively involved"
+        ],
         placeholder: "Your sense of belonging",
         maxWords: 100
       },
@@ -303,6 +651,20 @@ export const quizConfigs: Record<string, QuizConfig> = {
         id: 21,
         section: 'future-aspirations',
         prompt: "What's your dream job?",
+        type: 'choice',
+        options: [
+          "Product Manager",
+          "UX/UI Designer",
+          "Software Engineer",
+          "Data Scientist",
+          "Founder/CEO",
+          "Creative Director",
+          "Researcher",
+          "Content Creator",
+          "Educator/Mentor",
+          "Operations/COO vibes",
+          "Something remote with impact"
+        ],
         placeholder: "Your ideal role",
         maxWords: 100
       },
@@ -310,6 +672,20 @@ export const quizConfigs: Record<string, QuizConfig> = {
         id: 22,
         section: 'future-aspirations',
         prompt: "What's the biggest dream you've ever had?",
+        type: 'choice',
+        options: [
+          "Build something millions use",
+          "Financial freedom",
+          "Make art that moves people",
+          "Start a mission-driven company",
+          "Travel the world sustainably",
+          "Lead a world-class team",
+          "Publish a book",
+          "Teach at scale",
+          "Work on climate solutions",
+          "Raise a happy healthy family",
+          "Live slow and present"
+        ],
         placeholder: "Your grandest aspiration",
         maxWords: 100
       },
@@ -317,6 +693,19 @@ export const quizConfigs: Record<string, QuizConfig> = {
         id: 23,
         section: 'future-aspirations',
         prompt: "What's one skill you want to build for your career?",
+        type: 'choice',
+        options: [
+          "Leadership",
+          "Coding/Automation",
+          "Design/UI",
+          "Data/AI",
+          "Public speaking",
+          "Writing/Storytelling",
+          "Sales/Influence",
+          "Strategy",
+          "Networking",
+          "Project management"
+        ],
         placeholder: "A skill to develop",
         maxWords: 100
       },
@@ -324,6 +713,19 @@ export const quizConfigs: Record<string, QuizConfig> = {
         id: 24,
         section: 'future-aspirations',
         prompt: "What impact do you want to have on the world?",
+        type: 'choice',
+        options: [
+          "Empower others",
+          "Climate action",
+          "Health & wellbeing",
+          "Education access",
+          "Economic opportunity",
+          "Ethical tech",
+          "Creative joy",
+          "Community building",
+          "Reduce inequality",
+          "Build open-source"
+        ],
         placeholder: "Your desired contribution",
         maxWords: 100
       },
@@ -331,6 +733,19 @@ export const quizConfigs: Record<string, QuizConfig> = {
         id: 25,
         section: 'future-aspirations',
         prompt: "If you could create your own job, what would it look like?",
+        type: 'choice',
+        options: [
+          "Hybrid creator-engineer",
+          "Research ↔ product bridge",
+          "Strategy + execution lead",
+          "Customer-obsessed builder",
+          "Solo indie hacker",
+          "Community-led PM",
+          "Remote-first team lead",
+          "R&D explorer",
+          "Problem-solver-for-hire",
+          "Creator-educator"
+        ],
         placeholder: "Design your perfect role",
         maxWords: 100
       },
@@ -338,6 +753,19 @@ export const quizConfigs: Record<string, QuizConfig> = {
         id: 26,
         section: 'future-aspirations',
         prompt: "What's a problem in the world you'd love to solve?",
+        type: 'choice',
+        options: [
+          "Misinformation",
+          "Loneliness",
+          "Climate change",
+          "Access to healthcare",
+          "Education equity",
+          "Financial literacy",
+          "Fraud/scams",
+          "Waste/plastic",
+          "Accessibility",
+          "Broken hiring"
+        ],
         placeholder: "An issue you care about",
         maxWords: 100
       },
@@ -345,6 +773,19 @@ export const quizConfigs: Record<string, QuizConfig> = {
         id: 27,
         section: 'future-aspirations',
         prompt: "What industry excites you the most right now?",
+        type: 'choice',
+        options: [
+          "AI/ML",
+          "Climate tech",
+          "Health tech",
+          "EdTech",
+          "Creator economy",
+          "Gaming/AR",
+          "Fintech",
+          "Cybersecurity",
+          "Space tech",
+          "Civic/Gov tech"
+        ],
         placeholder: "A field that interests you",
         maxWords: 100
       },
@@ -352,6 +793,19 @@ export const quizConfigs: Record<string, QuizConfig> = {
         id: 28,
         section: 'future-aspirations',
         prompt: "What's one accomplishment that would make you feel fulfilled?",
+        type: 'choice',
+        options: [
+          "Launch a product end-to-end",
+          "Lead a team",
+          "Hit 10k active users",
+          "Reach six-figure revenue",
+          "Win an industry award",
+          "Speak at a conference",
+          "Open-source contributions",
+          "Publish research/patent",
+          "Mentor others",
+          "Consistent work-life balance"
+        ],
         placeholder: "A meaningful achievement",
         maxWords: 100
       },
@@ -359,6 +813,19 @@ export const quizConfigs: Record<string, QuizConfig> = {
         id: 29,
         section: 'future-aspirations',
         prompt: "Where do you want to live in 10 years?",
+        type: 'choice',
+        options: [
+          "Same city, happily",
+          "Different city, same country",
+          "International move",
+          "Coastal city",
+          "Mountain town",
+          "Suburbs with space",
+          "Rural homestead",
+          "Digital nomad base",
+          "Close to family",
+          "Wherever opportunity is"
+        ],
         placeholder: "Your ideal location",
         maxWords: 100
       },
@@ -366,6 +833,19 @@ export const quizConfigs: Record<string, QuizConfig> = {
         id: 30,
         section: 'future-aspirations',
         prompt: "What's your ideal daily routine?",
+        type: 'choice',
+        options: [
+          "Deep work mornings",
+          "Meetings after lunch",
+          "Gym midday",
+          "Walk + podcasts",
+          "Focus sprints",
+          "Creative blocks",
+          "No commute",
+          "Asynchronous schedule",
+          "4-day week",
+          "Start late, end late"
+        ],
         placeholder: "Your perfect day",
         maxWords: 100
       },
@@ -373,6 +853,19 @@ export const quizConfigs: Record<string, QuizConfig> = {
         id: 31,
         section: 'future-aspirations',
         prompt: "What kind of work-life balance would make you happiest?",
+        type: 'choice',
+        options: [
+          "Strict 9–5",
+          "Flexible hours",
+          "Remote first",
+          "Hybrid",
+          "On-site and social",
+          "Project-based bursts",
+          "Seasonality-based",
+          "Part-time excellence",
+          "Sabbatical cycles",
+          "Work to live energy"
+        ],
         placeholder: "Your ideal balance",
         maxWords: 100
       },
@@ -380,6 +873,19 @@ export const quizConfigs: Record<string, QuizConfig> = {
         id: 32,
         section: 'future-aspirations',
         prompt: "What's one value you'll never compromise on?",
+        type: 'choice',
+        options: [
+          "Integrity",
+          "Kindness",
+          "Curiosity",
+          "Autonomy",
+          "Craftsmanship",
+          "Transparency",
+          "Sustainability",
+          "Inclusion",
+          "Family",
+          "Health"
+        ],
         placeholder: "Your non-negotiable",
         maxWords: 100
       },
@@ -387,6 +893,19 @@ export const quizConfigs: Record<string, QuizConfig> = {
         id: 33,
         section: 'future-aspirations',
         prompt: "What kind of person do you want to be in 10 years?",
+        type: 'choice',
+        options: [
+          "Calm and confident",
+          "Creative leader",
+          "Reliable builder",
+          "Impact-driven human",
+          "Curious lifelong learner",
+          "Healthy & present",
+          "Community connector",
+          "Wealth-wise & generous",
+          "Bold but kind",
+          "Zen operator"
+        ],
         placeholder: "Your future self",
         maxWords: 100
       },
@@ -394,6 +913,19 @@ export const quizConfigs: Record<string, QuizConfig> = {
         id: 34,
         section: 'future-aspirations',
         prompt: "What's one thing about yourself you're most proud of?",
+        type: 'choice',
+        options: [
+          "Resilience",
+          "Empathy",
+          "Humor under pressure",
+          "Work ethic",
+          "Adaptability",
+          "Creativity",
+          "Curiosity",
+          "Patience",
+          "Leadership potential",
+          "Disciplined habits"
+        ],
         placeholder: "Your pride point",
         maxWords: 100
       },
@@ -401,6 +933,19 @@ export const quizConfigs: Record<string, QuizConfig> = {
         id: 35,
         section: 'future-aspirations',
         prompt: "What's an activity you can do for hours without getting bored?",
+        type: 'choice',
+        options: [
+          "Coding/Building",
+          "Designing",
+          "Writing",
+          "Reading/Research",
+          "Teaching/Tutoring",
+          "Strategy puzzles",
+          "Music/Creating",
+          "Analytics dashboards",
+          "Prototyping",
+          "Community modding"
+        ],
         placeholder: "Your flow activity",
         maxWords: 100
       },
@@ -408,6 +953,19 @@ export const quizConfigs: Record<string, QuizConfig> = {
         id: 36,
         section: 'future-aspirations',
         prompt: "What's one topic you'd love to learn more about?",
+        type: 'choice',
+        options: [
+          "AI/LLMs",
+          "Climate science",
+          "Behavioral psychology",
+          "Finance/Investing",
+          "Product strategy",
+          "UX research",
+          "Systems design",
+          "Public speaking",
+          "Negotiation",
+          "Data engineering"
+        ],
         placeholder: "Something to explore",
         maxWords: 100
       },
@@ -415,6 +973,19 @@ export const quizConfigs: Record<string, QuizConfig> = {
         id: 37,
         section: 'future-aspirations',
         prompt: "If you could turn a hobby into a career, what would it be?",
+        type: 'choice',
+        options: [
+          "Photography",
+          "Gaming/Streaming",
+          "Writing/Blogging",
+          "Cooking/Baking",
+          "Fitness coaching",
+          "Music production",
+          "Gardening",
+          "DIY/Making",
+          "Travel content",
+          "Language learning"
+        ],
         placeholder: "Monetizing your passion",
         maxWords: 100
       },
@@ -422,6 +993,19 @@ export const quizConfigs: Record<string, QuizConfig> = {
         id: 38,
         section: 'future-aspirations',
         prompt: "What unique contribution do you want to make?",
+        type: 'choice',
+        options: [
+          "Bridge tech and people",
+          "Simplify complexity",
+          "Create delightful experiences",
+          "Ship reliable systems",
+          "Mentor early-career folks",
+          "Build ethical products",
+          "Community catalyst",
+          "Bring comic relief",
+          "Strong operator energy",
+          "Long-term thinking"
+        ],
         placeholder: "Your special offering",
         maxWords: 100
       },
@@ -429,6 +1013,19 @@ export const quizConfigs: Record<string, QuizConfig> = {
         id: 39,
         section: 'future-aspirations',
         prompt: "What does financial success mean to you?",
+        type: 'choice',
+        options: [
+          "Freedom of time",
+          "No debt, solid savings",
+          "Comfortable lifestyle",
+          "Taking care of family",
+          "Work optional vibes",
+          "Giving generously",
+          "Owning real assets",
+          "Location independence",
+          "Career flexibility",
+          "Build wealth slowly"
+        ],
         placeholder: "Your money mindset",
         maxWords: 100
       },
@@ -436,9 +1033,22 @@ export const quizConfigs: Record<string, QuizConfig> = {
         id: 40,
         section: 'future-aspirations',
         prompt: "Who's living a life you admire, and why?",
+        type: 'choice',
+        options: [
+          "Parent/Family member",
+          "Teacher/Mentor",
+          "Founder I admire",
+          "Scientist/Engineer",
+          "Artist/Creator",
+          "Community leader",
+          "Athlete/Coach",
+          "Writer/Journalist",
+          "Public servant",
+          "Historical figure"
+        ],
         placeholder: "Your role model",
         maxWords: 100
-      }
+      },
     ]
   },
 
@@ -492,6 +1102,17 @@ export const quizConfigs: Record<string, QuizConfig> = {
         id: 1,
         section: 'identity-values',
         prompt: "What's your current job or role in life?",
+        type: 'choice',
+        options: [
+          "Student",
+          "Full-time employee",
+          "Part-time",
+          "Freelancer/Contractor",
+          "Entrepreneur",
+          "Career break / Between gigs",
+          "Parent/Caregiver",
+          "Still figuring it out (vibes)"
+        ],
         placeholder: "Your current position",
         maxWords: 100
       },
@@ -499,6 +1120,17 @@ export const quizConfigs: Record<string, QuizConfig> = {
         id: 2,
         section: 'identity-values',
         prompt: "How would you describe yourself in one sentence today?",
+        type: 'choice',
+        options: [
+          "Focused",
+          "Curious",
+          "Ambitious",
+          "Overcaffeinated but optimistic",
+          "Calm and consistent",
+          "Figuring it out",
+          "Burnt-out but hopeful",
+          "Chaotically productive"
+        ],
         placeholder: "Brief self-description",
         maxWords: 100
       },
@@ -506,6 +1138,17 @@ export const quizConfigs: Record<string, QuizConfig> = {
         id: 3,
         section: 'identity-values',
         prompt: "What's one value you prioritize most in your life right now?",
+        type: 'choice',
+        options: [
+          "Freedom",
+          "Stability",
+          "Growth",
+          "Family",
+          "Health",
+          "Creativity",
+          "Community",
+          "Integrity"
+        ],
         placeholder: "Your core value",
         maxWords: 100
       },
@@ -513,6 +1156,17 @@ export const quizConfigs: Record<string, QuizConfig> = {
         id: 4,
         section: 'identity-values',
         prompt: "What's one thing about yourself you feel confident in?",
+        type: 'choice',
+        options: [
+          "Communication",
+          "Problem-solving",
+          "Learning fast",
+          "Organization",
+          "Empathy",
+          "Creativity",
+          "Staying calm under pressure",
+          "Making spot-on memes"
+        ],
         placeholder: "Your strength",
         maxWords: 100
       },
@@ -520,6 +1174,16 @@ export const quizConfigs: Record<string, QuizConfig> = {
         id: 5,
         section: 'identity-values',
         prompt: "What's one fear you feel is holding you back today?",
+        type: 'choice',
+        options: [
+          "Failure",
+          "Rejection",
+          "Making the wrong choice",
+          "Not being good enough",
+          "Wasting time",
+          "Financial risk",
+          "Running out of snacks mid-project"
+        ],
         placeholder: "Your concern",
         maxWords: 100
       },
@@ -527,6 +1191,17 @@ export const quizConfigs: Record<string, QuizConfig> = {
         id: 6,
         section: 'identity-values',
         prompt: "How do you usually spend your free time?",
+        type: 'choice',
+        options: [
+          "Reading",
+          "Gaming",
+          "Gym/Fitness",
+          "Cooking/Baking",
+          "Outdoors/Travel",
+          "Side projects",
+          "Friends/Family time",
+          "Napping like a pro"
+        ],
         placeholder: "Leisure activities",
         maxWords: 100
       },
@@ -534,6 +1209,17 @@ export const quizConfigs: Record<string, QuizConfig> = {
         id: 7,
         section: 'identity-values',
         prompt: "What's one word to describe your current mindset?",
+        type: 'choice',
+        options: [
+          "Focused",
+          "Curious",
+          "Determined",
+          "Overwhelmed",
+          "Hopeful",
+          "Stuck",
+          "Playful",
+          "Resilient"
+        ],
         placeholder: "Single word",
         maxWords: 100
       },
@@ -541,6 +1227,17 @@ export const quizConfigs: Record<string, QuizConfig> = {
         id: 8,
         section: 'identity-values',
         prompt: "What's one belief about yourself that you're questioning?",
+        type: 'choice',
+        options: [
+          "I must have it all figured out",
+          "I'm not creative",
+          "I'm not technical",
+          "I'm behind",
+          "I can't switch careers",
+          "I need permission to start",
+          "I'm bad at networking",
+          "None of the above"
+        ],
         placeholder: "Self-doubt area",
         maxWords: 100
       },
@@ -548,6 +1245,17 @@ export const quizConfigs: Record<string, QuizConfig> = {
         id: 9,
         section: 'identity-values',
         prompt: "What's something you've recently accomplished that you're proud of?",
+        type: 'choice',
+        options: [
+          "Learned a new skill",
+          "Shipped a project",
+          "Asked for help",
+          "Presented to a group",
+          "Started a healthy habit",
+          "Updated my resume/portfolio",
+          "Took a break without guilt",
+          "Other"
+        ],
         placeholder: "Recent achievement",
         maxWords: 100
       },
@@ -555,6 +1263,17 @@ export const quizConfigs: Record<string, QuizConfig> = {
         id: 10,
         section: 'identity-values',
         prompt: "What's one habit you wish you could change?",
+        type: 'choice',
+        options: [
+          "Procrastination",
+          "Doomscrolling",
+          "Multitasking",
+          "Overcommitting",
+          "Perfectionism",
+          "Late nights",
+          "Skipping exercise",
+          "Saying yes to every meeting"
+        ],
         placeholder: "Habit to improve",
         maxWords: 100
       },
@@ -562,6 +1281,17 @@ export const quizConfigs: Record<string, QuizConfig> = {
         id: 11,
         section: 'identity-values',
         prompt: "What motivates you the most right now?",
+        type: 'choice',
+        options: [
+          "Impact",
+          "Learning/Growth",
+          "Money (no shame)",
+          "Recognition",
+          "Autonomy",
+          "Stability",
+          "Fun/Curiosity",
+          "Helping others"
+        ],
         placeholder: "Your driver",
         maxWords: 100
       },
@@ -569,6 +1299,17 @@ export const quizConfigs: Record<string, QuizConfig> = {
         id: 12,
         section: 'identity-values',
         prompt: "What's one word that describes the life you want?",
+        type: 'choice',
+        options: [
+          "Balanced",
+          "Creative",
+          "Purposeful",
+          "Free",
+          "Abundant",
+          "Adventurous",
+          "Calm",
+          "Impactful"
+        ],
         placeholder: "Future vision word",
         maxWords: 100
       },
@@ -576,6 +1317,17 @@ export const quizConfigs: Record<string, QuizConfig> = {
         id: 13,
         section: 'identity-values',
         prompt: "What's your biggest strength?",
+        type: 'choice',
+        options: [
+          "Communication",
+          "Adaptability",
+          "Resilience",
+          "Creativity",
+          "Analytical thinking",
+          "Empathy",
+          "Leadership",
+          "Humor"
+        ],
         placeholder: "Top ability",
         maxWords: 100
       },
@@ -583,6 +1335,17 @@ export const quizConfigs: Record<string, QuizConfig> = {
         id: 14,
         section: 'identity-values',
         prompt: "What's your biggest weakness?",
+        type: 'choice',
+        options: [
+          "Perfectionism",
+          "Procrastination",
+          "Self-doubt",
+          "Impatience",
+          "Saying yes too often",
+          "Overthinking",
+          "Avoiding conflict",
+          "Time management"
+        ],
         placeholder: "Area to improve",
         maxWords: 100
       },
@@ -590,6 +1353,17 @@ export const quizConfigs: Record<string, QuizConfig> = {
         id: 15,
         section: 'identity-values',
         prompt: "What makes you unique?",
+        type: 'choice',
+        options: [
+          "Multidisciplinary background",
+          "Unusual combo of skills",
+          "Quick learner",
+          "People connector",
+          "Detail-oriented",
+          "Big-picture thinker",
+          "Calm under pressure",
+          "Spreadsheet artist"
+        ],
         placeholder: "Your differentiator",
         maxWords: 100
       },
@@ -597,6 +1371,17 @@ export const quizConfigs: Record<string, QuizConfig> = {
         id: 16,
         section: 'identity-values',
         prompt: "What's one thing you'd never compromise on?",
+        type: 'choice',
+        options: [
+          "Integrity",
+          "Health",
+          "Family",
+          "Learning",
+          "Respect",
+          "Boundaries",
+          "Creativity",
+          "Well-being"
+        ],
         placeholder: "Non-negotiable",
         maxWords: 100
       },
@@ -604,6 +1389,17 @@ export const quizConfigs: Record<string, QuizConfig> = {
         id: 17,
         section: 'identity-values',
         prompt: "What's your personal definition of success?",
+        type: 'choice',
+        options: [
+          "Freedom over my time",
+          "Meaningful impact",
+          "Growth and learning",
+          "Financial security",
+          "Work I enjoy",
+          "Helping others",
+          "Balance and health",
+          "Recognition for my craft"
+        ],
         placeholder: "Success means...",
         maxWords: 100
       },
@@ -611,6 +1407,17 @@ export const quizConfigs: Record<string, QuizConfig> = {
         id: 18,
         section: 'identity-values',
         prompt: "What's one thing you wish others knew about you?",
+        type: 'choice',
+        options: [
+          "I'm introverted (not shy)",
+          "I think deeply before speaking",
+          "I care a lot",
+          "I'm more technical than I seem",
+          "I'm more creative than I seem",
+          "I have big ambitions",
+          "I need quiet time to do my best",
+          "Other"
+        ],
         placeholder: "Hidden aspect",
         maxWords: 100
       },
@@ -618,6 +1425,17 @@ export const quizConfigs: Record<string, QuizConfig> = {
         id: 19,
         section: 'identity-values',
         prompt: "What's one life experience that shaped who you are?",
+        type: 'choice',
+        options: [
+          "Immigrating or moving",
+          "Changing careers",
+          "Starting a business",
+          "Caring for family",
+          "Overcoming failure",
+          "A great mentor/teacher",
+          "Traveling solo",
+          "Working through burnout"
+        ],
         placeholder: "Formative experience",
         maxWords: 100
       },
@@ -625,6 +1443,17 @@ export const quizConfigs: Record<string, QuizConfig> = {
         id: 20,
         section: 'identity-values',
         prompt: "What's one thing you're currently struggling with?",
+        type: 'choice',
+        options: [
+          "Clarity/direction",
+          "Motivation",
+          "Time management",
+          "Confidence",
+          "Work-life balance",
+          "Finances",
+          "Health/Energy",
+          "Saying no"
+        ],
         placeholder: "Current challenge",
         maxWords: 100
       },

@@ -154,6 +154,53 @@ export function QuizQuestion({
             </motion.span>
           )}
         </motion.div>
+
+        {/* Optional Multiple-Choice Options */}
+        {Array.isArray(question.options) && question.options.length > 0 && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.45 }}
+            className="flex flex-wrap gap-2 pt-1"
+          >
+            {question.options.map((opt) => {
+              // Determine if option is currently present in answer (comma/semicolon separated)
+              const tokens = answer
+                .split(/[;,]/)
+                .map(t => t.trim())
+                .filter(Boolean)
+              const selected = tokens.some(t => t.toLowerCase() === opt.toLowerCase())
+
+              const toggle = () => {
+                let nextTokens = tokens.slice()
+                if (selected) {
+                  nextTokens = nextTokens.filter(t => t.toLowerCase() !== opt.toLowerCase())
+                } else {
+                  nextTokens.push(opt)
+                }
+
+                // If the textarea also has free text beyond tokens, preserve it.
+                // Best-effort: remove token portion from the end if it looks tokenized; otherwise, just use tokens joined.
+                const nextValue = nextTokens.join(', ')
+                onAnswerChange(nextValue)
+              }
+
+              return (
+                <Button
+                  key={opt}
+                  type="button"
+                  size="sm"
+                  variant={selected ? 'default' : 'outline'}
+                  className={selected ? 'bg-accent text-accent-foreground hover:bg-accent/90' : ''}
+                  onClick={toggle}
+                  aria-pressed={selected}
+                >
+                  {opt}
+                </Button>
+              )
+            })}
+          </motion.div>
+        )}
       </motion.div>
 
       {/* Navigation Buttons */}
