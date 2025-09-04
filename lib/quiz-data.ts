@@ -1458,7 +1458,6 @@ export const quizConfigs: Record<string, QuizConfig> = {
         maxWords: 100
       },
       // Current Career & Skills (20 questions) - ids 21-40
-      // TODO: Add Gen - Z coded funny but relevant options for questions 21-100
       {
         id: 21,
         section: 'career-skills',
