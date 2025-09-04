@@ -73,7 +73,9 @@ export function QuizWelcome({
           {quizConfig.description}
         </p>
       </motion.div>
-
+      
+      
+      {/* TODO: Remove action buttons from mobile displays*/}
       {/* Quiz Details */}
       <motion.div
         initial={{ opacity: 0 }}
@@ -151,7 +153,7 @@ export function QuizWelcome({
           </div>
         </motion.div>
       )}
-
+      
       {/* Action Buttons */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}

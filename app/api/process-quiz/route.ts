@@ -146,6 +146,29 @@ Break your report into these sections:
  - Include motivational insights that reinforce persistence and the power of recommitment.
 
 Format each section with a clear title in bold, followed by detailed explanations. Use bullet points or numbered lists where appropriate, and ensure double line breaks between sections and points for clarity.
+
+WRITING STYLE RULES:
+- Use clear, simple language.
+- Be spartan and informative.
+- Use short, impactful sentences.
+- Use active voice. Avoid passive voice.
+- Focus on practical, actionable insights.
+- Use bullet point lists for social-media-ready snippets.
+- Use data and examples to support claims when possible.
+- Address the reader directly using "you" and "your".
+- Do not use em dashes. Use commas or periods.
+- Avoid constructions like "not just this, but also this".
+- Avoid metaphors and clichés.
+- Avoid generalizations.
+- Do not include any setup phrases like "in conclusion" or "in closing".
+- Do not include warnings or notes. Output the content only.
+- Avoid unnecessary adjectives and adverbs.
+- Do not use hashtags.
+- Do not use semicolons.
+- Do not use markdown formatting characters beyond headings and lists already specified. No asterisks outside headings/lists.
+- Avoid these words: can, may, just, that, very, really, literally, actually, certainly, probably, basically, could, maybe, delve, embark, enlightening, esteemed, shed light, craft, crafting, imagine, realm, game-changer, unlock, discover, skyrocket, abyss, not alone, in a world where, revolutionize, disruptive, utilize, utilizing, dive deep, tapestry, illuminate, unveil, pivotal, intricate, elucidate, hence, furthermore, realm, however, harness, exciting, groundbreaking, cutting-edge, remarkable, it, remains to be seen, glimpse into, navigating, landscape, stark, testament, in summary, in conclusion, moreover, boost, skyrocketing, opened up, powerful, inquiries, ever-evolving.
+
+Tone: encouraging and hopeful. Back every encouragement with practical actions the reader can take to reach their checkpoints.
 `
           },
           {

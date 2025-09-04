@@ -1,39 +1,119 @@
-import { TimelineCheckpoint } from '@/models/Timeline'
+"use client"
+import { TimelineCheckpoint } from '@/types/timeline'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { GlowCard } from '@/components/ui/GlowCard'
+import { Button } from '@/components/ui/button'
+import { motion, useInView } from 'framer-motion'
+import * as React from 'react'
+import { Plus, Share2 } from 'lucide-react'
 
 interface TimelineProps {
   checkpoints: TimelineCheckpoint[]
 }
 
+function useShare() {
+  return React.useCallback(async (title: string, text: string) => {
+    const shareData = { title, text }
+    if (navigator.share) {
+      try { await navigator.share(shareData) } catch {}
+    } else {
+      try {
+        await navigator.clipboard.writeText(`${title}\n${text}`)
+        // Optionally toast here
+      } catch {}
+    }
+  }, [])
+}
+
+async function addGoalFromCheckpoint(cp: TimelineCheckpoint) {
+  try {
+    await fetch('/api/goals', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ title: cp.title, description: cp.description, checkpointYear: cp.year })
+    })
+  } catch {}
+}
+
 export function Timeline({ checkpoints }: TimelineProps) {
+  const share = useShare()
+
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle className="text-2xl font-bold text-accent">Your Journey to Future U</CardTitle>
-      </CardHeader>
-      <CardContent className="relative">
-        <div className="absolute left-4 top-0 bottom-0 w-0.5 bg-accent/20" />
-        <div className="space-y-8">
-          {checkpoints.map((checkpoint, index) => (
-            <div key={checkpoint.year} className="relative pl-8">
-              <div className="absolute left-0 w-8 flex items-center">
-              </div>
-              <div className="space-y-2">
-                <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2">
-                  <div className="flex items-center gap-2">
-                    <span className="text-lg font-bold text-accent">{checkpoint.year}</span>
-                    <span className="text-xl font-semibold">{checkpoint.title}</span>
+    <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
+      <aside className="md:col-span-3">
+        <div className="sticky top-20">
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-xl font-bold text-accent">Your Journey</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-3">
+                {checkpoints.map((cp, i) => (
+                  <div key={cp.year} className="flex items-center gap-2 text-sm">
+                    <div className="w-1.5 h-1.5 rounded-full bg-accent/70" />
+                    <span className="text-muted-foreground">{cp.year}</span>
+                    <span className="truncate">{cp.title}</span>
+                    {i === checkpoints.length - 1 && (
+                      <span className="ml-auto px-2 py-0.5 rounded-full bg-yellow-100 text-yellow-800 text-xs">Hero</span>
+                    )}
                   </div>
-                  {index === checkpoints.length - 1 && (
-                    <span className="mt-1 sm:mt-0 sm:ml-2 px-2 py-0.5 text-sm font-medium bg-yellow-100 text-yellow-800 rounded-full">Hero Level 🏆</span>
-                  )}
-                </div>
-                <p className="text-muted-foreground">{checkpoint.description}</p>
+                ))}
               </div>
-            </div>
-          ))}
+            </CardContent>
+          </Card>
         </div>
-      </CardContent>
-    </Card>
+      </aside>
+      <section className="md:col-span-9 space-y-4">
+        {checkpoints.map((cp, i) => (
+          <TimelineItem key={`${cp.year}-${i}`} cp={cp} onShare={share} />
+        ))}
+      </section>
+    </div>
+  )
+}
+
+function TimelineItem({ cp, onShare }: { cp: TimelineCheckpoint; onShare: (title: string, text: string) => void }) {
+  const ref = React.useRef<HTMLDivElement | null>(null)
+  const inView = useInView(ref, { amount: 0.2, once: true })
+  const [expanded, setExpanded] = React.useState(false)
+  return (
+    <motion.div
+      ref={ref}
+      initial={{ opacity: 0, y: 12 }}
+      animate={inView ? { opacity: 1, y: 0 } : {}}
+      transition={{ duration: 0.4 }}
+    >
+      <GlowCard className="p-4">
+        <div className="flex items-start justify-between gap-3">
+          <div>
+            <div className="flex items-center gap-2">
+              <span className="text-lg font-bold text-accent">{cp.year}</span>
+              <span className="text-xl font-semibold">{cp.title}</span>
+            </div>
+            <p className="text-sm text-muted-foreground mt-1 line-clamp-2">
+              {cp.description}
+            </p>
+            {expanded && (
+              <div className="text-sm text-muted-foreground mt-2">
+                {cp.description}
+              </div>
+            )}
+          </div>
+          <div className="flex gap-2">
+            <Button size="sm" variant="outline" onClick={() => addGoalFromCheckpoint(cp)} className="gap-1">
+              <Plus className="w-4 h-4" /> Add to Goals
+            </Button>
+            <Button size="sm" variant="outline" onClick={() => onShare(cp.title, cp.description)} className="gap-1">
+              <Share2 className="w-4 h-4" /> Share
+            </Button>
+          </div>
+        </div>
+        <div className="mt-2">
+          <Button variant="ghost" size="sm" onClick={() => setExpanded(v => !v)}>
+            {expanded ? 'Show less' : 'Expand'}
+          </Button>
+        </div>
+      </GlowCard>
+    </motion.div>
   )
 }

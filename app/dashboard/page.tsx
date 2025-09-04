@@ -3,12 +3,16 @@
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { useSession } from 'next-auth/react'
-import { Card, CardContent, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Timeline } from '@/components/Timeline'
-import { TimelineCheckpoint } from '@/models/Timeline'
+import { TimelineCheckpoint } from '@/types/timeline'
 import AvatarCreator from '@/components/AvatarCreator'
-import { ArrowRight } from 'lucide-react'
+import { PlusCircle } from 'lucide-react'
+import { GlowCard } from '@/components/ui/GlowCard'
+import { XPWidget } from '@/components/dashboard/XPWidget'
+import { GoalsWidget } from '@/components/dashboard/GoalsWidget'
+import { MagneticButton } from '@/components/ui/MagneticButton'
+import { SoundToggle } from '@/components/ui/SoundToggle'
 
 export default function DashboardPage() {
   const router = useRouter()
@@ -93,105 +97,61 @@ export default function DashboardPage() {
 
   return (
     <div className="min-h-screen bg-background text-foreground p-4 md:p-8">
-      <div className="max-w-6xl mx-auto space-y-6">
-        {/* Welcome Card - Full Width */}
-        <Card className="w-full">
-          <CardContent className="p-6 md:p-8">
-            <div className="flex flex-col md:flex-row items-center gap-6">
-              <div className="w-full md:w-1/3 flex justify-center">
-                <AvatarCreator 
-                  seed={session?.user?.email || ''} 
-                  size={180} 
-                  {...avatarPreferences}
-                />
+      <div className="max-w-6xl mx-auto space-y-8">
+        {/* Hero: Avatar + XP + Quick Actions */}
+        <div className="grid md:grid-cols-12 gap-6 items-stretch">
+          <GlowCard className="md:col-span-5 p-6">
+            <div className="flex items-start justify-between">
+              <div>
+                <h1 className="text-3xl font-bold text-accent">Welcome back, {firstName}</h1>
+                <p className="text-muted-foreground text-sm">{session?.user?.email}</p>
               </div>
-              <div className="w-full md:w-2/3 space-y-4 text-center md:text-left">
-                <CardTitle className="text-3xl font-bold text-accent">
-                  Welcome Back, {firstName}
-                </CardTitle>
-                <p className="text-muted-foreground">{session?.user?.email}</p>
-                <div className="flex flex-wrap gap-3 justify-center md:justify-start">
-                  <Button
-                    onClick={() => router.push('/customize-avatar')}
-                    variant="outline"
-                    size="sm"
-                    className="rounded-full text-sm px-4 py-1 h-8 bg-accent text-accent-foreground hover:bg-accent/90"
-                  >
-                    Customize Avatar
-                  </Button>
-                  
-                </div>
-                <div className="flex flex-wrap gap-3 justify-center md:justify-start">
-                  <Button
-                    onClick={() => router.push('/')} 
-                    variant="outline"
-                    size="sm"
-                    className="rounded-full text-sm px-4 py-1 h-8 bg-background text-muted-foreground hover:bg-accent/90"
-                  >
-                    Back to Home
-                  </Button>
-                  
-                </div>
+              <SoundToggle />
+            </div>
+            <div className="mt-4 flex flex-col items-center">
+              <AvatarCreator seed={session?.user?.email || ''} size={180} {...avatarPreferences} />
+              <div className="mt-4">
+                <MagneticButton onClick={() => router.push('/customize-avatar')} className="px-4 py-2 text-sm">
+                  Customize Avatar
+                </MagneticButton>
               </div>
             </div>
-          </CardContent>
-        </Card>
-
-        {/* Career Strategy Card */}
-        <Card>
-          <CardContent className="p-6 md:p-8">
-            <div className="flex flex-col md:flex-row items-center gap-6">
-              <div className="w-full space-y-4">
-                <h3 className="text-2xl font-bold text-accent">Your Career Strategy</h3>
-                <p className="text-muted-foreground">
-                  Your career strategy is your comprehensive report that shows you your strengths 
-                  and exactly how you&apos;re going to get from present you to future you.
-                </p>
-                <div className="flex justify-start pt-2">
-                  {timeline.length > 0 ? (
-                    <Button
-                      className="bg-accent text-accent-foreground hover:bg-accent/90  flex items-center gap-2"
-                      onClick={() => router.push('/report/latest')}
-                    >
-                      View Career Strategy
-                      <ArrowRight size={16} />
-                    </Button>
-                  ) : (
-                    <Button
-                      className="bg-accent text-accent-foreground hover:bg-accent/90 flex items-center gap-2"
-                      onClick={() => router.push('/quiz-selection')}
-                    >
-                      Take Quiz to Get Started
-                      <ArrowRight size={16} />
-                    </Button>
-                  )}
-                </div>
-              </div>
+          </GlowCard>
+          <div className="md:col-span-7 space-y-4">
+            <XPWidget checkpoints={timeline} />
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+              <MagneticButton onClick={() => router.push('/quiz-selection')} className="w-full">
+                Retake Quiz
+              </MagneticButton>
+              {timeline.length > 0 ? (
+                <MagneticButton onClick={() => router.push('/report/latest')} className="w-full">
+                  View Career Strategy
+                </MagneticButton>
+              ) : (
+                <MagneticButton onClick={() => router.push('/quiz-selection')} className="w-full">
+                  Take Quiz to Get Started
+                </MagneticButton>
+              )}
+              <MagneticButton onClick={() => {
+                const el = document.getElementById('goals');
+                if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+              }} className="w-full">
+                <PlusCircle className="w-4 h-4 mr-2" /> Add Goal
+              </MagneticButton>
             </div>
-          </CardContent>
-        </Card>
+          </div>
+        </div>
 
+        {/* Goals */}
+        <GoalsWidget />
+
+        {/* Timeline */}
         {timeline.length > 0 ? (
           <Timeline checkpoints={timeline} />
         ) : (
-          <Card className="bg-card/50">
-            <CardContent className="p-8 text-center space-y-4">
-              <p className="text-muted-foreground">Take a quiz to generate your personalized career timeline!</p>
-            </CardContent>
-          </Card>
-        )}
-        
-        {/* Retake Quiz Button - Full Width */}
-        {timeline.length > 0 && (
-          <Button
-          onClick={() => router.push('/quiz-selection')}
-          variant="outline"
-          className="w-full bg-accent text-accent-foreground hover:bg-accent/90 rounded-full py-6 text-lg font-medium"
-        >
-          Retake Quiz
-        </Button>
-
-          
+          <GlowCard className="p-8 text-center">
+            <p className="text-muted-foreground">Take a quiz to generate your personalized career timeline!</p>
+          </GlowCard>
         )}
       </div>
     </div>
