@@ -1458,10 +1458,22 @@ export const quizConfigs: Record<string, QuizConfig> = {
         maxWords: 100
       },
       // Current Career & Skills (20 questions) - ids 21-40
+      // TODO: Add Gen - Z coded funny but relevant options for questions 21-100
       {
         id: 21,
         section: 'career-skills',
         prompt: "What skills do you use most often in your work?",
+        type: 'choice',
+        options: [
+          "Communicating with humans (and Slack)",
+          "Problem-solving on hard mode",
+          "Data wrangling and spreadsheet wizardry",
+          "Design and visual storytelling",
+          "Coding/automation to de-boring the boring",
+          "Herding cats (aka project management)",
+          "Research and deep dives",
+          "Writing clear docs and messages"
+        ],
         placeholder: "Frequently used skills",
         maxWords: 100
       },
@@ -1469,6 +1481,17 @@ export const quizConfigs: Record<string, QuizConfig> = {
         id: 22,
         section: 'career-skills',
         prompt: "What's one skill you feel particularly confident in?",
+        type: 'choice',
+        options: [
+          "Explaining tough stuff simply",
+          "Turning chaos into a plan",
+          "Design eye so sharp it cuts",
+          "Coding without crying",
+          "Numbers, dashboards, and data vibes",
+          "Writing that people actually read",
+          "People skills (yes, including boundaries)",
+          "Creative problem solving on speedrun mode"
+        ],
         placeholder: "Strong skill",
         maxWords: 100
       },
@@ -1476,6 +1499,17 @@ export const quizConfigs: Record<string, QuizConfig> = {
         id: 23,
         section: 'career-skills',
         prompt: "What's one skill you'd like to improve?",
+        type: 'choice',
+        options: [
+          "Public speaking without stage fright",
+          "Saying no without a 10-slide presentation",
+          "Deep focus (bye, endless tabs)",
+          "Advanced data/analysis skills",
+          "System design/architecture",
+          "Leadership and delegation",
+          "Creative storytelling",
+          "Time management that actually sticks"
+        ],
         placeholder: "Skill gap",
         maxWords: 100
       },
@@ -1491,6 +1525,17 @@ export const quizConfigs: Record<string, QuizConfig> = {
         id: 25,
         section: 'career-skills',
         prompt: "What's one thing you've learned on the job recently?",
+        type: 'choice',
+        options: [
+          "A new tool/stack that slaps",
+          "Shortcuts that saved me hours",
+          "Ask for help sooner, future me says thanks",
+          "Write it down or repeat it forever",
+          "Automate the boring stuff",
+          "Meetings need an agenda or it's an email",
+          "Scope creep is real — defend the roadmap",
+          "Other (plot twist)"
+        ],
         placeholder: "Recent learning",
         maxWords: 100
       },
@@ -1498,6 +1543,17 @@ export const quizConfigs: Record<string, QuizConfig> = {
         id: 26,
         section: 'career-skills',
         prompt: "What's a challenge you're facing in your work right now?",
+        type: 'choice',
+        options: [
+          "Too many priorities, not enough time",
+          "Unclear requirements/moving targets",
+          "Context switching gymnastic routine",
+          "Perfectionism vs. deadlines",
+          "Stakeholder chaos (send help)",
+          "Legacy code archaeology",
+          "Analysis paralysis",
+          "Burnout pings are blinking"
+        ],
         placeholder: "Work obstacle",
         maxWords: 100
       },
@@ -1505,6 +1561,17 @@ export const quizConfigs: Record<string, QuizConfig> = {
         id: 27,
         section: 'career-skills',
         prompt: "What's one professional goal you're working toward?",
+        type: 'choice',
+        options: [
+          "Lead a project end-to-end",
+          "Earn a promotion/title change",
+          "Switch roles/industries",
+          "Build a portfolio/showcase",
+          "Get better at public speaking",
+          "Earn a certification",
+          "Improve work-life balance",
+          "Mentor or be mentored"
+        ],
         placeholder: "Career goal",
         maxWords: 100
       },
@@ -1512,6 +1579,17 @@ export const quizConfigs: Record<string, QuizConfig> = {
         id: 28,
         section: 'career-skills',
         prompt: "How do you feel about your current industry or field?",
+        type: 'choice',
+        options: [
+          "Evolving fast — keeps me hyped",
+          "Stable but kinda sleepy",
+          "Innovative but chaotic energy",
+          "Mid vibes — browsing exits",
+          "Mission-driven and I love it",
+          "Tiring, considering a switch",
+          "Booming — opportunity everywhere",
+          "Gatekeep-y and I notice"
+        ],
         placeholder: "Industry thoughts",
         maxWords: 100
       },
@@ -1519,6 +1597,17 @@ export const quizConfigs: Record<string, QuizConfig> = {
         id: 29,
         section: 'career-skills',
         prompt: "What's one thing you wish was different about your current job?",
+        type: 'choice',
+        options: [
+          "More flexibility/remote options",
+          "Better pay (respectfully)",
+          "Fewer meetings that could be emails",
+          "More creative/impactful work",
+          "Clearer roadmap and priorities",
+          "Supportive, present management",
+          "Learning budget/time",
+          "Smaller team, fewer politics"
+        ],
         placeholder: "Job improvement",
         maxWords: 100
       },
@@ -1526,6 +1615,17 @@ export const quizConfigs: Record<string, QuizConfig> = {
         id: 30,
         section: 'career-skills',
         prompt: "What's your favorite part of your current work?",
+        type: 'choice',
+        options: [
+          "Building things that work",
+          "Solving brain-twisty problems",
+          "Collaborating with the team",
+          "Helping users/customers win",
+          "Creative freedom to experiment",
+          "Learning new tech/skills",
+          "Autonomy and ownership",
+          "That end-of-sprint dopamine rush"
+        ],
         placeholder: "Best aspect",
         maxWords: 100
       },
@@ -1533,6 +1633,17 @@ export const quizConfigs: Record<string, QuizConfig> = {
         id: 31,
         section: 'career-skills',
         prompt: "What's your least favorite part of your current work?",
+        type: 'choice',
+        options: [
+          "Meetings with no agenda",
+          "Scope creep strikes again",
+          "Last-minute fire drills",
+          "Repetitive tasks (copy/paste life)",
+          "Office politics",
+          "Unclear feedback",
+          "Constant context switching",
+          "Outdated tools that fight back"
+        ],
         placeholder: "Worst aspect",
         maxWords: 100
       },
@@ -1540,6 +1651,17 @@ export const quizConfigs: Record<string, QuizConfig> = {
         id: 32,
         section: 'career-skills',
         prompt: "How do you handle work-related stress?",
+        type: 'choice',
+        options: [
+          "Walks + water + sunlight",
+          "Gym/run it off",
+          "Vent to a trusted friend",
+          "Prioritize + make a plan",
+          "Microbreaks and deep breaths",
+          "Music/lofi beats",
+          "Therapy/meditation",
+          "Boundaries: log off, actually"
+        ],
         placeholder: "Stress management",
         maxWords: 100
       },
@@ -1547,6 +1669,17 @@ export const quizConfigs: Record<string, QuizConfig> = {
         id: 33,
         section: 'career-skills',
         prompt: "What's your preferred working style?",
+        type: 'choice',
+        options: [
+          "Deep focus, minimal interruptions",
+          "Pairing/collaboration heavy",
+          "Async-first and documented",
+          "Fast iteration, quick feedback",
+          "Process-driven and organized",
+          "Research-first then build",
+          "Design-first and prototyping",
+          "Data-driven decisions"
+        ],
         placeholder: "Work preferences",
         maxWords: 100
       },
@@ -1554,6 +1687,17 @@ export const quizConfigs: Record<string, QuizConfig> = {
         id: 34,
         section: 'career-skills',
         prompt: "How do you like to learn new things?",
+        type: 'choice',
+        options: [
+          "Hands-on: build and break stuff",
+          "Video courses/YouTube/Udemy",
+          "Docs + source code explorer",
+          "Mentorship/shadowing",
+          "Podcasts/blogs and notes",
+          "Workshops/bootcamps",
+          "Books and deep dives",
+          "Trial-and-error speedrun"
+        ],
         placeholder: "Learning style",
         maxWords: 100
       },
@@ -1561,6 +1705,17 @@ export const quizConfigs: Record<string, QuizConfig> = {
         id: 35,
         section: 'career-skills',
         prompt: "What's one professional relationship you'd like to improve?",
+        type: 'choice',
+        options: [
+          "Manager",
+          "Mentor",
+          "Peer/teammate",
+          "Cross-functional partner",
+          "Stakeholder",
+          "Client/customer",
+          "Community/network",
+          "Direct report"
+        ],
         placeholder: "Relationship to enhance",
         maxWords: 100
       },
@@ -1568,6 +1723,17 @@ export const quizConfigs: Record<string, QuizConfig> = {
         id: 36,
         section: 'career-skills',
         prompt: "What's one work achievement you're proud of?",
+        type: 'choice',
+        options: [
+          "Shipped a big feature/launch",
+          "Moved a key KPI/metric",
+          "Automated a time sink",
+          "Led an important project",
+          "Resolved a major incident",
+          "Improved a broken process",
+          "Presented to leadership",
+          "Mentored/onboarded someone"
+        ],
         placeholder: "Career highlight",
         maxWords: 100
       },
@@ -1575,6 +1741,17 @@ export const quizConfigs: Record<string, QuizConfig> = {
         id: 37,
         section: 'career-skills',
         prompt: "What's one work-related decision you regret?",
+        type: 'choice',
+        options: [
+          "Saying yes to everything",
+          "Not negotiating pay",
+          "Delaying a tough conversation",
+          "Overengineering the solution",
+          "Leaving too soon",
+          "Staying too long",
+          "Skipping documentation",
+          "Ignoring red flags"
+        ],
         placeholder: "Career regret",
         maxWords: 100
       },
@@ -1582,6 +1759,17 @@ export const quizConfigs: Record<string, QuizConfig> = {
         id: 38,
         section: 'career-skills',
         prompt: "How do you measure success in your current role?",
+        type: 'choice',
+        options: [
+          "Impact on users/customers",
+          "KPIs/metrics actually moved",
+          "Quality/craft of work",
+          "Learning and growth",
+          "Team health/collaboration",
+          "Shipping velocity",
+          "Revenue/ROI",
+          "Recognition/promotion"
+        ],
         placeholder: "Success metrics",
         maxWords: 100
       },
@@ -1589,6 +1777,17 @@ export const quizConfigs: Record<string, QuizConfig> = {
         id: 39,
         section: 'career-skills',
         prompt: "What's one thing you'd change about your work environment?",
+        type: 'choice',
+        options: [
+          "More quiet focus time",
+          "Fewer interruptions/pings",
+          "Clearer communication",
+          "Better tools/dev setup",
+          "Flexible hours",
+          "More remote days",
+          "Healthier team culture",
+          "Nicer physical workspace"
+        ],
         placeholder: "Environment change",
         maxWords: 100
       },
@@ -1596,6 +1795,17 @@ export const quizConfigs: Record<string, QuizConfig> = {
         id: 40,
         section: 'career-skills',
         prompt: "What's one professional opportunity you wish you had?",
+        type: 'choice',
+        options: [
+          "Work abroad/anywhere remote",
+          "Lead a team/initiative",
+          "High-impact flagship project",
+          "Conference speaking/teaching",
+          "Stretch role/rotation",
+          "Mentorship program",
+          "Learning budget/time",
+          "Build 0→1 from scratch"
+        ],
         placeholder: "Desired opportunity",
         maxWords: 100
       },
@@ -1604,6 +1814,17 @@ export const quizConfigs: Record<string, QuizConfig> = {
         id: 41,
         section: 'lifestyle-finances',
         prompt: "Where do you live, and how do you feel about it?",
+        type: 'choice',
+        options: [
+          "Big city — love the energy",
+          "Big city — too loud/expensive",
+          "Suburbs — peaceful but commute",
+          "Small town — cozy/community",
+          "Remote/rural — nature core",
+          "Moving soon — in limbo",
+          "Digital nomad era",
+          "With family/roommates — it's fine"
+        ],
         placeholder: "Location and feelings",
         maxWords: 100
       },
@@ -1611,6 +1832,17 @@ export const quizConfigs: Record<string, QuizConfig> = {
         id: 42,
         section: 'lifestyle-finances',
         prompt: "What does your daily routine usually look like?",
+        type: 'choice',
+        options: [
+          "Structured 9–5 schedule",
+          "Flexible, task-first",
+          "Meetings all day",
+          "Maker schedule (deep work blocks)",
+          "Night owl productive",
+          "Early bird energy",
+          "Juggling school/work/life",
+          "Routine? We don't know her"
+        ],
         placeholder: "Typical day",
         maxWords: 100
       },
@@ -1618,6 +1850,17 @@ export const quizConfigs: Record<string, QuizConfig> = {
         id: 43,
         section: 'lifestyle-finances',
         prompt: "How do you spend your weekends?",
+        type: 'choice',
+        options: [
+          "Recharge: sleep/read",
+          "Outside: hikes/sports",
+          "Social: friends/family",
+          "Creative projects",
+          "Side hustle/building",
+          "Travel/explore",
+          "Gaming/movies",
+          "Chores + reset"
+        ],
         placeholder: "Weekend activities",
         maxWords: 100
       },
@@ -1625,6 +1868,17 @@ export const quizConfigs: Record<string, QuizConfig> = {
         id: 44,
         section: 'lifestyle-finances',
         prompt: "What's your current work-life balance like?",
+        type: 'choice',
+        options: [
+          "Great — healthy boundaries",
+          "Pretty good — most days",
+          "Mid — could be better",
+          "Not great — always on",
+          "Burnout lite",
+          "Depends on the sprint",
+          "Improving recently",
+          "New job who dis"
+        ],
         placeholder: "Balance assessment",
         maxWords: 100
       },
@@ -1632,6 +1886,17 @@ export const quizConfigs: Record<string, QuizConfig> = {
         id: 45,
         section: 'lifestyle-finances',
         prompt: "How do you feel about your current financial situation?",
+        type: 'choice',
+        options: [
+          "Comfortable and stable",
+          "Doing okay, watching budget",
+          "Tight but manageable",
+          "Paycheck to paycheck",
+          "In debt and tackling it",
+          "Saving aggressively",
+          "Investing regularly",
+          "Building emergency fund"
+        ],
         placeholder: "Financial comfort",
         maxWords: 100
       },
@@ -1639,6 +1904,17 @@ export const quizConfigs: Record<string, QuizConfig> = {
         id: 46,
         section: 'lifestyle-finances',
         prompt: "What's one financial goal you're working toward?",
+        type: 'choice',
+        options: [
+          "Pay off debt",
+          "Build emergency fund",
+          "Save for a big purchase",
+          "Increase income",
+          "Start investing",
+          "Budget better/track spending",
+          "Build multiple income streams",
+          "Negotiate salary"
+        ],
         placeholder: "Money goal",
         maxWords: 100
       },
@@ -1646,6 +1922,17 @@ export const quizConfigs: Record<string, QuizConfig> = {
         id: 47,
         section: 'lifestyle-finances',
         prompt: "What's the biggest financial challenge you're facing?",
+        type: 'choice',
+        options: [
+          "Income too low",
+          "High expenses (rent, etc.)",
+          "Debt payments",
+          "Impulse spending",
+          "Inconsistent income",
+          "Unexpected bills",
+          "No budget system",
+          "Financial literacy gap"
+        ],
         placeholder: "Money challenge",
         maxWords: 100
       },
@@ -1653,6 +1940,17 @@ export const quizConfigs: Record<string, QuizConfig> = {
         id: 48,
         section: 'lifestyle-finances',
         prompt: "How do you usually make decisions about money?",
+        type: 'choice',
+        options: [
+          "Budgeted, plan-first",
+          "50/30/20 or similar method",
+          "Spreadsheet/app tracking",
+          "Vibes + 'do I need this?'",
+          "Ask a trusted friend/advisor",
+          "Research then decide",
+          "Auto-pay/auto-save everything",
+          "YOLO then reflect (improving)"
+        ],
         placeholder: "Financial decision process",
         maxWords: 100
       },
@@ -1660,6 +1958,17 @@ export const quizConfigs: Record<string, QuizConfig> = {
         id: 49,
         section: 'lifestyle-finances',
         prompt: "What's one purchase you've made recently that you regret?",
+        type: 'choice',
+        options: [
+          "Subscription I forgot to cancel",
+          "Trendy gadget collecting dust",
+          "Expensive meal/takeout spree",
+          "Impulse fashion haul",
+          "Overhyped course",
+          "In-app microtransactions",
+          "Gym membership unused",
+          "Plane tickets I didn't use"
+        ],
         placeholder: "Regretted purchase",
         maxWords: 100
       },
@@ -1667,6 +1976,17 @@ export const quizConfigs: Record<string, QuizConfig> = {
         id: 50,
         section: 'lifestyle-finances',
         prompt: "What's one thing you wish you could afford right now?",
+        type: 'choice',
+        options: [
+          "Travel/flight",
+          "New laptop/phone",
+          "Own place/nicer apartment",
+          "Car/transport upgrade",
+          "Education/course/cert",
+          "Home office setup",
+          "Debt-free peace",
+          "Time off/vacation"
+        ],
         placeholder: "Desired purchase",
         maxWords: 100
       },
@@ -1674,6 +1994,17 @@ export const quizConfigs: Record<string, QuizConfig> = {
         id: 51,
         section: 'lifestyle-finances',
         prompt: "How do you feel about your ability to manage money?",
+        type: 'choice',
+        options: [
+          "Strong budgeting skills",
+          "Pretty good, could tighten",
+          "Learning the ropes",
+          "Needs structure/tools",
+          "I wing it too much",
+          "Partner/parent helps",
+          "Getting coaching/help",
+          "Working on consistency"
+        ],
         placeholder: "Money management skills",
         maxWords: 100
       },
@@ -1681,6 +2012,17 @@ export const quizConfigs: Record<string, QuizConfig> = {
         id: 52,
         section: 'lifestyle-finances',
         prompt: "What's your relationship with saving and spending?",
+        type: 'choice',
+        options: [
+          "Saver by default",
+          "Balanced spender/saver",
+          "Treat myself then save",
+          "Frugal minimalism era",
+          "Spender trying to reform",
+          "Save for goals only",
+          "Spend on experiences",
+          "Cash-stuffing envelope arc"
+        ],
         placeholder: "Financial habits",
         maxWords: 100
       },
@@ -1688,6 +2030,17 @@ export const quizConfigs: Record<string, QuizConfig> = {
         id: 53,
         section: 'lifestyle-finances',
         prompt: "How do you feel about your current living space?",
+        type: 'choice',
+        options: [
+          "Love it — cozy and functional",
+          "Decent but small",
+          "Great location, meh space",
+          "Affordable but bland",
+          "Roommates make it lively",
+          "Needs declutter/upgrade",
+          "Too noisy for focus",
+          "Moving soon"
+        ],
         placeholder: "Home satisfaction",
         maxWords: 100
       },
@@ -1695,6 +2048,17 @@ export const quizConfigs: Record<string, QuizConfig> = {
         id: 54,
         section: 'lifestyle-finances',
         prompt: "What's one thing you'd change about your lifestyle?",
+        type: 'choice',
+        options: [
+          "More sleep and recovery",
+          "Better nutrition/cooking",
+          "Consistent exercise",
+          "Less screen time",
+          "More social time",
+          "Earlier mornings",
+          "More creative time",
+          "Cleaner/organized space"
+        ],
         placeholder: "Lifestyle improvement",
         maxWords: 100
       },
@@ -1702,6 +2066,17 @@ export const quizConfigs: Record<string, QuizConfig> = {
         id: 55,
         section: 'lifestyle-finances',
         prompt: "How do you typically handle stress?",
+        type: 'choice',
+        options: [
+          "Exercise/sweat it out",
+          "Journaling/meditation",
+          "Talk it out/therapy",
+          "Plan + prioritize",
+          "Take microbreaks",
+          "Boundaries + log off",
+          "Creative outlet",
+          "Nature time"
+        ],
         placeholder: "Stress coping",
         maxWords: 100
       },
@@ -1709,6 +2084,17 @@ export const quizConfigs: Record<string, QuizConfig> = {
         id: 56,
         section: 'lifestyle-finances',
         prompt: "What's your relationship with health and wellness?",
+        type: 'choice',
+        options: [
+          "Gym era",
+          "Functional movement daily",
+          "Mindfulness/mental health first",
+          "Balanced and flexible",
+          "On/off cycles",
+          "Learning healthy habits",
+          "Recovering from burnout",
+          "Need guidance/accountability"
+        ],
         placeholder: "Health habits",
         maxWords: 100
       },
@@ -1716,6 +2102,17 @@ export const quizConfigs: Record<string, QuizConfig> = {
         id: 57,
         section: 'lifestyle-finances',
         prompt: "How do you spend your free time?",
+        type: 'choice',
+        options: [
+          "Sports/fitness",
+          "Reading/podcasts",
+          "Games/streaming",
+          "Art/music/creating",
+          "Cooking/baking",
+          "Friends/family time",
+          "Side projects/building",
+          "Exploring outdoors"
+        ],
         placeholder: "Leisure activities",
         maxWords: 100
       },
@@ -1723,6 +2120,17 @@ export const quizConfigs: Record<string, QuizConfig> = {
         id: 58,
         section: 'lifestyle-finances',
         prompt: "What's one habit you'd like to develop?",
+        type: 'choice',
+        options: [
+          "Daily movement",
+          "Consistent sleep schedule",
+          "Focused deep work blocks",
+          "Morning routine that sticks",
+          "Money tracking weekly",
+          "Learn 30 min/day",
+          "Reach out/network weekly",
+          "Digital declutter habit"
+        ],
         placeholder: "Desired habit",
         maxWords: 100
       },
@@ -1730,6 +2138,17 @@ export const quizConfigs: Record<string, QuizConfig> = {
         id: 59,
         section: 'lifestyle-finances',
         prompt: "What's one thing you'd like to simplify in your life?",
+        type: 'choice',
+        options: [
+          "Calendar/schedule",
+          "Finances/bills",
+          "Digital files/inbox",
+          "Wardrobe/home items",
+          "Commitments/saying no",
+          "Meal planning/cooking",
+          "Chores/cleaning systems",
+          "Work processes/automation"
+        ],
         placeholder: "Simplification area",
         maxWords: 100
       },
@@ -1737,6 +2156,17 @@ export const quizConfigs: Record<string, QuizConfig> = {
         id: 60,
         section: 'lifestyle-finances',
         prompt: "How do you recharge when you're feeling drained?",
+        type: 'choice',
+        options: [
+          "Sleep/naps guilt-free",
+          "Solo time and silence",
+          "Nature/sunlight/walks",
+          "Social time with my people",
+          "Movement/sauna/stretching",
+          "Hobbies/creative flow",
+          "Screen-free day",
+          "Treat yo self mini-ritual"
+        ],
         placeholder: "Recovery methods",
         maxWords: 100
       },
