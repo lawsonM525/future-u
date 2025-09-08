@@ -116,15 +116,12 @@ export default function DashboardPage() {
     <div className="min-h-screen bg-night text-foreground px-3 md:px-6 lg:px-8 py-4">
       <div className="max-w-7xl xl:max-w-[1400px] mx-auto space-y-8">
         {/* New 3-column layout */}
-        <motion.div
+        <div
           className="grid md:grid-cols-[240px,1fr,300px] lg:grid-cols-[260px,1fr,340px] gap-6 items-start"
-          variants={containerVariants}
-          initial="hidden"
-          animate="visible"
         >
-          {/* Left sidebar */}
-          {/* Use a normal div (no transforms) so position: sticky inside SidebarNav works reliably */}
-          <div>
+          {/* Left sidebar (sticky) */}
+          {/* Apply sticky to wrapper to ensure reliable behavior across browsers */}
+          <div className="sticky top-4">
             <SidebarNav active={active} onChange={setActive} />
           </div>
 
@@ -141,7 +138,7 @@ export default function DashboardPage() {
           </motion.div>
 
           {/* Right: Avatar + Daily Quests */}
-          <motion.div variants={itemVariants} className="space-y-4 md:sticky md:top-4">
+          <div className="space-y-4 md:sticky md:top-4">
             <GlowCard className="p-5 flex flex-col items-center text-center">
               <div className="mb-3 md:mb-4"><SoundToggle /></div>
               <AvatarCreator seed={session?.user?.email || ''} size={isDesktop ? 180 : 140} {...avatarPreferences} />
@@ -155,8 +152,8 @@ export default function DashboardPage() {
             </GlowCard>
 
             <DailyQuests />
-          </motion.div>
-        </motion.div>
+          </div>
+        </div>
 
         {/* Legacy layout gated for now */}
         {showLegacy && (

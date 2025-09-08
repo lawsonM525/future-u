@@ -29,7 +29,7 @@ export function SidebarNav({
   className?: string
 }) {
   return (
-    <aside className={cn("md:sticky md:top-4 space-y-4", className)}>
+    <aside className={cn("space-y-4", className)}>
       <div className="px-2">
         <Link
           href="/"

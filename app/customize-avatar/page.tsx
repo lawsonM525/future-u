@@ -81,7 +81,7 @@ const OPTION_GROUPS = [
   },
   {
     title: 'Hair & Accessories',
-    options: ['hair', 'hairColor', 'hairAccessories', 'hairAccessoriesColor']
+    options: ['hairColor', 'hair', 'hairAccessories', 'hairAccessoriesColor']
   },
   {
     title: 'Face',
