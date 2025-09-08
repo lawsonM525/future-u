@@ -9,7 +9,7 @@ export function GlowCard({ className, children, glow = true, ...props }: GlowCar
   return (
     <div
       className={cn(
-        'relative rounded-2xl border border-white/10 bg-card/60 backdrop-blur-sm shadow-[0_0_0_1px_rgba(255,255,255,0.04)] overflow-hidden',
+        'relative rounded-2xl border border-border bg-card overflow-hidden',
         className
       )}
       {...props}
@@ -18,7 +18,7 @@ export function GlowCard({ className, children, glow = true, ...props }: GlowCar
         <div
           className="pointer-events-none absolute -inset-24 rounded-full"
           style={{
-            background: 'radial-gradient(60% 60% at 50% 0%, rgba(139,92,246,0.25) 0%, rgba(139,92,246,0.10) 35%, rgba(0,0,0,0) 70%)'
+            background: 'radial-gradient(60% 60% at 50% 0%, rgba(253, 202, 0, 0.15) 0%, rgba(253, 202, 0, 0.05) 35%, rgba(0,0,0,0) 70%)' /* jonquil */
           }}
         />
       )}

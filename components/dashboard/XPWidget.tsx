@@ -4,8 +4,10 @@ import { TimelineCheckpoint } from '@/types/timeline'
 import { ProgressRing } from '@/components/ui/ProgressRing'
 import { GlowCard } from '@/components/ui/GlowCard'
 import { motion } from 'framer-motion'
+import { Button } from '@/components/ui/button'
+import { Share2 } from 'lucide-react'
 
-function computeProgressFromTimeline(checkpoints: TimelineCheckpoint[]): { progress: number; level: number; label: string } {
+export function computeProgressFromTimeline(checkpoints: TimelineCheckpoint[]): { progress: number; level: number; label: string } {
   if (!checkpoints || checkpoints.length === 0) return { progress: 0, level: 1, label: 'Hero 1' }
   const years = checkpoints.map(c => c.year).filter(y => Number.isFinite(y))
   const minY = Math.min(...years)
@@ -18,7 +20,7 @@ function computeProgressFromTimeline(checkpoints: TimelineCheckpoint[]): { progr
   return { progress, level, label: `Hero ${level}` }
 }
 
-export function XPWidget({ checkpoints }: { checkpoints: TimelineCheckpoint[] }) {
+export function XPWidget({ checkpoints, onShare }: { checkpoints: TimelineCheckpoint[]; onShare?: (text: string) => void }) {
   const { progress, label } = computeProgressFromTimeline(checkpoints)
   return (
     <GlowCard className="p-4">
@@ -31,6 +33,18 @@ export function XPWidget({ checkpoints }: { checkpoints: TimelineCheckpoint[] })
           <div className="text-2xl font-bold">{label}</div>
           <div className="text-xs text-muted-foreground">{progress}% toward Future U</div>
         </div>
+        {onShare && (
+          <div className="ml-auto">
+            <Button
+              size="sm"
+              variant="outline"
+              className="gap-1"
+              onClick={() => onShare(`I'm ${label} at ${progress}% toward my Future U!`)}
+            >
+              <Share2 className="w-4 h-4" /> Share
+            </Button>
+          </div>
+        )}
       </div>
     </GlowCard>
   )

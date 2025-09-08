@@ -9,6 +9,7 @@ import { Plus, Share2 } from 'lucide-react'
 
 interface TimelineProps {
   checkpoints: TimelineCheckpoint[]
+  onShare?: (title: string, text: string) => void
 }
 
 function useShare() {
@@ -35,8 +36,8 @@ async function addGoalFromCheckpoint(cp: TimelineCheckpoint) {
   } catch {}
 }
 
-export function Timeline({ checkpoints }: TimelineProps) {
-  const share = useShare()
+export function Timeline({ checkpoints, onShare }: TimelineProps) {
+  const fallbackShare = useShare()
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
@@ -65,7 +66,7 @@ export function Timeline({ checkpoints }: TimelineProps) {
       </aside>
       <section className="md:col-span-9 space-y-4">
         {checkpoints.map((cp, i) => (
-          <TimelineItem key={`${cp.year}-${i}`} cp={cp} onShare={share} />
+          <TimelineItem key={`${cp.year}-${i}`} cp={cp} onShare={onShare ?? fallbackShare} />
         ))}
       </section>
     </div>

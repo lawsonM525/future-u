@@ -142,6 +142,18 @@ const DEFAULT_SKIN_COLORS = [
   'a58b80', // Deep
 ] as const
 
+// Curated set of 8 hair colors (hex without #) for a clean, visual row
+const HAIR_COLORS: readonly string[] = [
+  '000000', // Black
+  '4b2e2e', // Dark Brown
+  '6b3f2b', // Brown
+  'e6be8a', // Blonde
+  'c0392b', // Red
+  'ff69b4', // Pink
+  '1e90ff', // Blue
+  '9370db', // Purple
+] as const
+
 export default function CustomizeAvatarPage() {
   const router = useRouter()
   const { data: session } = useSession({
@@ -198,6 +210,13 @@ export default function CustomizeAvatarPage() {
       processedOptions.skinColor.choices = [...DEFAULT_SKIN_COLORS]
     }
 
+    // Ensure hairColor option exists and use curated 8-color palette
+    if (!processedOptions.hairColor) {
+      processedOptions.hairColor = { type: 'string', choices: [...HAIR_COLORS] }
+    } else {
+      processedOptions.hairColor.choices = [...HAIR_COLORS]
+    }
+
     setOptions(processedOptions)
   }, [])
 
@@ -240,21 +259,96 @@ export default function CustomizeAvatarPage() {
     }
   }
 
+  // === Helpers for visual preview controls ===
+  const isColorOption = (key: OptionKey) => key.toLowerCase().endsWith('color')
+
+  // (Removed variant label rendering; previews are visual-only)
+
+  const VariantPreviewGrid = ({ optionKey, option }: { optionKey: OptionKey; option: AvatarOption }) => {
+    const current = selectedOptions
+    return (
+      <div className="grid grid-cols-[repeat(auto-fit,minmax(128px,1fr))] gap-6 sm:gap-7 justify-items-center">
+        {option.choices.map((choice) => {
+          const isSelected = Array.isArray(current[optionKey]) && (current[optionKey] as string[])[0] === choice
+          const override = { [optionKey]: [choice] } as Record<string, any>
+          return (
+            <button
+              key={choice}
+              onClick={() => handleOptionChange(optionKey, [choice])}
+              className={`group rounded-xl p-3 sm:p-4 bg-zinc-800/60 hover:bg-zinc-800 transition-colors border shadow-sm min-w-[128px] w-full max-w-[180px] overflow-hidden ${
+                isSelected ? 'border-yellow-400' : 'border-zinc-700'
+              }`}
+            >
+              <div className="flex justify-center">
+                <AvatarCreator seed={userEmail} size={104} {...(current as any)} {...override} />
+              </div>
+            </button>
+          )
+        })}
+      </div>
+    )
+  }
+
+  // Dedicated single-row hair color selector (8 colors)
+  const HairColorRow = ({ optionKey, option }: { optionKey: OptionKey; option: AvatarOption }) => {
+    const current = selectedOptions
+    return (
+      <div className="grid grid-cols-4 sm:grid-cols-8 gap-4 justify-items-center">
+        {option.choices.slice(0, 8).map((hex) => {
+          const isSelected = Array.isArray(current[optionKey]) && (current[optionKey] as string[])[0] === hex
+          return (
+            <button
+              key={hex}
+              onClick={() => handleOptionChange(optionKey, [hex])}
+              className={`w-9 h-9 rounded-full border-2 transition-transform hover:scale-105 ${
+                isSelected ? 'border-yellow-400 ring-2 ring-yellow-400/30' : 'border-zinc-700'
+              }`}
+              style={{ backgroundColor: `#${hex}` }}
+              title={`#${hex}`}
+            />
+          )
+        })}
+      </div>
+    )
+  }
+
+  const ColorSwatchGrid = ({ optionKey, option }: { optionKey: OptionKey; option: AvatarOption }) => {
+    const current = selectedOptions
+    return (
+      <div className="grid grid-cols-6 sm:grid-cols-8 md:grid-cols-10 gap-4 sm:gap-5 md:gap-6 justify-items-center">
+        {option.choices.map((hex) => {
+          const isSelected = Array.isArray(current[optionKey]) && (current[optionKey] as string[])[0] === hex
+          return (
+            <button
+              key={hex}
+              onClick={() => handleOptionChange(optionKey, [hex])}
+              className={`w-8 h-8 rounded-full border-2 transition-transform hover:scale-105 ${
+                isSelected ? 'border-yellow-400 ring-2 ring-yellow-400/30' : 'border-zinc-700'
+              }`}
+              style={{ backgroundColor: `#${hex}` }}
+              title={`#${hex}`}
+            />
+          )
+        })}
+      </div>
+    )
+  }
+
   if (!session?.user?.email) return null
 
   return (
     <div className="min-h-screen bg-zinc-950 text-zinc-400">
       <div className="container mx-auto px-4 py-8">
-        <div className="max-w-4xl mx-auto">
+        <div className="max-w-6xl xl:max-w-[1400px] mx-auto">
           {/* Header */}
           <div className="text-center mb-8">
             <h1 className="text-3xl font-bold text-yellow-400 mb-2">Customize Your Character</h1>
             <p className="text-zinc-500">Make your avatar unique to you</p>
           </div>
 
-          <div className="flex flex-col lg:flex-row gap-8">
+          <div className="flex flex-col lg:flex-row gap-10">
             {/* Preview Section - Sticky on mobile */}
-            <div className="lg:w-1/3">
+            <div className="lg:w-[30%]">
               <div className="bg-zinc-900 rounded-lg p-8 w-full sticky top-4">
                 <h2 className="text-xl font-semibold text-yellow-400 mb-4 text-center">Preview</h2>
                 <div className="flex justify-center">
@@ -285,12 +379,12 @@ export default function CustomizeAvatarPage() {
             </div>
 
             {/* Customization Options */}
-            <div className="lg:w-2/3">
+            <div className="lg:flex-1">
               <div className="space-y-6">
                 {OPTION_GROUPS.map(group => (
                   <div key={group.title} className="bg-zinc-900 rounded-lg p-6">
                     <h2 className="text-xl font-semibold text-yellow-400 mb-4">{group.title}</h2>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div className="space-y-8">
                       {group.options.map(key => {
                         const option = options[key]
                         if (!option) return null
@@ -317,25 +411,19 @@ export default function CustomizeAvatarPage() {
                           return null
                         }
 
-                        // Regular select options
+                        // Visual options: render either color swatches or avatar preview tiles
                         return (
                           <div key={key}>
-                            <label htmlFor={key} className="text-sm font-medium text-zinc-200 block mb-2">
+                            <div className="text-sm font-medium text-zinc-200 mb-2">
                               {OPTION_LABELS[key as OptionKey]}
-                            </label>
-                            <select
-                              id={key}
-                              value={Array.isArray(selectedOptions[key]) ? (selectedOptions[key] as string[])[0] || '' : String(selectedOptions[key] || '')}
-                              onChange={(e) => handleOptionChange(key, [e.target.value])}
-                              className="w-full bg-zinc-800 text-zinc-200 rounded px-3 py-2 focus:ring-2 focus:ring-yellow-400"
-                            >
-                              <option value="">Select...</option>
-                              {option.choices.map(choice => (
-                                <option key={choice} value={choice}>
-                                  {choice}
-                                </option>
-                              ))}
-                            </select>
+                            </div>
+                            {key === 'hairColor' ? (
+                              <HairColorRow optionKey={key as OptionKey} option={option} />
+                            ) : isColorOption(key as OptionKey) ? (
+                              <ColorSwatchGrid optionKey={key as OptionKey} option={option} />
+                            ) : (
+                              <VariantPreviewGrid optionKey={key as OptionKey} option={option} />
+                            )}
                           </div>
                         )
                       })}

@@ -14,7 +14,7 @@ export function ProgressRing({
   strokeWidth = 10,
   progress,
   trackColor = 'rgba(255,255,255,0.12)',
-  progressColor = '#8b5cf6',
+  progressColor = '#e69ee4', /* plum-web */
   glow = true,
 }: ProgressRingProps) {
   const radius = (size - strokeWidth) / 2
@@ -62,7 +62,7 @@ export function ProgressRing({
         dominantBaseline="middle"
         textAnchor="middle"
         fontSize={size * 0.2}
-        fill="#fff"
+        fill="#fffed5" /* cream */
         style={{ fontWeight: 700 }}
       >
         {Math.round(clamped)}%

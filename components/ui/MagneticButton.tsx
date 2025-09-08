@@ -44,7 +44,7 @@ export function MagneticButton({ className, children, ...props }: MagneticButton
         transformStyle: 'preserve-3d',
       }}
       className={cn(
-        'relative rounded-xl bg-card/70 backdrop-blur-sm border border-white/10 px-5 py-4 shadow-md transition-colors hover:bg-card/80',
+        'relative rounded-xl bg-card border border-border px-5 py-4 shadow-md transition-colors hover:bg-secondary',
         className
       )}
       {...props}
