@@ -5,19 +5,9 @@ import Link from "next/link"
 import Image from "next/image"
 import { cn } from "@/lib/utils"
 import { Compass } from "lucide-react"
+import { NAV, DashboardSection } from "./nav"
 
-// Use PNG icons from /public/icons where available; fall back to lucide for any missing asset
-const NAV = [
-  { key: "strategy", label: "Strategy", iconSrc: null as string | null },
-  { key: "goals", label: "Goals", iconSrc: "/icons/goals.png" },
-  { key: "quests", label: "Quests", iconSrc: "/icons/quests.png" },
-  { key: "resources", label: "Resources", iconSrc: "/icons/resources.png" },
-  { key: "coach", label: "Coach", iconSrc: "/icons/coach.png" },
-  { key: "friends", label: "Friends", iconSrc: "/icons/friends.png" },
-  { key: "feedback", label: "Feedback", iconSrc: "/icons/feedback.png" },
-] as const
-
-export type DashboardSection = typeof NAV[number]["key"]
+// Shared NAV config is imported from ./nav
 
 export function SidebarNav({
   active,
@@ -31,6 +21,7 @@ export function SidebarNav({
   return (
     <aside className={cn("space-y-4", className)}>
       <div className="px-2">
+        
         <Link
           href="/"
           className="inline-block text-2xl font-bold font-space-grotesk text-jonquil transition-transform duration-150 hover:scale-105"
@@ -63,14 +54,14 @@ export function SidebarNav({
                 <Image
                   src={iconSrc}
                   alt={`${label} icon`}
-                  width={20}
-                  height={20}
+                  width={24}
+                  height={24}
                   className={cn("shrink-0", selected ? "opacity-100" : "opacity-80")}
                 />
               ) : (
-                <Compass className="w-5 h-5" />
+                <Compass className="w-6 h-6" />
               )}
-              <span className="text-sm font-medium">{label}</span>
+              <span className="text-base font-medium">{label}</span>
             </button>
           )
         })}

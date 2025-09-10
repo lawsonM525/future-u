@@ -37,3 +37,18 @@ Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/bui
 
 redeploying 
  
+
+ 09/08/2025
+ 
+✅ TODO: Make dashboard responsive for only mobile 
+✅ TODO: Add title of "Your Strategy" to strategy section
+🕐 TODO: Strategy section should have more info/checkpoints 
+- TODO: Add goals button + popup to approove, edit or add goals as they want
+- TODO: Add database functionality for adding goals
+- TODO: Add functionality for adding daily quests
+- TODO: (AI generates goals from strategy sections)
+- TODO: Add functionality for adding daily quests
+- TODO: (AI generates daily quests from goals and everything can be stored and tracked)
+- TODO: If user has no quests, no daily quests should be displayed in quests card
+- TODO: Add more details to coming soon for coach and friends so users know what to expect
+- TODO: Clicking feedback should redirect to featurebase

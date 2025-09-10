@@ -13,6 +13,23 @@ import { motion, Variants } from 'framer-motion'
 import { GlowCard } from '@/components/ui/GlowCard'
 import { SoundToggle } from '@/components/ui/SoundToggle'
 import { useMediaQuery } from '@/hooks/use-media-query'
+import { MobileBottomNav } from '@/components/dashboard/MobileBottomNav'
+import { DashboardSection } from '@/components/dashboard/nav'
+import StrategyStructuredReport from '@/components/dashboard/StrategyStructuredReport'
+import StrategyVisionIntro from '@/components/dashboard/StrategyVisionIntro'
+
+// TODO: Make dashboard responsive for only mobile
+// TODO: Add title of "Your Strategy" to strategy section
+// TODO: Strategy section should have more info/checkpoints 
+// TODO: Add goals button + popup to approove, edit or add goals as they want
+// TODO: Add database functionality for adding goals
+// (AI generates goals from strategy sections)
+// TODO: Add functionality for adding daily quests
+// (AI generates daily quests from goals and everything can be stored and tracked)
+// TODO: If user has no quests, no daily quests should be displayed in quests card
+// TODO: Add more details to coming soon for coach and friends so users know what to expect
+// TODO: Clicking feedback should redirect to featurebase
+
 
 export default function DashboardPage() {
   const router = useRouter()
@@ -28,7 +45,7 @@ export default function DashboardPage() {
   const [timeline, setTimeline] = useState<TimelineCheckpoint[]>([])
   const [avatarPreferences, setAvatarPreferences] = useState({})
   const isDesktop = useMediaQuery('(min-width: 768px)')
-  const [active, setActive] = useState<'strategy' | 'goals' | 'quests' | 'resources' | 'coach' | 'friends' | 'feedback'>('strategy')
+  const [active, setActive] = useState<DashboardSection>('strategy')
 
   // Get first name only
   const firstName = session?.user?.name ? session.user.name.split(' ')[0] : ''
@@ -113,7 +130,7 @@ export default function DashboardPage() {
   const showLegacy = false
 
   return (
-    <div className="min-h-screen bg-night text-foreground px-3 md:px-6 lg:px-8 py-4">
+    <div className="min-h-screen bg-night text-foreground px-3 md:px-6 lg:px-8 py-4 pb-24 md:pb-4">
       <div className="max-w-7xl xl:max-w-[1400px] mx-auto space-y-8">
         {/* New 3-column layout */}
         <div
@@ -121,14 +138,17 @@ export default function DashboardPage() {
         >
           {/* Left sidebar (sticky) */}
           {/* Apply sticky to wrapper to ensure reliable behavior across browsers */}
-          <div className="sticky top-4">
+          <div className="hidden md:block sticky top-4">
             <SidebarNav active={active} onChange={setActive} />
           </div>
 
           {/* Center: Strategy view or placeholders for other sections */}
           <motion.div variants={itemVariants} className="space-y-4">
             {active === 'strategy' ? (
-              <StrategyCircles checkpoints={timeline} />
+              <>
+                <StrategyCircles checkpoints={timeline} intro={<StrategyVisionIntro />} />
+                <StrategyStructuredReport />
+              </>
             ) : (
               <GlowCard className="p-10 text-center">
                 <div className="text-lg font-semibold capitalize">{active.replace('-', ' ')}</div>
@@ -138,7 +158,7 @@ export default function DashboardPage() {
           </motion.div>
 
           {/* Right: Avatar + Daily Quests */}
-          <div className="space-y-4 md:sticky md:top-4">
+          <div className="hidden md:block space-y-4 md:sticky md:top-4">
             <GlowCard className="p-5 flex flex-col items-center text-center">
               <div className="mb-3 md:mb-4"><SoundToggle /></div>
               <AvatarCreator seed={session?.user?.email || ''} size={isDesktop ? 180 : 140} {...avatarPreferences} />
@@ -192,6 +212,10 @@ export default function DashboardPage() {
 
         {/* Goals */}
         {/* <GoalsWidget />  */}
+        {/* Mobile bottom nav */}
+        <div className="md:hidden">
+          <MobileBottomNav active={active} onChange={setActive} />
+        </div>
       </div>
     </div>
   )

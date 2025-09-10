@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useEffect, useMemo, useRef, useState } from "react"
+import React, { useEffect, useMemo, useRef, useState, type ReactNode } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import { cn } from "@/lib/utils"
 import type { TimelineCheckpoint } from "@/types/timeline"
@@ -10,7 +10,7 @@ import Image from "next/image"
 
 // Note: icons supply the visual accent; no additional color palette needed here
 
-export function StrategyCircles({ checkpoints, positions }: { checkpoints: TimelineCheckpoint[]; positions?: number[] }) {
+export function StrategyCircles({ checkpoints, positions, intro }: { checkpoints: TimelineCheckpoint[]; positions?: number[]; intro?: ReactNode }) {
   const items = useMemo(() => {
     const uniqueByYear = new Map<number, TimelineCheckpoint>()
     for (const c of checkpoints) {
@@ -21,17 +21,6 @@ export function StrategyCircles({ checkpoints, positions }: { checkpoints: Timel
 
   // Allow multiple strategy details to remain open simultaneously
   const [openSet, setOpenSet] = useState<Set<number>>(new Set())
-
-  if (!items.length) {
-    return (
-      <div className="p-8 text-center space-y-3">
-        <p className="text-muted-foreground">No strategy yet. Take a quiz to generate your Career Strategy.</p>
-        <Button asChild className="rounded-full">
-          <Link href="/quiz-selection">Take Quiz to Get Started</Link>
-        </Button>
-      </div>
-    )
-  }
 
   // measure container width to compute responsive offsets
   const containerRef = useRef<HTMLDivElement | null>(null)
@@ -47,15 +36,30 @@ export function StrategyCircles({ checkpoints, positions }: { checkpoints: Timel
     return () => window.removeEventListener('resize', update)
   }, [])
 
+  if (!items.length) {
+    return (
+      <div className="p-8 text-center space-y-3">
+        <p className="text-muted-foreground">No strategy yet. Take a quiz to generate your Career Strategy.</p>
+        <Button asChild className="rounded-full">
+          <Link href="/quiz-selection">Take Quiz to Get Started</Link>
+        </Button>
+      </div>
+    )
+  }
+
   // default offset curve if positions are not provided (normalized -1..1)
   const defaultNormalized = (index: number) => Math.sin(index * 1.1)
 
   return (
     <div ref={containerRef} className="relative max-w-3xl mx-auto py-10">
 
-      {/* Title, middle aligned, space grotesk font */}
-      <h1 className="text-3xl font-bold mb-10 text-center">Your Strategy</h1>
-      <ul className="relative space-y-24">
+      <h1 className="text-3xl font-bold mb-6 text-center font-space-grotesk">YOUR STRATEGY</h1>
+      {intro ? (
+        <div className="mx-auto max-w-[42rem] text-center mb-8 space-y-4">
+          {intro}
+        </div>
+      ) : null}
+      <ul className="relative space-y-10 md:space-y-14 lg:space-y-16">
         {items.map((cp, i) => {
           const selected = openSet.has(i)
           const year = cp.year
