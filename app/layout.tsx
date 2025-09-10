@@ -62,7 +62,7 @@ export default function RootLayout({
           src="https://datafa.st/js/script.js"
         />
       </head>
-      <body className={`${spaceGrotesk.className} ${righteous.variable} ${rubikMonoOne.variable} bg-background text-foreground min-h-screen flex flex-col`}>
+      <body className={`${spaceGrotesk.className} ${spaceGrotesk.variable} ${righteous.variable} ${rubikMonoOne.variable} bg-background text-foreground min-h-screen flex flex-col font-sans`}>
         <ThemeProvider attribute="class" defaultTheme="dark">
           <Providers>
             <BetaBanner />
