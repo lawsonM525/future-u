@@ -5,7 +5,6 @@ import { Providers } from './providers'
 import { ToastContainer } from '@/components/ui/toast'
 import { Footer } from '@/components/Footer'
 import Script from 'next/script'
-import { BrowserWarning } from '@/components/BrowserWarning'
 
 const spaceGrotesk = Space_Grotesk({ 
   subsets: ['latin'],
@@ -58,7 +57,6 @@ export default function RootLayout({
       <body className={`font-sans bg-background text-foreground min-h-screen flex flex-col`}>
         <ThemeProvider attribute="class" defaultTheme="dark">
           <Providers>
-            <BrowserWarning />
             <main className="flex-1">
               {children}
             </main>
