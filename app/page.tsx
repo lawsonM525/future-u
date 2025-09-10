@@ -27,13 +27,13 @@ export default function LandingPage() {
       <div className="flex-1 flex flex-col items-center justify-center">
         {session ? (
           <>
-            <h1 className="text-4xl font-bold mb-6 animate-slide-up">
+            <h1 className="text-4xl font-bold mb-8 animate-slide-up">
               Welcome back, {session.user?.name?.split(' ')[0] || 'User'}
             </h1>
-            <p className="text-xl mb-8 text-center max-w-2xl animate-slide-up">
+            <p className="text-xl mb-10 text-center max-w-2xl animate-slide-up">
               Ready to recommit to your dream?
             </p>
-            <div className="flex flex-col gap-4 items-center animate-slide-up">
+            <div className="flex flex-col gap-5 items-center animate-slide-up">
               <Link href="/dashboard">
                 <Button 
                   variant="yellow"
@@ -73,7 +73,7 @@ export default function LandingPage() {
                       <StarSprite size={128} />
                     </span>
                   </h1>
-            <p className="text-md mb-8 text-center max-w-2xl animate-slide-up">
+            <p className="text-md mb-10 text-center max-w-2xl animate-slide-up">
               Your Future, Mapped Out.
             </p>
             <Link href="/waitlist">

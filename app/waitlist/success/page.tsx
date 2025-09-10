@@ -22,14 +22,14 @@ export default function WaitlistSuccessPage() {
   }, [])
 
   // Use a fixed domain to avoid SSR/CSR hydration mismatches
-  const shareText = "Yo, check this out. Check out this site. Apparently, they're helping you figure out what your dream life is and how to get there. I'm kind of excited for it.. https://future-u.app/waitlist"
+  const shareText = "Yo, check out this site! Apparently, they're helping you figure out what your dream life is and exactly how to get there. I'm kind of excited for it.. https://future-u.app"
 
   const copyToClipboard = async () => {
     try {
       await navigator.clipboard.writeText(shareText)
       setCopied(true)
       setTimeout(() => setCopied(false), 2000)
-    } catch (e) {
+    } catch {
       // Fallback for older browsers
       const textarea = document.createElement('textarea')
       textarea.value = shareText
