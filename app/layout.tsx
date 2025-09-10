@@ -4,7 +4,6 @@ import './globals.css'
 import { Providers } from './providers'
 import { ToastContainer } from '@/components/ui/toast'
 import { Footer } from '@/components/Footer'
-import { BetaBanner } from '@/components/BetaBanner'
 import Script from 'next/script'
 import { BrowserWarning } from '@/components/BrowserWarning'
 
@@ -59,7 +58,6 @@ export default function RootLayout({
       <body className={`font-sans bg-background text-foreground min-h-screen flex flex-col`}>
         <ThemeProvider attribute="class" defaultTheme="dark">
           <Providers>
-            <BetaBanner />
             <BrowserWarning />
             <main className="flex-1">
               {children}
