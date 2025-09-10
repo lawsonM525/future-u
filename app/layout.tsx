@@ -1,4 +1,4 @@
-import { Space_Grotesk, Righteous, Rubik_Mono_One } from 'next/font/google'
+import { Space_Grotesk, Rubik_Mono_One } from 'next/font/google'
 import { ThemeProvider } from '@/components/theme-provider'
 import './globals.css'
 import { Providers } from './providers'
@@ -12,12 +12,6 @@ const spaceGrotesk = Space_Grotesk({
   subsets: ['latin'],
   weight: ['300', '400', '500', '600', '700'],
   variable: '--font-space-grotesk'
-})
-
-const righteous = Righteous({ 
-  subsets: ['latin'],
-  weight: '400',
-  variable: '--font-righteous'
 })
 
 const rubikMonoOne = Rubik_Mono_One({ 
@@ -37,7 +31,7 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang="en" suppressHydrationWarning className={`${spaceGrotesk.variable} ${rubikMonoOne.variable}`}>
       <head>
         <Script
           strategy="afterInteractive"
@@ -62,7 +56,7 @@ export default function RootLayout({
           src="https://datafa.st/js/script.js"
         />
       </head>
-      <body className={`${spaceGrotesk.className} ${spaceGrotesk.variable} ${righteous.variable} ${rubikMonoOne.variable} bg-background text-foreground min-h-screen flex flex-col font-sans`}>
+      <body className={`font-sans bg-background text-foreground min-h-screen flex flex-col`}>
         <ThemeProvider attribute="class" defaultTheme="dark">
           <Providers>
             <BetaBanner />
