@@ -270,7 +270,7 @@ export default function CustomizeAvatarPage() {
       <div className="grid grid-cols-[repeat(auto-fit,minmax(128px,1fr))] gap-6 sm:gap-7 justify-items-center">
         {option.choices.map((choice) => {
           const isSelected = Array.isArray(current[optionKey]) && (current[optionKey] as string[])[0] === choice
-          const override = { [optionKey]: [choice] } as Record<string, any>
+          const override = { [optionKey]: [choice] } as Record<string, unknown>
           return (
             <button
               key={choice}
@@ -280,7 +280,12 @@ export default function CustomizeAvatarPage() {
               }`}
             >
               <div className="flex justify-center">
-                <AvatarCreator seed={userEmail} size={104} {...(current as any)} {...override} />
+                <AvatarCreator
+                  seed={userEmail}
+                  size={104}
+                  {...(current as unknown as Record<string, unknown>)}
+                  {...(override as Record<string, unknown>)}
+                />
               </div>
             </button>
           )

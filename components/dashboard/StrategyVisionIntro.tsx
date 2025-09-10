@@ -23,7 +23,7 @@ export default function StrategyVisionIntro() {
         const parsed: ParsedReport = parseReportContent(String(data.reportContent || ""))
         const firstPara = parsed.visionParagraphs[0] || null
         if (mounted) setIntro(firstPara)
-      } catch (e) {
+      } catch {
         if (mounted) setError("Failed to load report intro")
       } finally {
         if (mounted) setLoading(false)
@@ -41,7 +41,7 @@ export default function StrategyVisionIntro() {
     <>
       <p className="text-base leading-relaxed text-foreground/90" style={{ textAlign: 'justify' }}>{intro}</p>
       <p className="text-base leading-relaxed text-foreground/90" style={{ textAlign: 'justify' }}>
-        Here's how you are going to achieve this life.
+        Here&#39;s how you are going to achieve this life.
       </p>
     </>
   )

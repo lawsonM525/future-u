@@ -28,7 +28,7 @@ export function StrategyReportInline() {
         if (mounted) {
           setContent(data.reportContent || null)
         }
-      } catch (e) {
+      } catch {
         if (mounted) setError("Could not load your report")
       } finally {
         if (mounted) setLoading(false)

@@ -27,7 +27,7 @@ export default function StrategyStructuredReport() {
         const json = await res.json()
         const parsed = parseReportContent(String(json.reportContent || ""))
         if (mounted) setData(parsed)
-      } catch (e) {
+      } catch {
         if (mounted) setError("Could not load your strategy details")
       } finally {
         if (mounted) setLoading(false)
