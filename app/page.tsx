@@ -76,13 +76,13 @@ export default function LandingPage() {
             <p className="text-md mb-8 text-center max-w-2xl animate-slide-up">
               Your Future, Mapped Out.
             </p>
-            <Link href="/quiz-selection">
+            <Link href="/waitlist">
               <Button 
                 variant="yellow"
                 size="lg" 
                 className="animate-slide-up font-bold rounded-full transition-transform duration-200 ease-out hover:scale-110"
               >
-                Start Your Journey
+                Join the Waitlist
               </Button>
             </Link>
           </>
