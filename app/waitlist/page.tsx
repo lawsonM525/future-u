@@ -81,7 +81,7 @@ export default function WaitlistPage() {
       </div>
 
       {/* Tally embed (CTA) */}
-      <div className="w-full max-w-3xl mx-auto mt-4">
+      <div className="w-full max-w-3xl mx-auto mt-10">
         <div className="w-full overflow-hidden rounded-xl">
           <iframe
             data-tally-src="https://tally.so/embed/mORPX8?alignLeft=1&hideTitle=1&dynamicHeight=1&formEventsForwarding=1"
@@ -106,7 +106,7 @@ export default function WaitlistPage() {
       </div>
 
       {/* How it works bullets (sprite-sheet bullets, 1rem spacing) */}
-      <div className="w-full max-w-3xl mx-auto mt-6">
+      <div className="w-full max-w-3xl mx-auto mt-10">
         <ul className="space-y-4 text-gray-200">
           <li className="flex items-start gap-3">
             <span className="md:hidden"><SpriteSheet src="/sprites/sparkles-3x3.png" rows={3} cols={3} size={24} fps={10} ariaLabel="Sparkle bullet" className="mt-0.5" /></span>
