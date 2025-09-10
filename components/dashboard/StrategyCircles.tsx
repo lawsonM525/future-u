@@ -52,6 +52,9 @@ export function StrategyCircles({ checkpoints, positions }: { checkpoints: Timel
 
   return (
     <div ref={containerRef} className="relative max-w-3xl mx-auto py-10">
+
+      {/* Title, middle aligned, space grotesk font */}
+      <h1 className="text-3xl font-bold mb-10 text-center">Your Strategy</h1>
       <ul className="relative space-y-24">
         {items.map((cp, i) => {
           const selected = openSet.has(i)
