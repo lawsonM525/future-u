@@ -27,7 +27,7 @@ function isSectionHeader(line: string, pattern: RegExp): boolean {
 const visionRe = /^(?:##\s*)?(?:\*\*)?\s*vision\s*&\s*dream\s*state\s*(?:\*\*)?\s*$/i
 const strengthsRe = /^(?:##\s*)?(?:\*\*)?\s*current\s*strengths?\s*&\s*talents?\s*(?:\*\*)?\s*$/i
 const milestonesRe = /^(?:##\s*)?(?:\*\*)?\s*milestones\s*&\s*checkpoints(?:\s*\([^)]*\))?\s*(?:\*\*)?\s*$/i
-const strategiesRe = /^(?:##\s*)?(?:\*\*)?\s*strategies\s*for\s*growth\s*&\s*overcoming\s*obstacles\s*(?:\*\*)?\s*$/i
+const strategiesRe = /^(?:##\s*)?(?:\*\*)?\s*strategies\s*for\s*growth(?:\s*&\s*overcoming\s*obstacles)?\s*(?:\*\*)?\s*$/i
 
 function findSectionRanges(lines: string[]): Record<string, { start: number; end: number }> {
   const idxs: { key: string; idx: number }[] = []

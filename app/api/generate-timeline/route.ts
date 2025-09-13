@@ -77,16 +77,16 @@ export async function POST(request: Request) {
 
     try {
       // Ask model to produce a strict JSON structure
-      const currentYear = new Date().getFullYear()
       const completion = await openai.chat.completions.create({
         model: 'gpt-4o',
         messages: [
           {
             role: 'system',
-            content: `You are a career roadmap planner. Given a user's career strategy report, output a realistic, motivating timeline with concrete checkpoints. Return ONLY JSON with this exact shape: { "checkpoints": [{ "year": number, "title": string, "description": string }] }.
-- Use ${currentYear} through ${currentYear + 7} as plausible years.
-- Include 5-7 checkpoints.
-- Keep titles concise (max ~8 words). Descriptions 1-3 sentences, specific and actionable.
+            content: `You are a career roadmap planner. Given a user's career strategy report, output a realistic, motivating 6-year timeline with concrete achievements. Return ONLY JSON with this exact shape: { "checkpoints": [{ "year": number, "title": string, "description": string, "items": string[] }] }.
+- Use exactly these years: 2025, 2026, 2027, 2028, 2029, 2030. Create one checkpoint object for each year.
+- For each year, write a concise title (max ~8 words).
+- For each year's description, write 1-3 sentences summarizing the year's focus.
+- For each year's items array, include 3-5 milestone-style achievements phrased as accomplished outcomes (e.g., "Published your first technical book", "Spoke at two major tech conferences", "Launched v1 of your startup and reached 1,000 users"). Avoid generic to-do phrasing. Be specific and impactful.
 - Do not include any extra commentary, markdown, or code fences.`
           },
           {
@@ -115,15 +115,35 @@ export async function POST(request: Request) {
       }
 
       // Validate and coerce checkpoints
-      const checkpoints: TimelineCheckpoint[] = parsed.checkpoints
+      const rawCheckpoints: TimelineCheckpoint[] = (parsed.checkpoints as unknown[])
         .map((raw) => {
           const cp = raw as Record<string, unknown>
           const year = Number(cp.year)
           const title = String((cp.title ?? '') as string).trim()
           const description = String((cp.description ?? '') as string).trim()
-          return { year, title, description }
+          const rawItems = Array.isArray(cp.items) ? cp.items : (typeof cp.items === 'string' ? [cp.items] : [])
+          const itemsAll = (rawItems as unknown[]).map((s) => String(s ?? '').trim()).filter(Boolean)
+          const items = itemsAll.slice(0, 5)
+          const out: TimelineCheckpoint = { year, title }
+          if (items.length) out.items = items
+          if (description) out.description = description
+          return out
         })
-        .filter((cp: TimelineCheckpoint) => Number.isFinite(cp.year) && !!cp.title && !!cp.description)
+        .filter((cp: TimelineCheckpoint) => Number.isFinite(cp.year) && !!cp.title && !!cp.description && (cp.items?.length ?? 0) >= 3)
+
+      // Enforce exactly the 6 required years 2025..2030, one checkpoint each
+      const targetYears = [2025, 2026, 2027, 2028, 2029, 2030]
+      const byYear = new Map<number, TimelineCheckpoint>()
+      for (const cp of rawCheckpoints) {
+        if (targetYears.includes(cp.year) && !byYear.has(cp.year)) {
+          byYear.set(cp.year, cp)
+        }
+      }
+      const missing = targetYears.filter(y => !byYear.has(y))
+      if (missing.length > 0) {
+        throw new Error('Model response missing required years: ' + missing.join(', '))
+      }
+      const checkpoints: TimelineCheckpoint[] = targetYears.map(y => byYear.get(y)!)
 
       if (checkpoints.length === 0) {
         throw new Error('No valid checkpoints generated')

@@ -18,7 +18,7 @@ const config: Config = {
   		colors: {
         'eerie-black': '#1c1c1c',
         'night': '#000000',
-        'cream': '#fffed5',
+        'cream': '#FFFFEE',
         'canary': '#fee402',
         'jonquil': '#fdca00',
         'fluorescent-cyan': '#0beae2',

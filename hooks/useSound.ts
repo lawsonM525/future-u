@@ -4,6 +4,7 @@ import * as React from 'react'
 const SOUND_MAP = {
   complete: '/sounds/twinkling.wav',
   levelup: '/sounds/yipee.mp3',
+  plop: '/sounds/plop.mp3',
 } as const
 
 type SoundName = keyof typeof SOUND_MAP

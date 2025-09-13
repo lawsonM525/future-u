@@ -17,6 +17,8 @@ import { MobileBottomNav } from '@/components/dashboard/MobileBottomNav'
 import { DashboardSection } from '@/components/dashboard/nav'
 import StrategyStructuredReport from '@/components/dashboard/StrategyStructuredReport'
 import StrategyVisionIntro from '@/components/dashboard/StrategyVisionIntro'
+import GoalsTab from '@/components/dashboard/GoalsTab'
+import ResourcesTab from '@/components/dashboard/ResourcesTab'
 
 // TODO: Make dashboard responsive for only mobile
 // TODO: Add title of "Your Strategy" to strategy section
@@ -46,6 +48,7 @@ export default function DashboardPage() {
   const [avatarPreferences, setAvatarPreferences] = useState({})
   const isDesktop = useMediaQuery('(min-width: 768px)')
   const [active, setActive] = useState<DashboardSection>('strategy')
+  const [archetypeTag, setArchetypeTag] = useState<string | null>(null)
 
   // Get first name only
   const firstName = session?.user?.name ? session.user.name.split(' ')[0] : ''
@@ -87,6 +90,29 @@ export default function DashboardPage() {
       fetchTimeline()
     }
   }, [session])
+
+  useEffect(() => {
+    // Load archetype tag for display beneath the user's name
+    const loadReportMeta = async () => {
+      try {
+        const res = await fetch('/api/get-report')
+        if (!res.ok) return
+        const data = await res.json()
+        if (typeof data.archetypeTag === 'string' && data.archetypeTag.trim()) {
+          setArchetypeTag(data.archetypeTag.trim())
+        }
+      } catch (e) {
+        console.error('Failed to load archetypeTag', e)
+      }
+    }
+    if (session?.user) loadReportMeta()
+  }, [session])
+
+  const formatTag = (tag: string) =>
+    tag
+      .split(' ')
+      .map(part => part.charAt(0).toUpperCase() + part.slice(1))
+      .join(' ')
 
   if (status === 'loading' || loading) {
     return (
@@ -142,13 +168,17 @@ export default function DashboardPage() {
             <SidebarNav active={active} onChange={setActive} />
           </div>
 
-          {/* Center: Strategy view or placeholders for other sections */}
+          {/* Center: Strategy or Goals content */}
           <motion.div variants={itemVariants} className="space-y-4">
             {active === 'strategy' ? (
               <>
                 <StrategyCircles checkpoints={timeline} intro={<StrategyVisionIntro />} />
                 <StrategyStructuredReport />
               </>
+            ) : active === 'goals' ? (
+              <GoalsTab />
+            ) : active === 'resources' ? (
+              <ResourcesTab />
             ) : (
               <GlowCard className="p-10 text-center">
                 <div className="text-lg font-semibold capitalize">{active.replace('-', ' ')}</div>
@@ -164,7 +194,7 @@ export default function DashboardPage() {
               <AvatarCreator seed={session?.user?.email || ''} size={isDesktop ? 180 : 140} {...avatarPreferences} />
               <div className="mt-3 md:mt-4">
                 <div className="font-semibold">{session?.user?.name || 'Your Avatar'}</div>
-                <div className="text-xs text-muted-foreground">The Adventurer</div>
+                <div className="text-xs text-muted-foreground">{archetypeTag ? formatTag(archetypeTag) : 'The Adventurer'}</div>
               </div>
               <Button variant="outline" size="sm" className="mt-3 md:mt-4 rounded-full px-4" onClick={() => router.push('/customize-avatar')}>
                 Customize Avatar

@@ -40,29 +40,56 @@ export function SidebarNav({
               : key === "goals" || key === "coach"
               ? "bg-fluorescent-cyan/15 border border-fluorescent-cyan text-fluorescent-cyan"
               : "bg-jonquil/15 border border-jonquil text-jonquil"
-          const unselectedClasses = "bg-black text-muted-foreground hover:bg-black/80"
+          const unselectedClasses = "bg-black text-foreground hover:bg-black/80"
           return (
-            <button
-              key={key}
-              className={cn(
-                "flex items-center gap-3 px-3 py-2 rounded-lg",
-                selected ? selectedClasses : unselectedClasses
-              )}
-              onClick={() => onChange(key)}
-            >
-              {iconSrc ? (
-                <Image
-                  src={iconSrc}
-                  alt={`${label} icon`}
-                  width={24}
-                  height={24}
-                  className={cn("shrink-0", selected ? "opacity-100" : "opacity-80")}
-                />
-              ) : (
-                <Compass className="w-6 h-6" />
-              )}
-              <span className="text-base font-medium">{label}</span>
-            </button>
+            key === 'feedback' ? (
+              <a
+                key={key}
+                href="https://lwsnlabs.featurebase.app/?b=68b4751d77012e1594a760c9"
+                target="_blank"
+                rel="noopener noreferrer"
+                className={cn(
+                  "flex items-center gap-3 px-3 py-2 rounded-lg",
+                  selected ? selectedClasses : unselectedClasses
+                )}
+                aria-label={label}
+              >
+                {iconSrc ? (
+                  <Image
+                    src={iconSrc}
+                    alt={`${label} icon`}
+                    width={24}
+                    height={24}
+                    className={cn("shrink-0", selected ? "opacity-100" : "opacity-80")}
+                  />
+                ) : (
+                  <Compass className="w-6 h-6" />
+                )}
+                <span className="text-base font-medium">{label}</span>
+              </a>
+            ) : (
+              <button
+                key={key}
+                className={cn(
+                  "flex items-center gap-3 px-3 py-2 rounded-lg",
+                  selected ? selectedClasses : unselectedClasses
+                )}
+                onClick={() => onChange(key)}
+              >
+                {iconSrc ? (
+                  <Image
+                    src={iconSrc}
+                    alt={`${label} icon`}
+                    width={24}
+                    height={24}
+                    className={cn("shrink-0", selected ? "opacity-100" : "opacity-80")}
+                  />
+                ) : (
+                  <Compass className="w-6 h-6" />
+                )}
+                <span className="text-base font-medium">{label}</span>
+              </button>
+            )
           )
         })}
       </nav>

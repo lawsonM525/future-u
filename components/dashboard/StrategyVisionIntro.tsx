@@ -20,9 +20,15 @@ export default function StrategyVisionIntro() {
           return
         }
         const data = await res.json()
-        const parsed: ParsedReport = parseReportContent(String(data.reportContent || ""))
-        const firstPara = parsed.visionParagraphs[0] || null
-        if (mounted) setIntro(firstPara)
+        const summary: string | null = (typeof data.summary === 'string' && data.summary.trim()) ? data.summary.trim() : null
+        if (summary) {
+          if (mounted) setIntro(summary)
+        } else {
+          // Fallback for legacy reports that contain a Vision section
+          const parsed: ParsedReport = parseReportContent(String(data.reportContent || ""))
+          const firstPara = parsed.visionParagraphs[0] || null
+          if (mounted) setIntro(firstPara)
+        }
       } catch {
         if (mounted) setError("Failed to load report intro")
       } finally {

@@ -62,7 +62,7 @@ export function ProgressRing({
         dominantBaseline="middle"
         textAnchor="middle"
         fontSize={size * 0.2}
-        fill="#fffed5" /* cream */
+        fill="#FFFFEE" /* ivory */
         style={{ fontWeight: 700 }}
       >
         {Math.round(clamped)}%

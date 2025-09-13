@@ -2,6 +2,8 @@ import { Schema, model, models, Document } from 'mongoose'
 
 export interface IReport extends Document {
   content: string;
+  summary?: string;
+  archetypeTag?: string;
   careers: Array<{
     id: string;
     score: number;
@@ -13,6 +15,8 @@ export interface IReport extends Document {
 
 const reportSchema = new Schema<IReport>({
   content: { type: String, required: true },
+  summary: { type: String, required: false },
+  archetypeTag: { type: String, required: false },
   careers: [{
     id: { type: String, required: true },
     score: { type: Number, required: true },

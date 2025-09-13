@@ -7,6 +7,8 @@ import type { TimelineCheckpoint } from "@/types/timeline"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import Image from "next/image"
+import { Check } from "lucide-react"
+import { useSound } from "@/hooks/useSound"
 
 // Note: icons supply the visual accent; no additional color palette needed here
 
@@ -21,6 +23,7 @@ export function StrategyCircles({ checkpoints, positions, intro }: { checkpoints
 
   // Allow multiple strategy details to remain open simultaneously
   const [openSet, setOpenSet] = useState<Set<number>>(new Set())
+  const { play } = useSound()
 
   // measure container width to compute responsive offsets
   const containerRef = useRef<HTMLDivElement | null>(null)
@@ -41,7 +44,7 @@ export function StrategyCircles({ checkpoints, positions, intro }: { checkpoints
       <div className="p-8 text-center space-y-3">
         <p className="text-muted-foreground">No strategy yet. Take a quiz to generate your Career Strategy.</p>
         <Button asChild className="rounded-full">
-          <Link href="/quiz-selection">Take Quiz to Get Started</Link>
+          <Link href="/quiz-selection" onClick={() => play('plop', 0.35)}>Take Quiz to Get Started</Link>
         </Button>
       </div>
     )
@@ -72,18 +75,19 @@ export function StrategyCircles({ checkpoints, positions, intro }: { checkpoints
           const node = (
             <motion.button
               key={`node-${cp.year}`}
-              onClick={() =>
+              onClick={() => {
+                play('plop', 0.4)
                 setOpenSet((prev) => {
                   const next = new Set(prev)
                   if (next.has(i)) next.delete(i)
                   else next.add(i)
                   return next
                 })
-              }
-              whileHover={{ scale: 1.15 }}
+              }}
+              whileHover={{ scale: 1.15, transition: { duration: 0.12, ease: [0.2, 0.8, 0.2, 1] } }}
               whileTap={{ scale: 0.96 }}
               className={cn(
-                "relative z-10 grid place-items-center transition-transform focus:outline-none",
+                "relative z-10 grid place-items-center transform-gpu will-change-transform focus:outline-none",
                 iconSrc ? "p-0" : "w-24 h-24"
               )}
               aria-expanded={selected}
@@ -127,9 +131,21 @@ export function StrategyCircles({ checkpoints, positions, intro }: { checkpoints
                         {/* Keep the text centered in the middle column and constrain width */}
                         <div className="mx-auto max-w-[42rem] text-center break-words">
                           <div className="text-xl font-semibold mb-2">{cp.title}</div>
-                          <p className="text-base leading-relaxed text-foreground/90" style={{ textAlign: 'justify' }}>
-                            {cp.description}
-                          </p>
+                          {cp.description ? (
+                            <p className="text-base leading-relaxed text-foreground/90" style={{ textAlign: 'justify' }}>
+                              {cp.description}
+                            </p>
+                          ) : null}
+                          {Array.isArray(cp.items) && cp.items.length > 0 ? (
+                            <ul className="mt-3 text-left inline-block space-y-2">
+                              {cp.items.map((item, idx) => (
+                                <li key={idx} className="flex items-start gap-2">
+                                  <Check className="h-5 w-5 text-accent mt-0.5 shrink-0" aria-hidden="true" />
+                                  <span className="text-base leading-relaxed text-foreground/90">{item}</span>
+                                </li>
+                              ))}
+                            </ul>
+                          ) : null}
                         </div>
                       </motion.div>
                     )}

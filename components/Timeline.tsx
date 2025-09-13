@@ -31,7 +31,7 @@ async function addGoalFromCheckpoint(cp: TimelineCheckpoint) {
     await fetch('/api/goals', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ title: cp.title, description: cp.description, checkpointYear: cp.year })
+      body: JSON.stringify({ title: cp.title, description: cp.description ?? '', checkpointYear: cp.year })
     })
   } catch {}
 }
@@ -104,7 +104,7 @@ function TimelineItem({ cp, onShare }: { cp: TimelineCheckpoint; onShare: (title
             <Button size="sm" variant="outline" onClick={() => addGoalFromCheckpoint(cp)} className="gap-1">
               <Plus className="w-4 h-4" /> Add to Goals
             </Button>
-            <Button size="sm" variant="outline" onClick={() => onShare(cp.title, cp.description)} className="gap-1">
+            <Button size="sm" variant="outline" onClick={() => onShare(cp.title, cp.description ?? '')} className="gap-1">
               <Share2 className="w-4 h-4" /> Share
             </Button>
           </div>

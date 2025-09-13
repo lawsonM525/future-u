@@ -17,7 +17,7 @@ export async function GET(req: Request) {
         display: 'flex',
         flexDirection: 'column',
         justifyContent: 'space-between',
-        background: 'linear-gradient(135deg, #0a0a0a 0%, #111827 100%)',
+        background: '#000000',
         color: 'white',
         padding: 48,
         fontFamily: 'Inter, ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial',

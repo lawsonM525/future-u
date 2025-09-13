@@ -40,28 +40,54 @@ export function MobileBottomNav({
 
           return (
             <li key={key} className="flex">
-              <button
-                type="button"
-                aria-label={label}
-                className={cn(
-                  "flex h-11 w-full items-center justify-center rounded-lg",
-                  selected ? selectedClasses : unselectedClasses
-                )}
-                onClick={() => onChange(key)}
-              >
-                {iconSrc ? (
-                  <Image
-                    src={iconSrc}
-                    alt={`${label} icon`}
-                    width={22}
-                    height={22}
-                    className={cn("shrink-0", selected ? "opacity-100" : "opacity-80")}
-                  />
-                ) : (
-                  <Compass className="w-5 h-5" />
-                )}
-                <span className="sr-only">{label}</span>
-              </button>
+              {key === 'feedback' ? (
+                <a
+                  href="https://lwsnlabs.featurebase.app/?b=68b4751d77012e1594a760c9"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label={label}
+                  className={cn(
+                    "flex h-11 w-full items-center justify-center rounded-lg",
+                    selected ? selectedClasses : unselectedClasses
+                  )}
+                >
+                  {iconSrc ? (
+                    <Image
+                      src={iconSrc}
+                      alt={`${label} icon`}
+                      width={22}
+                      height={22}
+                      className={cn("shrink-0", selected ? "opacity-100" : "opacity-80")}
+                    />
+                  ) : (
+                    <Compass className="w-5 h-5" />
+                  )}
+                  <span className="sr-only">{label}</span>
+                </a>
+              ) : (
+                <button
+                  type="button"
+                  aria-label={label}
+                  className={cn(
+                    "flex h-11 w-full items-center justify-center rounded-lg",
+                    selected ? selectedClasses : unselectedClasses
+                  )}
+                  onClick={() => onChange(key)}
+                >
+                  {iconSrc ? (
+                    <Image
+                      src={iconSrc}
+                      alt={`${label} icon`}
+                      width={22}
+                      height={22}
+                      className={cn("shrink-0", selected ? "opacity-100" : "opacity-80")}
+                    />
+                  ) : (
+                    <Compass className="w-5 h-5" />
+                  )}
+                  <span className="sr-only">{label}</span>
+                </button>
+              )}
             </li>
           )
         })}
