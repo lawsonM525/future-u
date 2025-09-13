@@ -20,6 +20,8 @@ const buttonVariants = cva(
         ghost: "hover:bg-accent hover:text-accent-foreground",
         link: "text-primary underline-offset-4 hover:underline",
         yellow: "bg-yellow-400 text-black hover:bg-yellow-500 shadow-sm",
+        jonquil:
+          "bg-jonquil text-black shadow-sm hover:bg-jonquil/95 hover:shadow-[0_0_20px_rgba(253,202,0,0.7)] transition-[shadow,transform] will-change-transform hover:scale-[1.03]",
       },
       size: {
         default: "h-9 px-4 py-2",

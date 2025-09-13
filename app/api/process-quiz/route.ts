@@ -3,6 +3,7 @@ import { OpenAI } from 'openai'
 import { Pinecone } from '@pinecone-database/pinecone'
 import { connect } from '@/lib/mongodb'
 import { Report } from '@/models/Report'
+import { parseReportContent } from '@/lib/reportParser'
 // Timeline generation has been split into a separate endpoint to avoid long runtimes
 import { auth } from '@/app/utils/authOptions'
 
@@ -218,6 +219,85 @@ Formatting rules:
       })
 
       await report.save()
+
+      // 6. Generate Strategy Resources (Exa) ONCE and store on the report
+      try {
+        const exaKey = process.env.EXA_API_KEY
+        if (exaKey) {
+          const parsedReport = parseReportContent(reportContent)
+          const strategies = parsedReport.strategies || []
+          type ExaResult = {
+            title: string
+            url: string
+            author?: string | null
+            publishedDate?: string | null
+            text?: string
+            summary?: string
+            favicon?: string
+            image?: string
+          }
+          const perBullet = 2
+          const groups: Array<{
+            title: string
+            details: Array<{ text: string; results: Array<{ title: string; url: string; snippet?: string; author?: string | null; publishedDate?: string | null; favicon?: string; image?: string }> }>
+          }> = []
+
+          for (const s of strategies) {
+            const details = Array.isArray(s.details) ? s.details.filter(Boolean) : []
+            const queries = details.map(text => ({ text }))
+
+            const responses = await Promise.all(
+              queries.map(async ({ text }) => {
+                const body = {
+                  query: text,
+                  type: 'auto',
+                  numResults: perBullet,
+                  contents: { text: true },
+                  moderation: true,
+                }
+                const res = await fetch('https://api.exa.ai/search', {
+                  method: 'POST',
+                  headers: {
+                    'content-type': 'application/json',
+                    'x-api-key': exaKey,
+                  },
+                  body: JSON.stringify(body),
+                })
+                if (!res.ok) return { text, results: [] as ExaResult[] }
+                const json = await res.json()
+                const results: ExaResult[] = Array.isArray(json.results) ? json.results : []
+                return { text, results }
+              })
+            )
+
+            const detailResults = responses.map(r => ({
+              text: r.text,
+              results: r.results.slice(0, perBullet).map((rr) => ({
+                title: rr.title,
+                url: rr.url,
+                snippet: rr.summary || (typeof rr.text === 'string' ? rr.text.slice(0, 240) : undefined),
+                author: rr.author ?? null,
+                publishedDate: rr.publishedDate ?? null,
+                favicon: rr.favicon,
+                image: rr.image,
+              }))
+            }))
+
+            groups.push({ title: s.title, details: detailResults })
+          }
+
+          report.strategyResources = {
+            strategies: groups,
+            generatedAt: new Date(),
+          }
+          await report.save()
+        } else {
+          console.warn('EXA_API_KEY not set; skipping strategy resources generation')
+        }
+      } catch (e) {
+        console.error('Failed to generate strategy resources:', e)
+        // do not fail the request; resources can be generated lazily later
+      }
 
       // Timeline will be generated asynchronously by calling /api/generate-timeline
 

@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button"
 import Image from "next/image"
 import { Check } from "lucide-react"
 import { useSound } from "@/hooks/useSound"
+import AddGoalsModal from "@/components/dashboard/AddGoalsModal"
 
 // Note: icons supply the visual accent; no additional color palette needed here
 
@@ -24,6 +25,11 @@ export function StrategyCircles({ checkpoints, positions, intro }: { checkpoints
   // Allow multiple strategy details to remain open simultaneously
   const [openSet, setOpenSet] = useState<Set<number>>(new Set())
   const { play } = useSound()
+
+  // Modal state for adding goals
+  const [modalOpen, setModalOpen] = useState(false)
+  const [modalYear, setModalYear] = useState<number | undefined>(undefined)
+  const [modalGoals, setModalGoals] = useState<string[] | undefined>(undefined)
 
   // measure container width to compute responsive offsets
   const containerRef = useRef<HTMLDivElement | null>(null)
@@ -146,6 +152,25 @@ export function StrategyCircles({ checkpoints, positions, intro }: { checkpoints
                               ))}
                             </ul>
                           ) : null}
+                          <div className="mt-4">
+                            <Button
+                              variant="jonquil"
+                              className="rounded-full px-5 font-bold text-white"
+                              onClick={() => {
+                                play('levelup', 0.5)
+                                // Prepopulate with up to 2 items for this year
+                                const initial = Array.isArray(cp.items) && cp.items.length > 0
+                                  ? cp.items.slice(0, 2)
+                                  : (cp.title ? [cp.title] : [""])
+                                setModalGoals(initial)
+                                setModalYear(cp.year)
+                                setModalOpen(true)
+                              }}
+                              aria-label={`Add ${cp.year} items to goals`}
+                            >
+                              Add to Goals
+                            </Button>
+                          </div>
                         </div>
                       </motion.div>
                     )}
@@ -156,6 +181,16 @@ export function StrategyCircles({ checkpoints, positions, intro }: { checkpoints
           )
         })}
       </ul>
+      {/* Add Goals Modal */}
+      <AddGoalsModal
+        open={modalOpen}
+        defaultYear={modalYear}
+        initialGoals={modalGoals}
+        onClose={() => setModalOpen(false)}
+        onSaved={() => {
+          // No-op: GoalsTab will load from DB when user views it
+        }}
+      />
     </div>
   )
 }

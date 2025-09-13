@@ -37,7 +37,7 @@ interface StrategyResourcesGroup {
   details: StrategyResourceItem[]
 }
 
-function pickTop(results: any[], limit: number) {
+function pickTop(results: ExaResult[], limit: number) {
   const out: StrategyResourceItem['results'] = []
   for (const r of results.slice(0, limit)) {
     const item: StrategyResourceItem['results'][number] = {
@@ -74,6 +74,12 @@ export async function GET(request: Request) {
     const report = await Report.findOne({ userId: session.user.id }).sort({ createdAt: -1 })
     if (!report) {
       return NextResponse.json({ strategies: [] as StrategyResourcesGroup[] }, { status: 200 })
+    }
+
+    // If already generated and stored, serve from DB
+    const cached = report.strategyResources?.strategies
+    if (Array.isArray(cached) && cached.length > 0) {
+      return NextResponse.json({ strategies: cached })
     }
 
     const parsed = parseReportContent(String(report.content || ''))
@@ -122,6 +128,13 @@ export async function GET(request: Request) {
 
       groups.push({ title: s.title, details: detailResults })
     }
+
+    // Save to report so we only generate once per report
+    report.strategyResources = {
+      strategies: groups,
+      generatedAt: new Date(),
+    }
+    await report.save()
 
     return NextResponse.json({ strategies: groups })
   } catch (error) {

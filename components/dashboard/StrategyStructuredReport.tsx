@@ -85,10 +85,10 @@ export default function StrategyStructuredReport() {
             <p className="text-muted-foreground text-center">No strengths extracted from your report.</p>
           ) : (
             data.strengths.map((s, idx) => (
-              <div key={idx} className="space-y-2">
-                <div className="flex items-center justify-center gap-2">
+              <div key={idx} className="space-y-4">
+                <div className="flex items-center justify-start gap-2">
                   <Image src="/icons/goals.png" alt="Strength" width={22} height={22} className="shrink-0" />
-                  <div className="text-lg text-center">{s.title}</div>
+                  <div className="text-lg font-semibold text-left">{s.title}</div>
                 </div>
                 {s.description && (
                   <p className="text-foreground/90 leading-relaxed" style={{ textAlign: 'justify' }}>{s.description}</p>
@@ -114,32 +114,36 @@ export default function StrategyStructuredReport() {
               return (
                 <div key={idx} className="space-y-2">
                   {s.title && (
-                    <div className="text-lg font-semibold text-center">{s.title}</div>
+                    <div className="text-lg font-semibold text-left">{s.title}</div>
                   )}
                   {s.details.length > 0 && (
-                    <ul className="list-disc list-inside space-y-3 text-foreground/90">
+                    <div className="space-y-5 text-foreground/90 text-left">
                       {s.details.map((d, i) => {
                         const detailKey = d.trim().toLowerCase()
                         const links = inner?.get(detailKey) || []
                         return (
-                          <li key={i} className="leading-relaxed">
-                            <div>{d}</div>
+                          <div key={i} className="leading-relaxed">
+                            <div className="text-left">{d}</div>
                             {links.length > 0 && (
-                              <div className="mt-1 pl-5 text-sm text-muted-foreground space-y-1">
+                              <div className="mt-3 flex flex-wrap gap-2">
                                 {links.slice(0, 2).map((r, j) => (
-                                  <div key={j} className="truncate">
-                                    <a href={r.url} target="_blank" rel="noopener noreferrer" className="underline hover:text-foreground">
-                                      {r.title || r.url}
-                                    </a>
-                                    {r.author ? <span className="ml-2 opacity-80">by {r.author}</span> : null}
-                                  </div>
+                                  <a
+                                    key={j}
+                                    href={r.url}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="inline-flex items-center rounded-full border border-jonquil text-jonquil bg-jonquil/10 px-3 py-1 text-xs md:text-sm hover:bg-jonquil/20 hover:text-jonquil"
+                                    title={r.title || r.url}
+                                  >
+                                    {r.title || r.url}
+                                  </a>
                                 ))}
                               </div>
                             )}
-                          </li>
+                          </div>
                         )
                       })}
-                    </ul>
+                    </div>
                   )}
                 </div>
               )

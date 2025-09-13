@@ -32,8 +32,9 @@ export default function GoalsTab() {
         throw new Error(data?.error || 'Failed to load goals')
       }
       setGoals(Array.isArray(data.goals) ? data.goals : [])
-    } catch (e: any) {
-      setError(e?.message || 'Failed to load goals')
+    } catch (e: unknown) {
+      if (e instanceof Error) setError(e.message)
+      else setError('Failed to load goals')
     } finally {
       setLoading(false)
     }
@@ -49,7 +50,7 @@ export default function GoalsTab() {
     const t = title.trim()
     if (!t) return
     const y = year.trim()
-    const body: any = { title: t }
+    const body: { title: string; checkpointYear?: number } = { title: t }
     if (y) {
       const n = Number(y)
       if (Number.isFinite(n)) body.checkpointYear = n
