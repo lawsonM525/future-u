@@ -14,6 +14,7 @@ import { ShareSheet } from '@/components/share/ShareSheet'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Plus, Share2, ChevronDown } from 'lucide-react'
 import { useToast } from '@/components/ui/use-toast'
+import { useSound } from '@/hooks/useSound'
 
 // Types and helpers
 type SectionItem = { id: string; title: string; level: 2 | 3; body: string }
@@ -79,6 +80,7 @@ export default function ReportPage() {
   const contentRef = useRef<HTMLDivElement | null>(null)
   const [progress, setProgress] = useState(0)
   const { toast } = useToast()
+  const { play } = useSound()
 
   useEffect(() => {
     const sendPendingReport = async () => {
@@ -222,6 +224,7 @@ export default function ReportPage() {
   async function addGoalInline(title: string) {
     const t = title.trim()
     if (!t) return
+    play('plop', 0.45)
     const res = await fetch('/api/goals', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ title: t }) })
     if (res.ok) {
       toast({ title: 'Added to Goals', description: 'You can track it in your dashboard.' })

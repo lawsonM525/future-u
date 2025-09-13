@@ -19,18 +19,8 @@ import StrategyStructuredReport from '@/components/dashboard/StrategyStructuredR
 import StrategyVisionIntro from '@/components/dashboard/StrategyVisionIntro'
 import GoalsTab from '@/components/dashboard/GoalsTab'
 import ResourcesTab from '@/components/dashboard/ResourcesTab'
+import QuestsTab from '@/components/dashboard/QuestsTab'
 
-// TODO: Make dashboard responsive for only mobile
-// TODO: Add title of "Your Strategy" to strategy section
-// TODO: Strategy section should have more info/checkpoints 
-// TODO: Add goals button + popup to approove, edit or add goals as they want
-// TODO: Add database functionality for adding goals
-// (AI generates goals from strategy sections)
-// TODO: Add functionality for adding daily quests
-// (AI generates daily quests from goals and everything can be stored and tracked)
-// TODO: If user has no quests, no daily quests should be displayed in quests card
-// TODO: Add more details to coming soon for coach and friends so users know what to expect
-// TODO: Clicking feedback should redirect to featurebase
 
 
 export default function DashboardPage() {
@@ -177,8 +167,46 @@ export default function DashboardPage() {
               </>
             ) : active === 'goals' ? (
               <GoalsTab />
+            ) : active === 'quests' ? (
+              <QuestsTab />
             ) : active === 'resources' ? (
               <ResourcesTab />
+            ) : active === 'coach' ? (
+              <GlowCard className="p-10">
+                <div className="max-w-2xl mx-auto">
+                  <div className="text-lg font-semibold">Coach</div>
+                  <p className="text-sm text-muted-foreground mt-1">
+                    An AI chatbot coach to guide you in putting your strategy into action.
+                  </p>
+                  <div className="mt-6 space-y-3">
+                    <div className="font-medium">What you&apos;ll be able to do:</div>
+                    <ul className="list-disc pl-5 space-y-2 text-sm text-muted-foreground">
+                      <li>Get step-by-step guidance on implementing your career strategy.</li>
+                      <li>Review weekly progress with suggestions to do even better.</li>
+                      <li>Optimize your resume and LinkedIn so they align with your strategy.</li>
+                      <li>Generate practical, bite-sized action items to build your dream life.</li>
+                    </ul>
+                  </div>
+                </div>
+              </GlowCard>
+            ) : active === 'friends' ? (
+              <GlowCard className="p-10">
+                <div className="max-w-2xl mx-auto">
+                  <div className="text-lg font-semibold">Friends</div>
+                  <p className="text-sm text-muted-foreground mt-1">
+                    Make friends on Future U, stay accountable together, and celebrate progress.
+                  </p>
+                  <div className="mt-6 space-y-3">
+                    <div className="font-medium">Coming soon:</div>
+                    <ul className="list-disc pl-5 space-y-2 text-sm text-muted-foreground">
+                      <li>Add friends and form accountability partners or pods.</li>
+                      <li>See how your friends are keeping up with their daily quests.</li>
+                      <li>Share wins, give encouragement, and celebrate milestones.</li>
+                      <li>Control what you share with simple privacy settings.</li>
+                    </ul>
+                  </div>
+                </div>
+              </GlowCard>
             ) : (
               <GlowCard className="p-10 text-center">
                 <div className="text-lg font-semibold capitalize">{active.replace('-', ' ')}</div>

@@ -138,7 +138,7 @@ export default function AddGoalsModal({ open, defaultYear, initialGoals, onClose
                     next[idx] = { ...next[idx], title: e.target.value }
                     setRows(next)
                   }}
-                  className="w-full"
+                  className="w-full resize-none"
                 />
                 <Input
                   placeholder="Year"

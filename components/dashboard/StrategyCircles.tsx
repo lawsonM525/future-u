@@ -155,9 +155,9 @@ export function StrategyCircles({ checkpoints, positions, intro }: { checkpoints
                           <div className="mt-4">
                             <Button
                               variant="jonquil"
-                              className="rounded-full px-5 font-bold text-white"
+                              className="rounded-full px-5 font-bold text-black text-base"
                               onClick={() => {
-                                play('levelup', 0.5)
+                                play('plop', 0.45)
                                 // Prepopulate with up to 2 items for this year
                                 const initial = Array.isArray(cp.items) && cp.items.length > 0
                                   ? cp.items.slice(0, 2)

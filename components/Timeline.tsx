@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button'
 import { motion, useInView } from 'framer-motion'
 import * as React from 'react'
 import { Plus, Share2 } from 'lucide-react'
+import { useSound } from '@/hooks/useSound'
 
 interface TimelineProps {
   checkpoints: TimelineCheckpoint[]
@@ -77,6 +78,7 @@ function TimelineItem({ cp, onShare }: { cp: TimelineCheckpoint; onShare: (title
   const ref = React.useRef<HTMLDivElement | null>(null)
   const inView = useInView(ref, { amount: 0.2, once: true })
   const [expanded, setExpanded] = React.useState(false)
+  const { play } = useSound()
   return (
     <motion.div
       ref={ref}
@@ -101,7 +103,11 @@ function TimelineItem({ cp, onShare }: { cp: TimelineCheckpoint; onShare: (title
             )}
           </div>
           <div className="flex gap-2">
-            <Button size="sm" variant="outline" onClick={() => addGoalFromCheckpoint(cp)} className="gap-1">
+            <Button
+              variant="jonquil"
+              className="gap-1 rounded-full px-4 font-bold text-black text-base"
+              onClick={() => { play('plop', 0.45); addGoalFromCheckpoint(cp) }}
+            >
               <Plus className="w-4 h-4" /> Add to Goals
             </Button>
             <Button size="sm" variant="outline" onClick={() => onShare(cp.title, cp.description ?? '')} className="gap-1">
