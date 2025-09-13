@@ -14,6 +14,15 @@ const nextConfig = {
       },
     ],
   },
+  async redirects() {
+    return [
+      {
+        source: '/quests',
+        destination: '/dashboard?tab=quests',
+        permanent: false,
+      },
+    ]
+  },
 };
 
 export default nextConfig;

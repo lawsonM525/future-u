@@ -46,15 +46,19 @@ export default function QuestsPage() {
         }
         const data = await res.json()
         if (!res.ok) throw new Error(data?.error || 'Failed to load quests')
-        const list: QuestItem[] = Array.isArray(data.quests) ? data.quests.map((q: any) => ({
-          _id: String(q._id),
-          title: String(q.title || ''),
-          quantity: Number(q.quantity || 1),
-          progress: Number(q.progress || 0),
-          goalTitle: String(q.goalTitle || ''),
-          goalYear: typeof q.goalYear === 'number' ? q.goalYear : null,
-          explanation: typeof q.explanation === 'string' ? q.explanation : undefined,
-        })) : []
+        const arr = Array.isArray(data.quests) ? (data.quests as unknown[]) : []
+        const list: QuestItem[] = arr.map((item) => {
+          const q = item as Record<string, unknown>
+          return {
+            _id: String(q._id ?? ''),
+            title: String(q.title ?? ''),
+            quantity: Number(q.quantity ?? 1),
+            progress: Number(q.progress ?? 0),
+            goalTitle: String(q.goalTitle ?? ''),
+            goalYear: typeof q.goalYear === 'number' ? (q.goalYear as number) : null,
+            explanation: typeof q.explanation === 'string' ? (q.explanation as string) : undefined,
+          }
+        })
         if (mounted) setQuests(list)
       } catch (e: unknown) {
         if (mounted) setError(e instanceof Error ? e.message : 'Failed to load quests')
@@ -162,7 +166,10 @@ export default function QuestsPage() {
                         className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/10 hover:bg-white/15 text-sm"
                         title={r.snippet || r.title}
                       >
-                        {r.favicon && (<img src={r.favicon} alt="" className="w-4 h-4 rounded-sm" />)}
+                        {r.favicon && (
+                          // eslint-disable-next-line @next/next/no-img-element
+                          <img src={r.favicon} alt="" className="w-4 h-4 rounded-sm" />
+                        )}
                         <span className="truncate max-w-[200px]">{r.title}</span>
                       </a>
                     ))}

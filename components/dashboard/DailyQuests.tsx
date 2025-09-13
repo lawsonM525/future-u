@@ -37,13 +37,17 @@ export function DailyQuests() {
         const res = await fetch('/api/quests?status=active&limit=3', { cache: 'no-store' })
         const data = await res.json()
         if (!res.ok) throw new Error(data?.error || 'Failed to load quests')
-        const raw: QuestItem[] = Array.isArray(data.quests) ? data.quests.map((q: any) => ({
-          _id: String(q._id),
-          title: String(q.title || ''),
-          quantity: Number(q.quantity || 1),
-          progress: Number(q.progress || 0),
-          goalTitle: String(q.goalTitle || ''),
-        })) : []
+        const rawArr = Array.isArray(data.quests) ? (data.quests as unknown[]) : []
+        const raw: QuestItem[] = rawArr.map((item) => {
+          const q = item as Record<string, unknown>
+          return {
+            _id: String(q._id ?? ''),
+            title: String(q.title ?? ''),
+            quantity: Number(q.quantity ?? 1),
+            progress: Number(q.progress ?? 0),
+            goalTitle: String(q.goalTitle ?? ''),
+          }
+        })
         // Client-side dedupe by normalized title, keep item with larger remaining
         const seen = new Map<string, QuestItem>()
         for (const q of raw) {
@@ -70,7 +74,7 @@ export function DailyQuests() {
     <GlowCard className="p-5">
       <div className="flex items-center justify-between mb-4">
         <h3 className="font-semibold">Daily Quests</h3>
-        <Link href="/quests" className="text-xs text-fluorescent-cyan hover:underline">View all</Link>
+        <Link href="/dashboard?tab=quests" className="text-xs text-fluorescent-cyan hover:underline">View all</Link>
       </div>
       <div className="space-y-4">
         {loading ? (

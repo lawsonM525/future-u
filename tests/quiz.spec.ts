@@ -69,11 +69,11 @@ test.describe('Quiz Flow', () => {
       }
     }
 
-    // Verify we get to the results page
-    await expect(page.getByRole('heading', { name: /Career Strategy/i })).toBeVisible();
-    
-    // Verify key sections are present
-    await expect(page.getByText(/Action Items/i)).toBeVisible();
-    await expect(page.getByText(/Career Paths/i)).toBeVisible();
+    // Verify we are redirected to the dashboard
+    await expect(page).toHaveURL(/.*\/dashboard/);
+
+    // Verify dashboard strategy sections are visible
+    await expect(page.getByText(/Current Strengths\s*&\s*Talents/i)).toBeVisible();
+    await expect(page.getByText(/Strategies for Growth/i)).toBeVisible();
   });
 });

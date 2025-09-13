@@ -3,7 +3,6 @@
 import * as React from 'react'
 import { GlowCard } from '@/components/ui/GlowCard'
 import { Button } from '@/components/ui/button'
-import { Progress } from '@/components/ui/progress'
 import { Plus, Minus, ExternalLink } from 'lucide-react'
 
 export type QuestItem = {
@@ -52,15 +51,19 @@ export default function QuestsTab() {
       const res = await fetch(`/api/quests?status=active&limit=${activeLimit}`, { cache: 'no-store' })
       const data = await res.json()
       if (!res.ok) throw new Error(data?.error || 'Failed to load quests')
-      const list: QuestItem[] = Array.isArray(data.quests) ? data.quests.map((q: any) => ({
-        _id: String(q._id),
-        title: String(q.title || ''),
-        quantity: Number(q.quantity || 1),
-        progress: Number(q.progress || 0),
-        goalTitle: String(q.goalTitle || ''),
-        goalYear: typeof q.goalYear === 'number' ? q.goalYear : null,
-        explanation: typeof q.explanation === 'string' ? q.explanation : undefined,
-      })) : []
+      const arr = Array.isArray(data.quests) ? (data.quests as unknown[]) : []
+      const list: QuestItem[] = arr.map((item) => {
+        const q = item as Record<string, unknown>
+        return {
+          _id: String(q._id ?? ''),
+          title: String(q.title ?? ''),
+          quantity: Number(q.quantity ?? 1),
+          progress: Number(q.progress ?? 0),
+          goalTitle: String(q.goalTitle ?? ''),
+          goalYear: typeof q.goalYear === 'number' ? (q.goalYear as number) : null,
+          explanation: typeof q.explanation === 'string' ? (q.explanation as string) : undefined,
+        }
+      })
       setActive(list)
     } catch (e: unknown) {
       setActiveError(e instanceof Error ? e.message : 'Failed to load quests')
@@ -81,16 +84,20 @@ export default function QuestsTab() {
       const res = await fetch(url.toString(), { cache: 'no-store' })
       const data = await res.json()
       if (!res.ok) throw new Error(data?.error || 'Failed to load completed quests')
-      const list: QuestItem[] = Array.isArray(data.quests) ? data.quests.map((q: any) => ({
-        _id: String(q._id),
-        title: String(q.title || ''),
-        quantity: Number(q.quantity || 1),
-        progress: Number(q.progress || 0),
-        goalTitle: String(q.goalTitle || ''),
-        goalYear: typeof q.goalYear === 'number' ? q.goalYear : null,
-        explanation: typeof q.explanation === 'string' ? q.explanation : undefined,
-        completedAt: q.completedAt ? String(q.completedAt) : null,
-      })) : []
+      const arr = Array.isArray(data.quests) ? (data.quests as unknown[]) : []
+      const list: QuestItem[] = arr.map((item) => {
+        const q = item as Record<string, unknown>
+        return {
+          _id: String(q._id ?? ''),
+          title: String(q.title ?? ''),
+          quantity: Number(q.quantity ?? 1),
+          progress: Number(q.progress ?? 0),
+          goalTitle: String(q.goalTitle ?? ''),
+          goalYear: typeof q.goalYear === 'number' ? (q.goalYear as number) : null,
+          explanation: typeof q.explanation === 'string' ? (q.explanation as string) : undefined,
+          completedAt: q.completedAt ? String(q.completedAt) : null,
+        }
+      })
 
       setCompleted(prev => [...prev, ...list])
       if (list.length < completedPageSize) {
@@ -106,7 +113,7 @@ export default function QuestsTab() {
   }, [cursor, hasMore, loadingCompleted])
 
   React.useEffect(() => { loadActive() }, [loadActive])
-  React.useEffect(() => { loadCompleted() }, [])
+  React.useEffect(() => { loadCompleted() }, [loadCompleted])
 
   // Infinite scroll sentinel
   const sentinelRef = React.useRef<HTMLDivElement | null>(null)
@@ -147,7 +154,7 @@ export default function QuestsTab() {
         }
         return next
       })
-    } catch (e) {
+    } catch {
       // Reload on error to stay consistent
       loadActive()
     }
@@ -174,56 +181,60 @@ export default function QuestsTab() {
 
   return (
     <div className="space-y-6">
-      <GlowCard className="p-5">
-        <div className="flex items-center justify-between">
-          <div className="text-lg font-semibold">Active Quests</div>
-          <a href="/quests" className="text-xs text-fluorescent-cyan hover:underline">Open full quests page</a>
-        </div>
-        <div className="mt-4 space-y-4">
-          {loadingActive ? (
-            <div className="text-sm text-muted-foreground">Loading…</div>
-          ) : activeError ? (
-            <div className="text-sm text-destructive">{activeError}</div>
-          ) : active.length === 0 ? (
-            <div className="text-sm text-muted-foreground">No active quests. Set goals to generate your first quests!</div>
-          ) : (
-            active.map(q => {
-              const pct = q.quantity > 0 ? Math.min(100, (q.progress / q.quantity) * 100) : 0
-              return (
-                <div key={q._id} className="rounded-lg p-3 hover:bg-white/5">
-                  <div className="flex items-start justify-between gap-3">
-                    <div className="min-w-0">
-                      <div className="font-medium truncate">{q.title}</div>
-                      <div className="text-xs text-muted-foreground truncate">Helping achieve: {q.goalTitle}{typeof q.goalYear === 'number' ? ` • Year ${q.goalYear}` : ''}</div>
-                      {q.explanation && (
-                        <div className="text-xs text-foreground/80 mt-1 line-clamp-2">{q.explanation}</div>
-                      )}
+      <div className="px-1">
+        <div className="text-xl font-semibold">Quests</div>
+      </div>
+      {loadingActive ? (
+        <GlowCard className="p-8 text-center text-sm text-muted-foreground">Loading quests…</GlowCard>
+      ) : activeError ? (
+        <GlowCard className="p-8 text-center text-sm text-destructive">{activeError}</GlowCard>
+      ) : active.length === 0 ? (
+        <GlowCard className="p-8 text-center text-sm text-muted-foreground">
+          No daily quests yet. Set goals to get your first quests!
+        </GlowCard>
+      ) : (
+        <div className="space-y-6">
+          {active.map((q) => {
+            const pct = q.quantity > 0 ? Math.min(100, (q.progress / q.quantity) * 100) : 0
+            return (
+              <GlowCard key={q._id} className="p-6">
+                <div className="flex flex-col gap-3">
+                  <div className="flex items-start justify-between gap-4">
+                    <div>
+                      <div className="text-lg font-semibold">{q.title}</div>
+                      <div className="text-xs text-muted-foreground mt-0.5">Progress: {q.progress} / {q.quantity}</div>
                     </div>
                     <div className="flex shrink-0 items-center gap-1">
                       <Button size="sm" variant="outline" aria-label="decrement" onClick={() => patchProgress(q._id, -1)} disabled={q.progress <= 0}>
                         <Minus className="w-4 h-4" />
                       </Button>
-                      <div className="text-xs w-14 text-center">{q.progress} / {q.quantity}</div>
                       <Button size="sm" variant="jonquil" aria-label="increment" onClick={() => patchProgress(q._id, +1)} disabled={q.progress >= q.quantity}>
                         <Plus className="w-4 h-4" />
                       </Button>
                     </div>
                   </div>
-                  <div className="mt-2">
-                    <Progress value={pct} className="h-2.5 bg-white/10 rounded-full" />
+                  <div className="text-sm">
+                    <div className="text-muted-foreground">Helping achieve:</div>
+                    <div className="font-medium">{q.goalTitle}{typeof q.goalYear === 'number' ? ` • Year ${q.goalYear}` : ''}</div>
                   </div>
-                  <div className="mt-2">
+                  {q.explanation && (
+                    <div className="text-sm text-foreground/90">{q.explanation}</div>
+                  )}
+                  <div className="h-2.5 w-full rounded-full bg-white/10 overflow-hidden">
+                    <div className="h-full bg-jonquil" style={{ width: pct + '%'}} />
+                  </div>
+                  <div>
                     <Button size="sm" variant="ghost" onClick={() => openResources(q)}>
                       Find resources for this quest
                       <ExternalLink className="w-4 h-4" />
                     </Button>
                   </div>
                 </div>
-              )
-            })
-          )}
+              </GlowCard>
+            )
+          })}
         </div>
-      </GlowCard>
+      )}
 
       <GlowCard className="p-5">
         <div className="text-lg font-semibold">Completed</div>
@@ -281,7 +292,10 @@ export default function QuestsTab() {
                       className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/10 hover:bg-white/15 text-sm"
                       title={r.snippet || r.title}
                     >
-                      {r.favicon && (<img src={r.favicon} alt="" className="w-4 h-4 rounded-sm" />)}
+                      {r.favicon && (
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img src={r.favicon} alt="" className="w-4 h-4 rounded-sm" />
+                      )}
                       <span className="truncate max-w-[200px]">{r.title}</span>
                     </a>
                   ))}

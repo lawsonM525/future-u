@@ -165,7 +165,7 @@ export default function QuizPage() {
           console.error('Error initiating timeline generation:', e)
         }
         clearQuizProgress()
-        router.push(`/report/${data.reportId}`)
+        router.push('/dashboard')
       } catch (err) {
         console.error('Error:', err)
         setError('Failed to process quiz. Please try again.')
@@ -233,7 +233,7 @@ export default function QuizPage() {
       }
 
       clearQuizProgress()
-      router.push(`/report/${data.reportId}`)
+      router.push('/dashboard')
     } catch (err) {
       console.error('Error:', err)
       setError('Failed to process quiz. Please try again.')

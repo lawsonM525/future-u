@@ -1,9 +1,11 @@
 import { NextResponse } from 'next/server'
 import { Types } from 'mongoose'
+import type { FilterQuery } from 'mongoose'
 import { auth } from '@/app/utils/authOptions'
 import { connect } from '@/lib/mongodb'
 import { Goal } from '@/models/Goal'
 import { Quest } from '@/models/Quest'
+import type { QuestDocument } from '@/models/Quest'
 import { OpenAI } from 'openai'
 
 export const dynamic = 'force-dynamic'
@@ -21,6 +23,41 @@ function extractJson(content: string): unknown {
 
 function wordCount(s: string) {
   return s.trim().split(/\s+/).filter(Boolean).length
+}
+
+// Local types to avoid "any" when working with lean queries and model output
+type QuestLean = {
+  _id: Types.ObjectId
+  userId: string
+  goalId?: string
+  goalTitle: string
+  goalYear?: number | null
+  title: string
+  quantity: number
+  progress: number
+  explanation?: string
+  createdAt?: Date
+  completedAt?: Date | null
+}
+
+type GeneratedQuest = {
+  goalId?: string
+  goalTitle?: string
+  goalYear?: number | null
+  title?: string
+  quantity?: number
+  explanation?: string
+}
+
+type NewQuestDoc = {
+  userId: string
+  goalId: string
+  goalTitle: string
+  goalYear: number | null
+  title: string
+  quantity: number
+  progress: number
+  explanation?: string
 }
 
 export async function GET(request: Request) {
@@ -42,8 +79,8 @@ export async function GET(request: Request) {
     }
 
     // Helper to fetch filtered quests
-    const baseFilter: Record<string, any> = { userId: session.user.id }
-    let filter: Record<string, any>
+    const baseFilter: FilterQuery<QuestDocument> = { userId: session.user.id }
+    let filter: FilterQuery<QuestDocument>
     if (status === 'completed') {
       filter = { ...baseFilter, $expr: { $gte: ["$progress", "$quantity"] } }
     } else if (status === 'active' || status === 'all') {
@@ -67,11 +104,12 @@ export async function GET(request: Request) {
       }
     }
 
-    let list = await query.lean()
+    const listRaw = await query.lean()
+    let list = listRaw as unknown as QuestLean[]
 
     // For active list in the card, dedupe by normalized title and keep those with highest remaining amount
     if (status === 'active') {
-      const seen = new Map<string, any>()
+      const seen = new Map<string, QuestLean>()
       for (const q of list) {
         const key = normalizeTitle(String(q.title || ''))
         const remaining = Math.max(0, Number(q.quantity || 1) - Number(q.progress || 0))
@@ -132,25 +170,25 @@ export async function GET(request: Request) {
       }
 
       const obj = (parsedUnknown && typeof parsedUnknown === 'object') ? parsedUnknown as Record<string, unknown> : {}
-      const arr = Array.isArray(obj.quests) ? obj.quests as Array<Record<string, unknown>> : []
+      const arr: GeneratedQuest[] = Array.isArray(obj.quests) ? (obj.quests as GeneratedQuest[]) : []
 
       // Build documents and enforce uniqueness by normalized title
-      const byTitle = new Map<string, any>()
+      const byTitle = new Map<string, NewQuestDoc>()
       const filledIdx = new Set<number>()
       for (let i = 0; i < Math.min(top.length, arr.length); i++) {
         const g = top[i]
         const q = arr[i] || {}
-        const titleRaw = String((q as any).title || '').trim()
+        const titleRaw = String(q.title || '').trim()
         const norm = normalizeTitle(titleRaw)
         if (existingNormSet.has(norm)) {
           // Skip items whose normalized title already exists for this user
           continue
         }
-        const quantityRaw = Number(((q as any).quantity as number) ?? 1)
+        const quantityRaw = Number(q.quantity ?? 1)
         let quantity = Number.isFinite(quantityRaw) && quantityRaw > 0 ? Math.floor(quantityRaw) : 1
         const safeTitle = wordCount(titleRaw) > 7 ? titleRaw.split(/\s+/).slice(0, 7).join(' ') : titleRaw
         quantity = Math.max(1, Math.min(20, quantity))
-        const explanation = String((q as any).explanation || '').trim()
+        const explanation = String(q.explanation || '').trim()
         if (!byTitle.has(norm)) {
           byTitle.set(norm, {
             userId: session.user.id,
@@ -199,19 +237,19 @@ export async function GET(request: Request) {
           }
 
           const obj2 = (parsed2 && typeof parsed2 === 'object') ? parsed2 as Record<string, unknown> : {}
-          const arr2 = Array.isArray(obj2.quests) ? obj2.quests as Array<Record<string, unknown>> : []
+          const arr2: GeneratedQuest[] = Array.isArray(obj2.quests) ? (obj2.quests as GeneratedQuest[]) : []
 
           for (let k = 0; k < Math.min(remainingGoals.length, arr2.length); k++) {
             const g = remainingGoals[k]
             const q = arr2[k] || {}
-            const titleRaw = String((q as any).title || '').trim()
+            const titleRaw = String(q.title || '').trim()
             const norm = normalizeTitle(titleRaw)
             if (existingNormSet.has(norm) || byTitle.has(norm)) continue
-            const quantityRaw = Number(((q as any).quantity as number) ?? 1)
+            const quantityRaw = Number(q.quantity ?? 1)
             let quantity = Number.isFinite(quantityRaw) && quantityRaw > 0 ? Math.floor(quantityRaw) : 1
             const safeTitle = wordCount(titleRaw) > 7 ? titleRaw.split(/\s+/).slice(0, 7).join(' ') : titleRaw
             quantity = Math.max(1, Math.min(20, quantity))
-            const explanation = String((q as any).explanation || '').trim()
+            const explanation = String(q.explanation || '').trim()
             byTitle.set(norm, {
               userId: session.user.id,
               goalId: String(g._id),
@@ -231,12 +269,12 @@ export async function GET(request: Request) {
         return NextResponse.json({ quests: [] })
       }
 
-      const inserted: any[] = []
+      const inserted: QuestLean[] = []
       for (const doc of coalesced) {
-        const dup = await Quest.findOne({ userId: doc.userId, goalId: doc.goalId, title: doc.title }).lean()
+        const dup = await Quest.findOne({ userId: doc.userId, goalId: doc.goalId, title: doc.title }).lean() as QuestLean | null
         if (!dup) {
           const created = await Quest.create(doc)
-          inserted.push(created.toObject())
+          inserted.push(created.toObject() as QuestLean)
         } else {
           inserted.push(dup)
         }

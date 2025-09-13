@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { useSession } from 'next-auth/react'
 import { Button } from '@/components/ui/button'
 import { SidebarNav } from '@/components/dashboard/SidebarNav'
@@ -39,9 +39,18 @@ export default function DashboardPage() {
   const isDesktop = useMediaQuery('(min-width: 768px)')
   const [active, setActive] = useState<DashboardSection>('strategy')
   const [archetypeTag, setArchetypeTag] = useState<string | null>(null)
+  const searchParams = useSearchParams()
 
   // Get first name only
   const firstName = session?.user?.name ? session.user.name.split(' ')[0] : ''
+
+  useEffect(() => {
+    // Sync tab from URL query param (?tab=quests)
+    const tab = searchParams?.get('tab') as DashboardSection | null
+    if (tab && ['strategy','goals','quests','resources','coach','friends','feedback'].includes(tab)) {
+      setActive(tab)
+    }
+  }, [searchParams])
 
   useEffect(() => {
     // Load avatar preferences from localStorage

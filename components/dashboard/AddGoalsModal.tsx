@@ -43,7 +43,7 @@ export default function AddGoalsModal({ open, defaultYear, initialGoals, onClose
       const makeKey = (t: string, y?: number | null) => `${normTitle(t)}|${Number.isFinite(y as number) ? String(y) : 'any'}`
 
       // Fetch existing goals to prevent duplicates
-      let existingKeys = new Set<string>()
+      const existingKeys = new Set<string>()
       try {
         const existingRes = await fetch('/api/goals', { cache: 'no-store' })
         if (existingRes.ok) {
@@ -103,7 +103,7 @@ export default function AddGoalsModal({ open, defaultYear, initialGoals, onClose
       play('levelup', 0.6)
       onClose()
       onSaved?.()
-    } catch (e) {
+    } catch {
       setError('Failed to save goals. Please try again.')
     } finally {
       setSaving(false)

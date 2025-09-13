@@ -5,6 +5,7 @@ import { GlowCard } from '@/components/ui/GlowCard'
 import { useStrategyResources } from '@/hooks/useStrategyResources'
 import { Brain, Camera, Mic, Users, BookOpen, Video, Code2, Sparkles, ExternalLink, ChevronDown } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import { useSound } from '@/hooks/useSound'
 
 // Accent palettes for sections
 const accents = [
@@ -85,34 +86,53 @@ function getResultIcon(title?: string, url?: string, snippet?: string) {
 
 export default function ResourcesTab() {
   const { loading, error, groups } = useStrategyResources(3)
+  const { play } = useSound()
 
   if (loading) {
     return (
-      <GlowCard className="p-6 text-center">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-accent mx-auto" />
-        <p className="mt-2 text-sm text-muted-foreground">Finding resources for your strategy…</p>
-      </GlowCard>
+      <div className="space-y-6">
+        <h2 className="mt-12 text-2xl md:text-3xl font-bold font-space-grotesk tracking-wide text-white uppercase text-center">
+          YOUR RESOURCES
+        </h2>
+        <GlowCard className="p-6 text-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-accent mx-auto" />
+          <p className="mt-2 text-sm text-muted-foreground">Finding resources for your strategy…</p>
+        </GlowCard>
+      </div>
     )
   }
 
   if (error) {
     return (
-      <GlowCard className="p-6 text-center">
-        <p className="text-sm text-destructive">{error}</p>
-      </GlowCard>
+      <div className="space-y-6">
+        <h2 className="mt-12 text-2xl md:text-3xl font-bold font-space-grotesk tracking-wide text-white uppercase text-center">
+          YOUR RESOURCES
+        </h2>
+        <GlowCard className="p-6 text-center">
+          <p className="text-sm text-destructive">{error}</p>
+        </GlowCard>
+      </div>
     )
   }
 
   if (!groups.length) {
     return (
-      <GlowCard className="p-6 text-center">
-        <p className="text-sm text-muted-foreground">No resources yet. Generate your strategy first.</p>
-      </GlowCard>
+      <div className="space-y-6">
+        <h2 className="mt-12 text-2xl md:text-3xl font-bold font-space-grotesk tracking-wide text-white uppercase text-center">
+          YOUR RESOURCES
+        </h2>
+        <GlowCard className="p-6 text-center">
+          <p className="text-sm text-muted-foreground">No resources yet. Generate your strategy first.</p>
+        </GlowCard>
+      </div>
     )
   }
 
   return (
     <div className="space-y-6">
+      <h2 className="mt-12 text-2xl md:text-3xl font-bold font-space-grotesk tracking-wide text-white uppercase text-center">
+        YOUR RESOURCES
+      </h2>
       {groups.map((g, gi) => {
         const accent = accentFor(gi, g.title)
         const GroupIcon = getGroupIcon(g.title)
@@ -124,8 +144,13 @@ export default function ResourcesTab() {
             )}
             glow={false}
           >
-            <details open className="group">
-              <summary className="flex items-center gap-3 p-6 md:p-8 cursor-pointer list-none select-none">
+            <details
+              className="group"
+              onToggle={() => {
+                play('plop', 0.35)
+              }}
+            >
+              <summary className="flex items-center gap-3 p-6 md:p-8 cursor-pointer list-none select-none [&::-webkit-details-marker]:hidden">
                 <div className={cn('shrink-0 rounded-xl p-2 ring-1', accent.bg, accent.ring)}>
                   <GroupIcon className={cn('h-5 w-5', accent.text)} />
                 </div>
