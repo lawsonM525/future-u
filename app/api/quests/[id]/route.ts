@@ -63,3 +63,19 @@ export async function PATCH(request: Request, { params }: { params: { id: string
     return NextResponse.json({ error: 'Failed to update quest' }, { status: 500 })
   }
 }
+
+export async function DELETE(_request: Request, { params }: { params: { id: string } }) {
+  try {
+    const session = await auth()
+    if (!session?.user?.id) {
+      return NextResponse.json({ error: 'Authentication required' }, { status: 401 })
+    }
+    await connect()
+    const deleted = await Quest.findOneAndDelete({ _id: params.id, userId: session.user.id })
+    if (!deleted) return NextResponse.json({ error: 'Quest not found' }, { status: 404 })
+    return NextResponse.json({ ok: true, deletedId: params.id })
+  } catch (err) {
+    console.error('DELETE /api/quests/[id] error:', err)
+    return NextResponse.json({ error: 'Failed to delete quest' }, { status: 500 })
+  }
+}

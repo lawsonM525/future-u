@@ -4,6 +4,8 @@ export interface IReport extends Document {
   content: string;
   summary?: string;
   archetypeTag?: string;
+  quizType?: string;
+  userProfile?: string;
   careers: Array<{
     id: string;
     score: number;
@@ -55,6 +57,8 @@ const reportSchema = new Schema<IReport>({
   content: { type: String, required: true },
   summary: { type: String, required: false },
   archetypeTag: { type: String, required: false },
+  quizType: { type: String, required: false },
+  userProfile: { type: String, required: false },
   careers: [{
     id: { type: String, required: true },
     score: { type: Number, required: true },

@@ -1,6 +1,7 @@
 "use client"
 import * as React from 'react'
 import { GlowCard } from '@/components/ui/GlowCard'
+import { Sparkles } from 'lucide-react'
 import { ProgressRing } from '@/components/ui/ProgressRing'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -21,6 +22,7 @@ export default function GoalsTab() {
   const [year, setYear] = React.useState<string>('')
   const [error, setError] = React.useState<string | null>(null)
   const { play } = useSound()
+  const [showCongrats, setShowCongrats] = React.useState(false)
 
   const load = React.useCallback(async () => {
     setLoading(true)
@@ -75,7 +77,11 @@ export default function GoalsTab() {
       body: JSON.stringify({ status: next })
     })
     if (res.ok) {
-      if (next === 'completed') play('complete')
+      if (next === 'completed') {
+        play('complete')
+        setShowCongrats(true)
+        window.setTimeout(() => setShowCongrats(false), 2400)
+      }
       load()
     }
   }
@@ -94,7 +100,30 @@ export default function GoalsTab() {
   }, [goals])
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-6">
+      {showCongrats && (
+        <div
+          role="status"
+          aria-live="polite"
+          className="fixed top-4 right-4 z-[100]"
+        >
+          <div className="rounded-xl border border-border bg-card/95 backdrop-blur p-4 shadow-xl flex items-start gap-3">
+            <div className="mt-0.5 text-jonquil">
+              <Sparkles className="w-5 h-5" />
+            </div>
+            <div>
+              <div className="text-sm font-semibold">Well done!</div>
+              <div className="text-xs text-muted-foreground">You&apos;re getting closer and closer to Future U.</div>
+            </div>
+          </div>
+        </div>
+      )}
+      <div className="px-1">
+        <h1 className="mt-12 text-2xl md:text-3xl font-bold font-space-grotesk tracking-wide uppercase text-center">
+          YOUR GOALS
+        </h1>
+      </div>
+
       <GlowCard className="p-5">
         <div className="flex items-center gap-6">
           <div className="shrink-0">

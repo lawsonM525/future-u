@@ -1,19 +1,19 @@
 "use client"
 
-import React, { useEffect, useMemo, useRef, useState, type ReactNode } from "react"
-import { motion, AnimatePresence } from "framer-motion"
+import React, { useEffect, useMemo, useRef, useState, useLayoutEffect, type ReactNode } from "react"
+import { motion, AnimatePresence, useReducedMotion } from "framer-motion"
 import { cn } from "@/lib/utils"
 import type { TimelineCheckpoint } from "@/types/timeline"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import Image from "next/image"
-import { Check } from "lucide-react"
+import { Check, Loader2 } from "lucide-react"
 import { useSound } from "@/hooks/useSound"
 import AddGoalsModal from "@/components/dashboard/AddGoalsModal"
 
 // Note: icons supply the visual accent; no additional color palette needed here
 
-export function StrategyCircles({ checkpoints, positions, intro }: { checkpoints: TimelineCheckpoint[]; positions?: number[]; intro?: ReactNode }) {
+export function StrategyCircles({ checkpoints, positions, intro, isGenerating }: { checkpoints: TimelineCheckpoint[]; positions?: number[]; intro?: ReactNode; isGenerating?: boolean }) {
   const items = useMemo(() => {
     const uniqueByYear = new Map<number, TimelineCheckpoint>()
     for (const c of checkpoints) {
@@ -24,6 +24,8 @@ export function StrategyCircles({ checkpoints, positions, intro }: { checkpoints
 
   // Allow multiple strategy details to remain open simultaneously
   const [openSet, setOpenSet] = useState<Set<number>>(new Set())
+  // Track which years have been opened at least once (to stop pulsing hint)
+  const [dismissedPulseYears, setDismissedPulseYears] = useState<Set<number>>(new Set())
   const { play } = useSound()
 
   // Modal state for adding goals
@@ -35,7 +37,7 @@ export function StrategyCircles({ checkpoints, positions, intro }: { checkpoints
   const containerRef = useRef<HTMLDivElement | null>(null)
   const [containerWidth, setContainerWidth] = useState<number>(0)
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     const update = () => {
       const w = containerRef.current?.clientWidth || 0
       setContainerWidth(w)
@@ -45,7 +47,37 @@ export function StrategyCircles({ checkpoints, positions, intro }: { checkpoints
     return () => window.removeEventListener('resize', update)
   }, [])
 
+  // Persist dismissed pulse years across sessions
+  useEffect(() => {
+    try {
+      const raw = typeof window !== 'undefined' ? localStorage.getItem('dismissedPulseYears') : null
+      if (raw) {
+        const arr = JSON.parse(raw) as number[]
+        if (Array.isArray(arr)) setDismissedPulseYears(new Set(arr))
+      }
+    } catch {}
+  }, [])
+
+  useEffect(() => {
+    try {
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('dismissedPulseYears', JSON.stringify(Array.from(dismissedPulseYears)))
+      }
+    } catch {}
+  }, [dismissedPulseYears])
+
+  // Respect OS/browser reduced-motion preference for accessibility
+  const reduceMotion = useReducedMotion()
+
   if (!items.length) {
+    if (isGenerating) {
+      return (
+        <div className="p-8 text-center space-y-3">
+          <Loader2 className="h-6 w-6 animate-spin text-accent mx-auto" aria-hidden="true" />
+          <p className="text-muted-foreground">Generating your timeline…</p>
+        </div>
+      )
+    }
     return (
       <div className="p-8 text-center space-y-3">
         <p className="text-muted-foreground">No strategy yet. Take a quiz to generate your Career Strategy.</p>
@@ -72,6 +104,7 @@ export function StrategyCircles({ checkpoints, positions, intro }: { checkpoints
         {items.map((cp, i) => {
           const selected = openSet.has(i)
           const year = cp.year
+          const shouldPulse2025 = year === 2025 && !selected && !dismissedPulseYears.has(2025)
           const hasAsset = year >= 2025 && year <= 2030
           const iconSrc = hasAsset ? `/buttons/${year}-${selected ? 'up' : 'flat'}.png` : null
           const norm = Math.max(-1, Math.min(1, positions?.[i] ?? defaultNormalized(i)))
@@ -89,9 +122,18 @@ export function StrategyCircles({ checkpoints, positions, intro }: { checkpoints
                   else next.add(i)
                   return next
                 })
+                // Mark this year as opened to stop pulsing in the future
+                setDismissedPulseYears(prev => {
+                  if (prev.has(year)) return prev
+                  const next = new Set(prev)
+                  next.add(year)
+                  return next
+                })
               }}
               whileHover={{ scale: 1.15, transition: { duration: 0.12, ease: [0.2, 0.8, 0.2, 1] } }}
               whileTap={{ scale: 0.96 }}
+              animate={shouldPulse2025 ? { scale: [1, 1.08, 1] } : undefined}
+              transition={shouldPulse2025 ? { duration: 1.6, repeat: Infinity, ease: 'easeInOut' } : undefined}
               className={cn(
                 "relative z-10 grid place-items-center transform-gpu will-change-transform focus:outline-none",
                 iconSrc ? "p-0" : "w-24 h-24"
@@ -143,33 +185,41 @@ export function StrategyCircles({ checkpoints, positions, intro }: { checkpoints
                             </p>
                           ) : null}
                           {Array.isArray(cp.items) && cp.items.length > 0 ? (
-                            <ul className="mt-3 text-left inline-block space-y-2">
+                            <ul className="mt-3 text-left space-y-2">
                               {cp.items.map((item, idx) => (
                                 <li key={idx} className="flex items-start gap-2">
                                   <Check className="h-5 w-5 text-accent mt-0.5 shrink-0" aria-hidden="true" />
-                                  <span className="text-base leading-relaxed text-foreground/90">{item}</span>
+                                  <span className="flex-1 block text-base leading-relaxed text-foreground/90 text-justify">{item}</span>
                                 </li>
                               ))}
                             </ul>
                           ) : null}
                           <div className="mt-4">
-                            <Button
-                              variant="jonquil"
-                              className="rounded-full px-5 font-bold text-black text-base"
-                              onClick={() => {
-                                play('plop', 0.45)
-                                // Prepopulate with up to 2 items for this year
-                                const initial = Array.isArray(cp.items) && cp.items.length > 0
-                                  ? cp.items.slice(0, 2)
-                                  : (cp.title ? [cp.title] : [""])
-                                setModalGoals(initial)
-                                setModalYear(cp.year)
-                                setModalOpen(true)
-                              }}
-                              aria-label={`Add ${cp.year} items to goals`}
+                            <motion.div
+                              initial={{ scale: 1 }}
+                              animate={reduceMotion ? { scale: 1 } : { scale: [1, 1.04, 1] }}
+                              transition={reduceMotion ? { duration: 0 } : { duration: 1.8, repeat: Infinity, ease: 'easeInOut' }}
+                              whileHover={{ scale: reduceMotion ? 1.03 : 1.06 }}
+                              whileTap={{ scale: 0.98 }}
                             >
-                              Add to Goals
-                            </Button>
+                              <Button
+                                variant="jonquil"
+                                className="rounded-full px-5 font-bold text-black text-base"
+                                onClick={() => {
+                                  play('plop', 0.45)
+                                  // Prepopulate with all items for this year
+                                  const initial = Array.isArray(cp.items) && cp.items.length > 0
+                                    ? cp.items
+                                    : (cp.title ? [cp.title] : [""])
+                                  setModalGoals(initial)
+                                  setModalYear(cp.year)
+                                  setModalOpen(true)
+                                }}
+                                aria-label={`Add ${cp.year} items to goals`}
+                              >
+                                Add to Goals
+                              </Button>
+                            </motion.div>
                           </div>
                         </div>
                       </motion.div>

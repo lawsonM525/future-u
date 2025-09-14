@@ -159,7 +159,7 @@ export default function QuizPage() {
           fetch('/api/generate-timeline', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ reportId: data.reportId })
+            body: JSON.stringify({ reportId: data.reportId, answers: finalAnswers, quizType })
           }).catch((e) => console.error('Timeline generation request failed:', e))
         } catch (e) {
           console.error('Error initiating timeline generation:', e)
@@ -226,7 +226,7 @@ export default function QuizPage() {
         fetch('/api/generate-timeline', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ reportId: data.reportId })
+          body: JSON.stringify({ reportId: data.reportId, answers: finalAnswers, quizType })
         }).catch((e) => console.error('Timeline generation request failed:', e))
       } catch (e) {
         console.error('Error initiating timeline generation:', e)

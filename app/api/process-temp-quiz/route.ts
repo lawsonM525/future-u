@@ -68,6 +68,27 @@ export async function POST(request: Request) {
     await quizTemp.save()
 
     const responseData = await processResponse.json()
+
+    // Fire-and-forget timeline generation to enrich dashboard ASAP
+    try {
+      await fetch(new URL('/api/generate-timeline', request.url).toString(), {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Cookie: request.headers.get('cookie') || ''
+        },
+        body: JSON.stringify({
+          reportId: responseData.reportId,
+          answers: quizTemp.answers,
+          quizType: quizTemp.quizType
+        })
+      }).catch((e) => {
+        console.error('Failed to trigger timeline generation from process-temp-quiz:', e)
+      })
+    } catch (e) {
+      console.error('Error initiating timeline generation (temp):', e)
+    }
+
     return NextResponse.json(responseData)
   } catch (error) {
     console.error('Error processing temporary quiz:', error)

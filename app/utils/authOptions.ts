@@ -4,6 +4,7 @@ import NextAuth from "next-auth"
 import GoogleProvider from "next-auth/providers/google"
 import { connect } from "@/lib/mongodb"
 import { User } from "@/models/User"
+import type { IUser } from "@/models/User"
 
 export const { handlers: authHandlers, auth } = NextAuth({
   providers: [
@@ -56,7 +57,16 @@ export const { handlers: authHandlers, auth } = NextAuth({
         // Get user from database and add any custom fields to session
         const user = await User.findOne({ email: session.user?.email })
         if (user && session.user) {
-          session.user.id = user._id.toString()
+          const u = user as IUser
+          session.user.id = u._id.toString()
+          // Attach subscription fields for client-side use
+          // Default to 'free' when not present (older records)
+          // Use nulls for interval and period end when not premium
+          session.user.subscriptionTier = u.subscriptionTier ?? 'free'
+          session.user.subscriptionInterval = typeof u.subscriptionInterval === 'undefined' ? null : u.subscriptionInterval
+          session.user.subscriptionCurrentPeriodEnd = u.subscriptionCurrentPeriodEnd
+            ? new Date(u.subscriptionCurrentPeriodEnd).toISOString()
+            : null
         }
       } catch (error) {
         console.error('Session callback error:', error)

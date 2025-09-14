@@ -6,6 +6,10 @@ export interface IUser extends Document {
   email: string;
   name: string;
   avatarUrl?: string;
+  // Subscription fields
+  subscriptionTier: 'free' | 'premium';
+  subscriptionInterval?: 'monthly' | 'annual' | null;
+  subscriptionCurrentPeriodEnd?: Date | null;
   createdAt: Date;
 }
 
@@ -30,6 +34,21 @@ const userSchema = new mongoose.Schema({
     required: [true, 'Name is required']
   },
   avatarUrl: String,
+  subscriptionTier: {
+    type: String,
+    enum: ['free', 'premium'],
+    default: 'free',
+    required: true,
+  },
+  subscriptionInterval: {
+    type: String,
+    enum: ['monthly', 'annual'],
+    default: null,
+  },
+  subscriptionCurrentPeriodEnd: {
+    type: Date,
+    default: null,
+  },
   createdAt: {
     type: Date,
     default: Date.now

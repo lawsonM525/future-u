@@ -1,8 +1,10 @@
 "use client"
 
-import React from "react"
+import React, { useEffect, useState } from "react"
 import Image from "next/image"
 import { Compass } from "lucide-react"
+import { useSession } from "next-auth/react"
+import AvatarCreator from "@/components/AvatarCreator"
 import { cn } from "@/lib/utils"
 import { NAV, DashboardSection } from "./nav"
 
@@ -15,6 +17,21 @@ export function MobileBottomNav({
   onChange: (key: DashboardSection) => void
   className?: string
 }) {
+  const { data: session } = useSession()
+  const [avatarPreferences, setAvatarPreferences] = useState<Record<string, unknown>>({})
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return
+    const saved = localStorage.getItem('avatarPreferences')
+    if (saved) {
+      try {
+        setAvatarPreferences(JSON.parse(saved))
+      } catch {
+        // ignore parse errors
+      }
+    }
+  }, [])
+
   return (
     <nav
       className={cn(
@@ -25,15 +42,15 @@ export function MobileBottomNav({
       role="navigation"
       aria-label="Dashboard navigation"
     >
-      <ul className="grid grid-cols-7 gap-1">
+      <ul className="grid grid-cols-6 gap-1">
         {NAV.map(({ key, label, iconSrc }) => {
           const selected = key === active
           const selectedClasses =
             key === "strategy" || key === "resources" || key === "feedback"
               ? "bg-jonquil/15 border border-jonquil text-jonquil"
-              : key === "friends" || key === "quests"
+              : key === "quests"
               ? "bg-plum-web/15 border border-plum-web text-plum-web"
-              : key === "goals" || key === "coach"
+              : key === "goals" || key === "account"
               ? "bg-fluorescent-cyan/15 border border-fluorescent-cyan text-fluorescent-cyan"
               : "bg-jonquil/15 border border-jonquil text-jonquil"
           const unselectedClasses = "bg-black text-muted-foreground hover:bg-black/80"
@@ -74,7 +91,14 @@ export function MobileBottomNav({
                   )}
                   onClick={() => onChange(key)}
                 >
-                  {iconSrc ? (
+                  {key === 'account' ? (
+                    <AvatarCreator
+                      seed={session?.user?.email || ''}
+                      size={22}
+                      className={cn("rounded-full", selected ? "ring-2 ring-fluorescent-cyan/60" : "")}
+                      {...avatarPreferences}
+                    />
+                  ) : iconSrc ? (
                     <Image
                       src={iconSrc}
                       alt={`${label} icon`}

@@ -77,6 +77,17 @@ export async function GET(request: Request) {
     function normalizeTitle(s: string) {
       return s.toLowerCase().replace(/\s+/g, ' ').trim()
     }
+    function tokenize(s: string): string[] {
+      return s.toLowerCase().replace(/[^a-z0-9\s]/g, ' ').split(/\s+/).filter(Boolean)
+    }
+    function jaccard(a: string[], b: string[]): number {
+      const aSet = new Set(a)
+      const bSet = new Set(b)
+      let inter = 0
+      for (const t of aSet) if (bSet.has(t)) inter++
+      const union = aSet.size + bSet.size - inter
+      return union === 0 ? 0 : inter / union
+    }
 
     // Helper to fetch filtered quests
     const baseFilter: FilterQuery<QuestDocument> = { userId: session.user.id }
@@ -143,12 +154,40 @@ export async function GET(request: Request) {
       const anytime = goals.filter(g => typeof g.checkpointYear !== 'number')
       const top = [...withYear, ...anytime].slice(0, 3)
 
-      const goalsContext = top.map(g => `- id: ${g._id} | title: ${g.title}${typeof g.checkpointYear === 'number' ? ` | year: ${g.checkpointYear}` : ''}`).join('\n')
+      // Build per-goal context with recent completed and current active quests
       const existingTitlesList = Array.from(existingNormSet).slice(0, 50).join(', ')
+      const goalContexts: string[] = []
+      // Collect similarity baselines
+      const existingTitleTokens: string[][] = []
+      for (const norm of existingNormSet) existingTitleTokens.push(tokenize(norm))
 
-      const system = `You are a focused coaching assistant. Create exactly one actionable, measurable quest for each provided goal (so exactly ${top.length} quests in total). Return ONLY valid JSON.`
+      for (const g of top) {
+        const gid = String(g._id)
+        // Recent completed for this goal (up to 3)
+        const recentCompleted = await Quest.find({ userId: session.user.id, goalId: gid, $expr: { $gte: ["$progress", "$quantity"] } })
+          .select('title')
+          .sort({ completedAt: -1 })
+          .limit(3)
+          .lean()
+        const completedList = (recentCompleted || []).map(q => `• ${String(q.title || '')}`).join('\n')
+        // Current active for this goal (up to 3)
+        const activeNow = await Quest.find({ userId: session.user.id, goalId: gid, $expr: { $lt: ["$progress", "$quantity"] } })
+          .select('title')
+          .sort({ _id: -1 })
+          .limit(3)
+          .lean()
+        const activeList = (activeNow || []).map(q => `• ${String(q.title || '')}`).join('\n')
+        goalContexts.push([
+          `- id: ${g._id} | title: ${g.title}${typeof g.checkpointYear === 'number' ? ` | year: ${g.checkpointYear}` : ''}`,
+          completedList ? `  recentCompleted:\n${completedList}` : '  recentCompleted: (none)',
+          activeList ? `  activeNow:\n${activeList}` : '  activeNow: (none)'
+        ].join('\n'))
+      }
+      const goalsContext = goalContexts.join('\n')
 
-      const user = `Goals (closest first):\n${goalsContext}\n\nExisting quest titles to avoid (already created or completed):\n${existingTitlesList || '(none)'}\n\nRules for each quest:\n- title: imperative, max 7 words, specific.\n- quantity: positive integer representing how many discrete actions to perform (e.g., send 3 emails => quantity 3). If the title implies a number, ensure quantity matches that number.\n- explanation: 1–2 short sentences explaining how this quest helps achieve the goal.\n- The quest must be doable within a day.\n- IMPORTANT: Do not repeat, paraphrase, or closely mirror any title in the existing list; all new quest titles must be distinct.\n- IMPORTANT: Ensure each quest title is distinct across the list; if a similar action applies to more than one goal, vary the wording or focus.\n\nReturn JSON with exact shape:\n{\n  \"quests\": [\n    { \"goalId\": string, \"goalTitle\": string, \"goalYear\": number|null, \"title\": string, \"quantity\": number, \"explanation\": string },\n    { \"goalId\": string, \"goalTitle\": string, \"goalYear\": number|null, \"title\": string, \"quantity\": number, \"explanation\": string },\n    { \"goalId\": string, \"goalTitle\": string, \"goalYear\": number|null, \"title\": string, \"quantity\": number, \"explanation\": string }\n  ]\n}\nEnsure exactly ${top.length} items. Do not include any text outside the JSON.`
+      const system = `You are a focused coaching assistant. Create exactly one actionable, measurable NEXT-STEP quest for each provided goal (so exactly ${top.length} quests in total). Use the provided context about recentCompleted and activeNow to choose the next logical action that builds on what the user has already done. Return ONLY valid JSON.`
+
+      const user = `Goals (closest first), each with context. For each goal, propose the NEXT logical step building upon recentCompleted and not duplicating activeNow.\n${goalsContext}\n\nExisting quest titles to avoid (already created or completed):\n${existingTitlesList || '(none)'}\n\nRules for each quest:\n- title: imperative, max 7 words, specific.\n- quantity: positive integer representing how many discrete actions to perform (e.g., send 3 emails => quantity 3). If the title implies a number, ensure quantity matches that number.\n- explanation: 1–2 short sentences explaining how this quest helps achieve the goal, referencing why it is the next step after recentCompleted (if any).\n- The quest must be doable within a day.\n- IMPORTANT: Do not repeat, paraphrase, or closely mirror any title in the existing list or in activeNow; all new quest titles must be distinct and represent progress.\n- IMPORTANT: Ensure each quest title is distinct across the list; if a similar action applies to more than one goal, vary the wording or focus.\n\nReturn JSON with exact shape:\n{\n  "quests": [\n    { "goalId": string, "goalTitle": string, "goalYear": number|null, "title": string, "quantity": number, "explanation": string },\n    { "goalId": string, "goalTitle": string, "goalYear": number|null, "title": string, "quantity": number, "explanation": string },\n    { "goalId": string, "goalTitle": string, "goalYear": number|null, "title": string, "quantity": number, "explanation": string }\n  ]\n}\nEnsure exactly ${top.length} items. Do not include any text outside the JSON.`
 
       const completion = await openai.chat.completions.create({
         model: 'gpt-4o',
@@ -172,7 +211,7 @@ export async function GET(request: Request) {
       const obj = (parsedUnknown && typeof parsedUnknown === 'object') ? parsedUnknown as Record<string, unknown> : {}
       const arr: GeneratedQuest[] = Array.isArray(obj.quests) ? (obj.quests as GeneratedQuest[]) : []
 
-      // Build documents and enforce uniqueness by normalized title
+      // Build documents and enforce uniqueness by normalized title and token similarity to avoid near-duplicates
       const byTitle = new Map<string, NewQuestDoc>()
       const filledIdx = new Set<number>()
       for (let i = 0; i < Math.min(top.length, arr.length); i++) {
@@ -184,6 +223,13 @@ export async function GET(request: Request) {
           // Skip items whose normalized title already exists for this user
           continue
         }
+        // Token similarity check against existing titles
+        const tok = tokenize(norm)
+        let tooSimilar = false
+        for (const ex of existingTitleTokens) {
+          if (jaccard(tok, ex) >= 0.6) { tooSimilar = true; break }
+        }
+        if (tooSimilar) continue
         const quantityRaw = Number(q.quantity ?? 1)
         let quantity = Number.isFinite(quantityRaw) && quantityRaw > 0 ? Math.floor(quantityRaw) : 1
         const safeTitle = wordCount(titleRaw) > 7 ? titleRaw.split(/\s+/).slice(0, 7).join(' ') : titleRaw
@@ -201,6 +247,7 @@ export async function GET(request: Request) {
             explanation,
           })
           filledIdx.add(i)
+          existingTitleTokens.push(tok)
         }
       }
 
@@ -208,14 +255,35 @@ export async function GET(request: Request) {
       if (filledIdx.size < top.length) {
         const remainingGoals = top.filter((_, idx) => !filledIdx.has(idx))
         if (remainingGoals.length > 0) {
-          const remainingContext = remainingGoals
-            .map(g => `- id: ${g._id} | title: ${g.title}${typeof g.checkpointYear === 'number' ? ` | year: ${g.checkpointYear}` : ''}`)
-            .join('\n')
+          const remainingContexts: string[] = []
+          for (const g of remainingGoals) {
+            const gid = String(g._id)
+            // Recent completed for this goal (up to 3)
+            const recentCompleted = await Quest.find({ userId: session.user.id, goalId: gid, $expr: { $gte: ["$progress", "$quantity"] } })
+              .select('title')
+              .sort({ completedAt: -1 })
+              .limit(3)
+              .lean()
+            const completedList = (recentCompleted || []).map(q => `• ${String(q.title || '')}`).join('\n')
+            // Current active for this goal (up to 3)
+            const activeNow = await Quest.find({ userId: session.user.id, goalId: gid, $expr: { $lt: ["$progress", "$quantity"] } })
+              .select('title')
+              .sort({ _id: -1 })
+              .limit(3)
+              .lean()
+            const activeList = (activeNow || []).map(q => `• ${String(q.title || '')}`).join('\n')
+            remainingContexts.push([
+              `- id: ${g._id} | title: ${g.title}${typeof g.checkpointYear === 'number' ? ` | year: ${g.checkpointYear}` : ''}`,
+              completedList ? `  recentCompleted:\n${completedList}` : '  recentCompleted: (none)',
+              activeList ? `  activeNow:\n${activeList}` : '  activeNow: (none)'
+            ].join('\n'))
+          }
+          const remainingContext = remainingContexts.join('\n')
           const avoidTitles = Array.from(new Set([
             ...existingNormSet,
             ...Array.from(byTitle.keys()),
           ])).join(', ')
-          const user2 = `Goals (closest first):\n${remainingContext}\n\nExisting quest titles to avoid (already created or completed):\n${avoidTitles || '(none)'}\n\nRules for each quest:\n- title: imperative, max 7 words, specific.\n- quantity: positive integer representing how many discrete actions to perform.\n- explanation: 1–2 short sentences explaining how this quest helps achieve the goal.\n- The quest must be doable within a day.\n- IMPORTANT: Do not repeat, paraphrase, or closely mirror any title in the avoid list; all new quest titles must be distinct.\n- IMPORTANT: Ensure each quest title is distinct across the list.\n\nReturn JSON with exact shape:\n{\n  \"quests\": [\n    { \"goalId\": string, \"goalTitle\": string, \"goalYear\": number|null, \"title\": string, \"quantity\": number, \"explanation\": string }\n  ]\n}\nReturn exactly ${remainingGoals.length} items in the array. Do not include any text outside the JSON.`
+          const user2 = `Goals (closest first), each with context. For each goal, propose the NEXT logical step building upon recentCompleted and not duplicating activeNow.\n${remainingContext}\n\nExisting quest titles to avoid (already created or completed):\n${avoidTitles || '(none)'}\n\nRules for each quest:\n- title: imperative, max 7 words, specific.\n- quantity: positive integer representing how many discrete actions to perform.\n- explanation: 1–2 short sentences explaining why this is the logical next step toward the goal.\n- The quest must be doable within a day.\n- IMPORTANT: Do not repeat, paraphrase, or closely mirror any title in the avoid list or in activeNow; all new quest titles must be distinct and represent progress.\n- IMPORTANT: Ensure each quest title is distinct across the list.\n\nReturn JSON with exact shape:\n{\n  "quests": [\n    { "goalId": string, "goalTitle": string, "goalYear": number|null, "title": string, "quantity": number, "explanation": string }\n  ]\n}\nReturn exactly ${remainingGoals.length} items in the array. Do not include any text outside the JSON.`
 
           const completion2 = await openai.chat.completions.create({
             model: 'gpt-4o',
@@ -245,6 +313,12 @@ export async function GET(request: Request) {
             const titleRaw = String(q.title || '').trim()
             const norm = normalizeTitle(titleRaw)
             if (existingNormSet.has(norm) || byTitle.has(norm)) continue
+            const tok = tokenize(norm)
+            let tooSimilar = false
+            for (const ex of existingTitleTokens) {
+              if (jaccard(tok, ex) >= 0.6) { tooSimilar = true; break }
+            }
+            if (tooSimilar) continue
             const quantityRaw = Number(q.quantity ?? 1)
             let quantity = Number.isFinite(quantityRaw) && quantityRaw > 0 ? Math.floor(quantityRaw) : 1
             const safeTitle = wordCount(titleRaw) > 7 ? titleRaw.split(/\s+/).slice(0, 7).join(' ') : titleRaw
@@ -260,6 +334,7 @@ export async function GET(request: Request) {
               progress: 0,
               explanation,
             })
+            existingTitleTokens.push(tok)
           }
         }
       }

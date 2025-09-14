@@ -38,7 +38,13 @@ export async function POST(request: Request) {
       )
     }
 
-    const { reportId } = await request.json().catch(() => ({ })) as { reportId?: string }
+    const body = await request.json().catch(() => ({ })) as unknown
+    const { reportId, answers, quizType, userProfile } = (body || {}) as {
+      reportId?: string
+      answers?: Record<string | number, string>
+      quizType?: string
+      userProfile?: string
+    }
 
     // Validate env
     if (!process.env.OPENAI_API_KEY) {
@@ -68,7 +74,20 @@ export async function POST(request: Request) {
 
     const reportContent: string = reportDoc.content
 
+    // Build a user profile string from quiz answers for added specificity
+    let computedUserProfile: string | undefined
+    if (answers && typeof answers === 'object' && Object.keys(answers).length > 0) {
+      computedUserProfile = Object.entries(answers)
+        .map(([q, a]) => `Q${q}: ${String(a)}`)
+        .join('\n')
+    } else if (typeof userProfile === 'string' && userProfile.trim()) {
+      computedUserProfile = userProfile.trim()
+    } else if (typeof reportDoc.userProfile === 'string' && reportDoc.userProfile.trim()) {
+      computedUserProfile = reportDoc.userProfile
+    }
+
     const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY })
+    const displayQuizType = (quizType || reportDoc.quizType) ?? undefined
 
     // Timeout controller
     const timeoutMs = 120000
@@ -82,16 +101,31 @@ export async function POST(request: Request) {
         messages: [
           {
             role: 'system',
-            content: `You are a career roadmap planner. Given a user's career strategy report, output a realistic, motivating 6-year timeline with concrete achievements. Return ONLY JSON with this exact shape: { "checkpoints": [{ "year": number, "title": string, "description": string, "items": string[] }] }.
+            content: `You are a career roadmap planner. Given a user's career strategy report and their raw quiz answers (user profile), output a realistic, motivating 6-year timeline with concrete achievements. Return ONLY JSON with this exact shape: { "checkpoints": [{ "year": number, "title": string, "description": string, "items": string[] }] }.
 - Use exactly these years: 2025, 2026, 2027, 2028, 2029, 2030. Create one checkpoint object for each year.
 - For each year, write a concise title (max ~8 words).
 - For each year's description, write 1-3 sentences summarizing the year's focus.
 - For each year's items array, include 3-5 milestone-style achievements phrased as accomplished outcomes (e.g., "Published your first technical book", "Spoke at two major tech conferences", "Launched v1 of your startup and reached 1,000 users"). Avoid generic to-do phrasing. Be specific and impactful.
-- Do not include any extra commentary, markdown, or code fences.`
+- Do not include any extra commentary, markdown, or code fences.
+Language and tone:
+• SHOULD use clear, simple language. 
+• SHOULD be Gen Z-friendly and informative. 
+• SHOULD use short, impactful sentences. 
+• SHOULD use active voice; avoid passive voice. 
+• SHOULD focus on practical, actionable insights. 
+• SHOULD use data and examples to support claims when possible. 
+• SHOULD use “you” and “your” to directly address the reader. 
+• AVOID using em dashes (—) anywhere in your response. Use only commas, periods, or other standard punctuation. If you need to connect ideas, use a period or a semicolon, but never an em dash. • AVOID constructions like "...not just this, but also this". • AVOID metaphors and clichés. • AVOID generalizations. • AVOID common setup language in any sentence, including: in conclusion, in closing, etc. 
+• AVOID output warnings or notes, just the output requested. 
+• AVOID unnecessary adjectives and adverbs.  
+• AVOID semicolons. 
+• AVOID asterisks. 
+• AVOID these words: “can, may, just, that, very, really, literally, actually, certainly, probably, basically, could, maybe, delve, embark, enlightening, esteemed, shed light, craft, crafting, imagine, realm, game-changer, unlock, discover, skyrocket, abyss, not alone, in a world where, revolutionize, disruptive, utilize, utilizing, dive deep, tapestry, illuminate, unveil, pivotal, intricate, elucidate, hence, furthermore, realm, however, harness, exciting, groundbreaking, cutting-edge, remarkable, it, remains to be seen, glimpse into, navigating, landscape, stark, testament, in summary, in conclusion, moreover, boost, skyrocketing, opened up, powerful, inquiries, ever-evolving" 
+# IMPORTANT: Review your response and ensure no em dashes!`
           },
           {
             role: 'user',
-            content: `Career Strategy Report (source):\n\n${reportContent}`
+            content: `Career Strategy Report (source):\n\n${reportContent}\n\nQuiz Type: ${displayQuizType ?? '(unspecified)'}\n\nRaw Quiz Answers (User Profile):\n${computedUserProfile ?? '(none provided)'}`
           }
         ],
         temperature: 0.5,

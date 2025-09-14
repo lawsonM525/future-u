@@ -156,9 +156,9 @@ export async function POST(request: Request) {
         messages: [
           {
             role: "system",
-            content: `You are a career guidance expert. Analyze the user's quiz responses and the provided relevant career insights data and return ONLY valid JSON with this exact shape:
+            content: `You are a career guidance expert. Analyze the user's quiz responses and the provided relevant career insights data. Your goal is to help them understand what their dream life looks like and how they can obtain it. Return ONLY valid JSON with this exact shape:
 {
-  "summary": string, // 1-2 sentences, concise, plain text (no markdown)
+  "summary": string, // 1-2 sentences, concise, plain text (no markdown). The first sentence should tell the user who they are right now. The second sentence should tell the user who they will be in five years.
   "archetypeTag": string, // exactly one of: ${archetypeOptions.join(', ')}
   "report_md": string // markdown containing ONLY the following H2 sections in this order: \n## CURRENT STRENGTHS & TALENTS\n\n## STRATEGIES FOR GROWTH\n
 }
@@ -174,6 +174,21 @@ Formatting rules:
 - Avoid markdown characters other than headings and bullet hyphens in the strategies list.
 - No hashtags, semicolons, or em dashes. Use commas or periods.
 - Avoid filler words and clichés. Be specific.
+
+Language and tone:
+• SHOULD use clear, simple language. 
+• SHOULD be spartan and informative. 
+• SHOULD use short, impactful sentences. 
+• SHOULD use active voice; avoid passive voice. 
+• SHOULD focus on practical, actionable insights. 
+• SHOULD use data and examples to support claims when possible. 
+• SHOULD use “you” and “your” to directly address the reader. 
+• AVOID using em dashes (—) anywhere in your response. Use only commas, periods, or other standard punctuation. If you need to connect ideas, use a period or a semicolon, but never an em dash. • AVOID constructions like "...not just this, but also this". • AVOID metaphors and clichés. • AVOID generalizations. • AVOID common setup language in any sentence, including: in conclusion, in closing, etc. 
+• AVOID output warnings or notes, just the output requested. 
+• AVOID unnecessary adjectives and adverbs.  
+• AVOID semicolons. 
+• AVOID asterisks. 
+• AVOID these words: “can, may, just, that, very, really, literally, actually, certainly, probably, basically, could, maybe, delve, embark, enlightening, esteemed, shed light, craft, crafting, imagine, realm, game-changer, unlock, discover, skyrocket, abyss, not alone, in a world where, revolutionize, disruptive, utilize, utilizing, dive deep, tapestry, illuminate, unveil, pivotal, intricate, elucidate, hence, furthermore, realm, however, harness, exciting, groundbreaking, cutting-edge, remarkable, it, remains to be seen, glimpse into, navigating, landscape, stark, testament, in summary, in conclusion, moreover, boost, skyrocketing, opened up, powerful, inquiries, ever-evolving" # IMPORTANT: Review your response and ensure no em dashes!
 `
           },
           {
@@ -206,6 +221,8 @@ Formatting rules:
         content: reportContent,
         summary,
         archetypeTag,
+        quizType,
+        userProfile,
         userId: session.user.id,
         careers: queryResponse.matches
           .filter((match): match is typeof match & { score: number } => 
@@ -310,7 +327,12 @@ Formatting rules:
         reportContent,
         summary,
         archetypeTag,
-        relevantCareers: report.careers.map((career: { metadata: { text?: string } }) => career.metadata?.text).filter(Boolean).join('\n')
+        quizType,
+        userProfile,
+        relevantCareers: report.careers
+          .map((career: { metadata: { text?: string } }) => career.metadata?.text)
+          .filter(Boolean)
+          .join('\n')
       })
     } catch (err: unknown) {
       clearTimeout(timeoutId)

@@ -3,7 +3,8 @@
 import * as React from 'react'
 import { GlowCard } from '@/components/ui/GlowCard'
 import { Button } from '@/components/ui/button'
-import { Plus, Minus, ExternalLink } from 'lucide-react'
+import { Plus, Minus, ExternalLink, RotateCcw, Trash2 } from 'lucide-react'
+import { useSound } from '@/hooks/useSound'
 
 export type QuestItem = {
   _id: string
@@ -41,6 +42,8 @@ export default function QuestsTab() {
   const [resources, setResources] = React.useState<ResourceItem[]>([])
   const [activeQuest, setActiveQuest] = React.useState<QuestItem | null>(null)
 
+  const { play } = useSound()
+
   const activeLimit = 10
   const completedPageSize = 20
 
@@ -71,6 +74,64 @@ export default function QuestsTab() {
       setLoadingActive(false)
     }
   }, [])
+
+  const reopenQuest = async (q: QuestItem) => {
+    try {
+      // Set progress to quantity - 1 (at least 0) to make it active again
+      const target = Math.max(0, (q.quantity ?? 1) - 1)
+      const res = await fetch(`/api/quests/${q._id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ progress: target })
+      })
+      const data = await res.json()
+      if (!res.ok) throw new Error(data?.error || 'Failed to reopen quest')
+
+      const updated: QuestItem = {
+        _id: String(data.quest._id || q._id),
+        title: String(data.quest.title || q.title),
+        quantity: Number(data.quest.quantity || q.quantity || 1),
+        progress: Number(data.quest.progress || target),
+        goalTitle: String(data.quest.goalTitle || q.goalTitle || ''),
+        goalYear: typeof data.quest.goalYear === 'number' ? data.quest.goalYear : (q.goalYear ?? null),
+        explanation: typeof data.quest.explanation === 'string' ? data.quest.explanation : q.explanation,
+        completedAt: null,
+      }
+
+      // Move from completed to active list
+      setCompleted(prev => prev.filter(item => item._id !== q._id))
+      setActive(prev => [updated, ...prev])
+
+      // Notify others (DailyQuests) to refresh
+      if (typeof window !== 'undefined') {
+        window.dispatchEvent(new CustomEvent('quests:updated', { detail: { questId: q._id, action: 'reopened' } }))
+      }
+    } catch (e) {
+      setCompletedError(e instanceof Error ? e.message : 'Failed to reopen quest')
+    }
+  }
+
+  const deleteQuest = async (q: QuestItem) => {
+    try {
+      if (typeof window !== 'undefined') {
+        const ok = window.confirm('Delete this quest permanently? This cannot be undone.')
+        if (!ok) return
+      }
+      const res = await fetch(`/api/quests/${q._id}`, { method: 'DELETE' })
+      const data = await res.json().catch(() => ({}))
+      if (!res.ok) throw new Error(data?.error || 'Failed to delete quest')
+
+      // Remove from both lists just in case
+      setCompleted(prev => prev.filter(item => item._id !== q._id))
+      setActive(prev => prev.filter(item => item._id !== q._id))
+
+      if (typeof window !== 'undefined') {
+        window.dispatchEvent(new CustomEvent('quests:updated', { detail: { questId: q._id, action: 'deleted' } }))
+      }
+    } catch (e) {
+      setCompletedError(e instanceof Error ? e.message : 'Failed to delete quest')
+    }
+  }
 
   const loadCompleted = React.useCallback(async () => {
     if (!hasMore || loadingCompleted) return
@@ -131,6 +192,8 @@ export default function QuestsTab() {
   }, [loadCompleted])
 
   async function patchProgress(id: string, delta: number) {
+    // Capture previous state to detect completion and play sounds
+    const prevQuest = active.find(q => q._id === id)
     // Optimistic update
     setActive(prev => prev.map(q => q._id === id ? { ...q, progress: Math.max(0, Math.min(q.quantity, q.progress + delta)) } : q))
     try {
@@ -154,6 +217,18 @@ export default function QuestsTab() {
         }
         return next
       })
+
+      // Notify other components (e.g., DailyQuests) to refresh
+      if (typeof window !== 'undefined') {
+        window.dispatchEvent(new CustomEvent('quests:updated', { detail: { questId: id, delta, progress: Number(data.quest.progress || 0) } }))
+      }
+
+      // Play sound on increment and on completion
+      const newProgress = Number(data.quest.progress || 0)
+      const completedNow = !!(prevQuest && prevQuest.progress < prevQuest.quantity && newProgress >= prevQuest.quantity)
+      if (delta > 0 || completedNow) {
+        try { play('ding') } catch { /* noop */ }
+      }
     } catch {
       // Reload on error to stay consistent
       loadActive()
@@ -182,7 +257,9 @@ export default function QuestsTab() {
   return (
     <div className="space-y-6">
       <div className="px-1">
-        <div className="text-xl font-semibold">Quests</div>
+        <h1 className="mt-12 text-2xl md:text-3xl font-bold font-space-grotesk tracking-wide uppercase text-center">
+          YOUR QUESTS
+        </h1>
       </div>
       {loadingActive ? (
         <GlowCard className="p-8 text-center text-sm text-muted-foreground">Loading quests…</GlowCard>
@@ -223,10 +300,10 @@ export default function QuestsTab() {
                   <div className="h-2.5 w-full rounded-full bg-white/10 overflow-hidden">
                     <div className="h-full bg-jonquil" style={{ width: pct + '%'}} />
                   </div>
-                  <div>
-                    <Button size="sm" variant="ghost" onClick={() => openResources(q)}>
+                  <div className="flex justify-center">
+                    <Button size="sm" variant="jonquil" onClick={() => openResources(q)}>
                       Find resources for this quest
-                      <ExternalLink className="w-4 h-4" />
+                      <ExternalLink className="w-4 h-4 ml-2" />
                     </Button>
                   </div>
                 </div>
@@ -241,12 +318,28 @@ export default function QuestsTab() {
         <div className="mt-4 space-y-2">
           {completed.map(q => (
             <div key={q._id} className="rounded-md p-3 bg-white/5">
-              <div className="flex items-center justify-between">
-                <div className="min-w-0">
+              <div className="flex items-center gap-3">
+                <div className="min-w-0 flex-1">
                   <div className="font-medium truncate">{q.title}</div>
                   <div className="text-xs text-muted-foreground truncate">{q.goalTitle}</div>
                 </div>
-                <div className="text-xs text-muted-foreground">{q.quantity} / {q.quantity}</div>
+                <div className="shrink-0 flex items-center gap-2">
+                  <div className="text-xs text-muted-foreground">{q.quantity} / {q.quantity}</div>
+                  <Button size="sm" variant="outline" aria-label="Reopen quest" onClick={() => reopenQuest(q)}>
+                    <RotateCcw className="w-4 h-4" />
+                    <span className="sr-only">Reopen</span>
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className="bg-plum-web text-black border-transparent hover:bg-plum-web/90 focus-visible:ring-plum-web/60"
+                    aria-label="Delete quest"
+                    onClick={() => deleteQuest(q)}
+                  >
+                    <Trash2 className="w-4 h-4" />
+                    <span className="sr-only">Delete</span>
+                  </Button>
+                </div>
               </div>
             </div>
           ))}

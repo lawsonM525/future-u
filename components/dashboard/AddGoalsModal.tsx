@@ -23,7 +23,7 @@ export default function AddGoalsModal({ open, defaultYear, initialGoals, onClose
   React.useEffect(() => {
     if (open) {
       const yearStr = typeof defaultYear === 'number' ? String(defaultYear) : ''
-      const seed = (initialGoals && initialGoals.length > 0 ? initialGoals.slice(0, 2) : []).map(g => ({ title: g, year: yearStr }))
+      const seed = (initialGoals && initialGoals.length > 0 ? initialGoals : []).map(g => ({ title: g, year: yearStr }))
       const base = seed.length > 0 ? seed : [{ title: '', year: yearStr }, { title: '', year: yearStr }]
       setRows(base)
       setError(null)

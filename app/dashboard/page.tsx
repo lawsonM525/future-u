@@ -1,8 +1,8 @@
 'use client'
 
-import { useEffect, useState } from 'react'
-import { useRouter } from 'next/navigation'
-import { useSession } from 'next-auth/react'
+import { useEffect, useRef, useState } from 'react'
+import { useRouter, useSearchParams } from 'next/navigation'
+import { useSession, signOut } from 'next-auth/react'
 import { Button } from '@/components/ui/button'
 import { SidebarNav } from '@/components/dashboard/SidebarNav'
 import { StrategyCircles } from '@/components/dashboard/StrategyCircles'
@@ -25,6 +25,7 @@ import QuestsTab from '@/components/dashboard/QuestsTab'
 
 export default function DashboardPage() {
   const router = useRouter()
+  const searchParams = useSearchParams()
   const { data: session, status } = useSession({
     required: true,
     onUnauthenticated() {
@@ -35,24 +36,23 @@ export default function DashboardPage() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [timeline, setTimeline] = useState<TimelineCheckpoint[]>([])
+  const [isGeneratingTimeline, setIsGeneratingTimeline] = useState(false)
   const [avatarPreferences, setAvatarPreferences] = useState({})
   const isDesktop = useMediaQuery('(min-width: 768px)')
   const [active, setActive] = useState<DashboardSection>('strategy')
   const [archetypeTag, setArchetypeTag] = useState<string | null>(null)
+  const generationStartedRef = useRef(false)
 
   // Get first name only
   const firstName = session?.user?.name ? session.user.name.split(' ')[0] : ''
 
   useEffect(() => {
-    // Sync tab from URL query param (?tab=quests) on mount
-    if (typeof window !== 'undefined') {
-      const params = new URLSearchParams(window.location.search)
-      const tab = params.get('tab') as DashboardSection | null
-      if (tab && ['strategy','goals','quests','resources','coach','friends','feedback'].includes(tab)) {
-        setActive(tab)
-      }
+    // Sync tab from URL search param (e.g., ?tab=quests) and react to changes
+    const tab = searchParams.get('tab') as DashboardSection | null
+    if (tab && ['strategy','goals','quests','resources','feedback','account'].includes(tab)) {
+      setActive(tab)
     }
-  }, [])
+  }, [searchParams])
 
   useEffect(() => {
     // Load avatar preferences from localStorage
@@ -69,13 +69,77 @@ export default function DashboardPage() {
   }, [])
 
   useEffect(() => {
-    const fetchTimeline = async () => {
+    if (!session?.user) return
+
+    let cancelled = false
+    let pollTimer: ReturnType<typeof setInterval> | null = null
+
+    const loadOrGenerateTimeline = async () => {
       try {
+        setLoading(true)
         const response = await fetch('/api/get-timeline')
         const data = await response.json()
-        
+
+        if (cancelled) return
+
         if (response.ok) {
-          setTimeline(data.checkpoints)
+          const hasTimeline = Array.isArray(data.checkpoints) && data.checkpoints.length > 0
+          if (hasTimeline) {
+            setTimeline(data.checkpoints)
+            setIsGeneratingTimeline(false)
+            return
+          }
+
+          // No timeline yet — trigger generation once, then poll
+          if (!generationStartedRef.current) {
+            generationStartedRef.current = true
+            setIsGeneratingTimeline(true)
+            try {
+              // Fetch the latest report to get its ID
+              const repRes = await fetch('/api/get-report')
+              if (repRes.ok) {
+                const rep = await repRes.json()
+                // Fire & await generation request (do not block further)
+                await fetch('/api/generate-timeline', {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({ reportId: rep.reportId })
+                }).catch(() => { /* ignore */ })
+
+                // Start polling for up to ~90s (36 attempts at 2.5s)
+                let attempts = 0
+                pollTimer = setInterval(async () => {
+                  attempts++
+                  try {
+                    const pr = await fetch('/api/get-timeline')
+                    const pd = await pr.json()
+                    if (cancelled) return
+                    const ready = pr.ok && Array.isArray(pd.checkpoints) && pd.checkpoints.length > 0
+                    if (ready) {
+                      setTimeline(pd.checkpoints)
+                      setIsGeneratingTimeline(false)
+                      if (pollTimer) clearInterval(pollTimer)
+                    } else if (attempts >= 36) {
+                      // Give up after 90s
+                      setIsGeneratingTimeline(false)
+                      if (pollTimer) clearInterval(pollTimer)
+                    }
+                  } catch {
+                    if (attempts >= 36 && pollTimer) {
+                      clearInterval(pollTimer)
+                      setIsGeneratingTimeline(false)
+                    }
+                  }
+                }, 2500)
+              } else {
+                // No report — cannot generate timeline yet
+                setIsGeneratingTimeline(false)
+              }
+            } catch (e) {
+              console.error('Failed to initiate timeline generation from dashboard:', e)
+              setIsGeneratingTimeline(false)
+            }
+          }
         } else {
           setError(data.error)
         }
@@ -87,8 +151,11 @@ export default function DashboardPage() {
       }
     }
 
-    if (session?.user) {
-      fetchTimeline()
+    loadOrGenerateTimeline()
+
+    return () => {
+      cancelled = true
+      if (pollTimer) clearInterval(pollTimer)
     }
   }, [session])
 
@@ -114,6 +181,13 @@ export default function DashboardPage() {
       .split(' ')
       .map(part => part.charAt(0).toUpperCase() + part.slice(1))
       .join(' ')
+
+  // Plan badge styling
+  const planTier: 'free' | 'premium' = session?.user?.subscriptionTier === 'premium' ? 'premium' : 'free'
+  const planLabel = planTier === 'premium' ? 'Premium' : 'BASIC'
+  const planBadgeClasses = planTier === 'premium'
+    ? 'bg-canary/25 text-black shadow-[inset_0_1px_0_rgba(255,255,255,0.35)] shadow-black/20 hover:brightness-105 active:brightness-95'
+    : 'bg-fluorescent-cyan/25 text-fluorescent-cyan shadow-[inset_0_1px_0_rgba(255,255,255,0.35)] shadow-black/20 hover:brightness-110 active:brightness-95'
 
   if (status === 'loading' || loading) {
     return (
@@ -173,7 +247,7 @@ export default function DashboardPage() {
           <motion.div variants={itemVariants} className="space-y-4">
             {active === 'strategy' ? (
               <>
-                <StrategyCircles checkpoints={timeline} intro={<StrategyVisionIntro />} />
+                <StrategyCircles checkpoints={timeline} intro={<StrategyVisionIntro />} isGenerating={isGeneratingTimeline} />
                 <StrategyStructuredReport />
               </>
             ) : active === 'goals' ? (
@@ -182,6 +256,60 @@ export default function DashboardPage() {
               <QuestsTab />
             ) : active === 'resources' ? (
               <ResourcesTab />
+            ) : active === 'account' ? (
+              <GlowCard className="p-10">
+                <div className="max-w-2xl mx-auto">
+                  <div className="text-lg font-semibold mb-2">Account</div>
+                  <p className="text-sm text-muted-foreground mb-6">Manage your profile, sound, and subscription.</p>
+                  <div className="flex items-center justify-between mb-4">
+                    <SoundToggle />
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="rounded-full"
+                      onClick={() => signOut({ callbackUrl: '/' })}
+                    >
+                      Sign Out
+                    </Button>
+                  </div>
+                  <div className="flex flex-col items-center text-center">
+                    <AvatarCreator seed={session?.user?.email || ''} size={140} {...avatarPreferences} />
+                    <div className="mt-3">
+                      <div className="font-semibold flex items-center gap-2">
+                        <span>{session?.user?.name || 'Your Avatar'}</span>
+                        <button
+                          type="button"
+                          title="Manage subscription"
+                          aria-label="Manage subscription"
+                          onClick={() => router.push('/account/subscription')}
+                          className={`text-[10px] py-0.5 px-2 rounded-full transition ${planBadgeClasses}`}
+                        >
+                          {planLabel}
+                        </button>
+                      </div>
+                      <div className="text-xs text-muted-foreground">{archetypeTag ? formatTag(archetypeTag) : 'The Adventurer'}</div>
+                    </div>
+                    <div className="mt-4 flex flex-wrap items-center justify-center gap-2">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="rounded-full px-4"
+                        onClick={() => router.push('/customize-avatar')}
+                      >
+                        Customize Avatar
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="rounded-full px-4"
+                        onClick={() => router.push('/account/subscription')}
+                      >
+                        Manage Subscription
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+              </GlowCard>
             ) : active === 'coach' ? (
               <GlowCard className="p-10">
                 <div className="max-w-2xl mx-auto">
@@ -190,7 +318,7 @@ export default function DashboardPage() {
                     An AI chatbot coach to guide you in putting your strategy into action.
                   </p>
                   <div className="mt-6 space-y-3">
-                    <div className="font-medium">What you&apos;ll be able to do:</div>
+                    <div className="font-medium">Coming soon:</div>
                     <ul className="list-disc pl-5 space-y-2 text-sm text-muted-foreground">
                       <li>Get step-by-step guidance on implementing your career strategy.</li>
                       <li>Review weekly progress with suggestions to do even better.</li>
@@ -229,15 +357,51 @@ export default function DashboardPage() {
           {/* Right: Avatar + Daily Quests */}
           <div className="hidden md:block space-y-4 md:sticky md:top-4">
             <GlowCard className="p-5 flex flex-col items-center text-center">
-              <div className="mb-3 md:mb-4"><SoundToggle /></div>
+              <div className="mb-3 md:mb-4 w-full flex items-center justify-end gap-2">
+                <SoundToggle />
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="rounded-full"
+                  onClick={() => signOut({ callbackUrl: '/' })}
+                >
+                  Sign Out
+                </Button>
+              </div>
               <AvatarCreator seed={session?.user?.email || ''} size={isDesktop ? 180 : 140} {...avatarPreferences} />
               <div className="mt-3 md:mt-4">
-                <div className="font-semibold">{session?.user?.name || 'Your Avatar'}</div>
+                <div className="font-semibold flex items-center gap-2">
+                  <span>{session?.user?.name || 'Your Avatar'}</span>
+                  <button
+                    type="button"
+                    title="Manage subscription"
+                    aria-label="Manage subscription"
+                    onClick={() => router.push('/account/subscription')}
+                    className={`text-[10px] py-0.5 px-2 rounded-full transition ${planBadgeClasses}`}
+                  >
+                    {planLabel}
+                  </button>
+                </div>
                 <div className="text-xs text-muted-foreground">{archetypeTag ? formatTag(archetypeTag) : 'The Adventurer'}</div>
               </div>
-              <Button variant="outline" size="sm" className="mt-3 md:mt-4 rounded-full px-4" onClick={() => router.push('/customize-avatar')}>
-                Customize Avatar
-              </Button>
+              <div className="mt-3 md:mt-4 flex flex-col items-center gap-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="rounded-full px-4"
+                  onClick={() => router.push('/customize-avatar')}
+                >
+                  Customize Avatar
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="rounded-full px-4"
+                  onClick={() => router.push('/quiz-selection')}
+                >
+                  Retake Quiz
+                </Button>
+              </div>
             </GlowCard>
 
             <DailyQuests />
@@ -283,7 +447,7 @@ export default function DashboardPage() {
         {/* <GoalsWidget />  */}
         {/* Mobile bottom nav */}
         <div className="md:hidden">
-          <MobileBottomNav active={active} onChange={setActive} />
+          <MobileBottomNav active={active} onChange={(k) => setActive(k)} />
         </div>
       </div>
     </div>
