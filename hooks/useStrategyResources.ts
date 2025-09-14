@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useCallback, useRef } from 'react'
 
 export type StrategyResourceResult = {
   title: string
@@ -26,34 +26,36 @@ export function useStrategyResources(limit = 2) {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [groups, setGroups] = useState<StrategyResourcesGroup[]>([])
+  const mountedRef = useRef(true)
 
-  useEffect(() => {
-    let mounted = true
-    async function load() {
-      try {
-        setLoading(true)
-        setError(null)
-        const res = await fetch(`/api/strategy-resources?limit=${encodeURIComponent(limit)}`)
-        if (!res.ok) {
-          if (res.status === 401 || res.status === 404) {
-            if (mounted) setGroups([])
-            return
-          }
-          const text = await res.text()
-          throw new Error(text || 'Failed to load resources')
+  const fetchResources = useCallback(async () => {
+    try {
+      setLoading(true)
+      setError(null)
+      const res = await fetch(`/api/strategy-resources?limit=${encodeURIComponent(limit)}`)
+      if (!res.ok) {
+        if (res.status === 401 || res.status === 404) {
+          if (mountedRef.current) setGroups([])
+          return
         }
-        const json = await res.json()
-        const arr = Array.isArray(json.strategies) ? json.strategies : []
-        if (mounted) setGroups(arr)
-      } catch (e) {
-        if (mounted) setError('Could not load resources')
-      } finally {
-        if (mounted) setLoading(false)
+        const text = await res.text()
+        throw new Error(text || 'Failed to load resources')
       }
+      const json = await res.json()
+      const arr = Array.isArray(json.strategies) ? json.strategies : []
+      if (mountedRef.current) setGroups(arr)
+    } catch (e) {
+      if (mountedRef.current) setError('Could not load resources')
+    } finally {
+      if (mountedRef.current) setLoading(false)
     }
-    load()
-    return () => { mounted = false }
   }, [limit])
 
-  return { loading, error, groups }
+  useEffect(() => {
+    mountedRef.current = true
+    fetchResources()
+    return () => { mountedRef.current = false }
+  }, [fetchResources])
+
+  return { loading, error, groups, refetch: fetchResources }
 }

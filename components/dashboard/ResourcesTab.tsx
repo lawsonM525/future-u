@@ -6,6 +6,7 @@ import { useStrategyResources } from '@/hooks/useStrategyResources'
 import { Brain, Camera, Mic, Users, BookOpen, Video, Code2, Sparkles, ExternalLink, ChevronDown } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { useSound } from '@/hooks/useSound'
+import { Button } from '@/components/ui/button'
 
 // Accent palettes for sections
 const accents = [
@@ -85,7 +86,7 @@ function getResultIcon(title?: string, url?: string, snippet?: string) {
 }
 
 export default function ResourcesTab() {
-  const { loading, error, groups } = useStrategyResources(3)
+  const { loading, error, groups, refetch } = useStrategyResources(3)
   const { play } = useSound()
 
   if (loading) {
@@ -108,8 +109,25 @@ export default function ResourcesTab() {
         <h2 className="mt-12 text-2xl md:text-3xl font-bold font-space-grotesk tracking-wide text-white uppercase text-center">
           YOUR RESOURCES
         </h2>
-        <GlowCard className="p-6 text-center">
+        <GlowCard className="p-6 text-center space-y-3">
           <p className="text-sm text-destructive">{error}</p>
+          <div className="flex items-center justify-center">
+            <Button
+              onClick={() => refetch()}
+              disabled={loading}
+              className="bg-accent text-accent-foreground hover:bg-accent/90"
+            >
+              {loading ? (
+                <span className="inline-flex items-center">
+                  <span className="mr-2 inline-block h-4 w-4 rounded-full border-b-2 border-current animate-spin" />
+                  Trying again…
+                </span>
+              ) : (
+                'Try Again'
+              )}
+            </Button>
+          </div>
+          <p className="text-xs text-muted-foreground">Make sure you have an internet connection.</p>
         </GlowCard>
       </div>
     )

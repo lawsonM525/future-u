@@ -74,32 +74,6 @@ export function BrowserWarning(): JSX.Element | null {
       });
   };
 
-  const tryOpenExternally = (): void => {
-    try {
-      const href = window.location.href
-      const isAndroid = /Android/i.test(ua)
-      const isIOS = /iPhone|iPad|iPod/i.test(ua)
-
-      if (isAndroid) {
-        // Attempt Chrome intent to break out of in-app browser
-        const url = new URL(href)
-        const intent = `intent://${url.host}${url.pathname}${url.search}#Intent;scheme=${url.protocol.replace(':','')};package=com.android.chrome;end`
-        // First try intent
-        window.location.href = intent
-        // Fallback: open in new tab
-        setTimeout(() => { try { window.open(href, '_blank') } catch {} }, 400)
-      } else if (isIOS) {
-        // iOS cannot be forced; best effort open new tab and show guidance
-        window.open(href, '_blank')
-      } else {
-        // Desktop or unknown — open in new tab
-        window.open(href, '_blank')
-      }
-    } catch (e) {
-      console.error('Open externally failed:', e)
-    }
-  }
-
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
       <Card className="max-w-md w-full">
