@@ -14,6 +14,7 @@
     "@amplitude/analytics-browser": "^2.12.1",
     "@dicebear/collection": "^9.2.2",
     "@dicebear/core": "^9.2.2",
+    "@elevenlabs/elevenlabs-js": "^2.15.0",
     "@pinecone-database/pinecone": "^4.0.0",
     "@prisma/client": "^6.5.0",
     "@radix-ui/react-label": "^2.1.0",

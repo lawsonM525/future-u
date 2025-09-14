@@ -3,9 +3,9 @@
 import { motion } from 'framer-motion'
 import { Textarea } from '@/components/ui/textarea'
 import { Button } from '@/components/ui/button'
-import { ChevronLeft, ChevronRight } from 'lucide-react'
+import { ChevronLeft, ChevronRight, Mic, Square, Loader2 } from 'lucide-react'
 import { QuizQuestion as QuizQuestionType } from '@/lib/quiz-data'
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useState, useCallback } from 'react'
 
 interface QuizQuestionProps {
   question: QuizQuestionType
@@ -65,6 +65,86 @@ export function QuizQuestion({
   totalQuestions
 }: QuizQuestionProps) {
   const direction = 1 // You can track this in parent component for proper direction
+
+  // Microphone recording + STT (ElevenLabs via /api/stt)
+  const [isRecording, setIsRecording] = useState(false)
+  const [isTranscribing, setIsTranscribing] = useState(false)
+  const mediaRecorderRef = useRef<MediaRecorder | null>(null)
+  const chunksRef = useRef<BlobPart[]>([])
+
+  const getSupportedMimeType = useCallback((): string => {
+    if (typeof window === 'undefined' || typeof MediaRecorder === 'undefined') return ''
+    const candidates = [
+      'audio/webm;codecs=opus',
+      'audio/webm',
+      'audio/mp4;codecs=mp4a.40.2',
+      'audio/mpeg',
+      'audio/ogg;codecs=opus',
+    ]
+    for (const t of candidates) {
+      try {
+        if (MediaRecorder.isTypeSupported(t)) return t
+      } catch {}
+    }
+    return ''
+  }, [])
+
+  const transcribeBlob = useCallback(async (blob: Blob) => {
+    setIsTranscribing(true)
+    try {
+      const form = new FormData()
+      const ext = blob.type.includes('mp4') ? 'mp4' : blob.type.includes('mpeg') ? 'mp3' : blob.type.includes('ogg') ? 'ogg' : 'webm'
+      form.append('file', blob, `recording.${ext}`)
+      form.append('tagAudioEvents', 'true')
+      form.append('diarize', 'false')
+      // languageCode left unset for autodetect; could set to 'eng'
+
+      const res = await fetch('/api/stt', { method: 'POST', body: form })
+      const data = await res.json().catch(() => ({})) as { text?: string; error?: string }
+      if (!res.ok) throw new Error(data?.error || 'Failed to transcribe')
+
+      const text = (data.text || '').trim()
+      if (text) {
+        const next = answer?.trim() ? `${answer.trim()} ${text}` : text
+        onAnswerChange(next)
+      }
+    } catch (e) {
+      console.error('Transcription failed:', e)
+    } finally {
+      setIsTranscribing(false)
+    }
+  }, [answer, onAnswerChange])
+
+  const startRecording = useCallback(async () => {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true })
+      const mimeType = getSupportedMimeType()
+      const mr = new MediaRecorder(stream, mimeType ? { mimeType } as MediaRecorderOptions : undefined)
+      mediaRecorderRef.current = mr
+      chunksRef.current = []
+      mr.ondataavailable = (evt: BlobEvent) => {
+        if (evt.data && evt.data.size > 0) chunksRef.current.push(evt.data)
+      }
+      mr.onstop = async () => {
+        const blob = new Blob(chunksRef.current, { type: mimeType || 'audio/webm' })
+        // stop tracks
+        try { stream.getTracks().forEach(t => t.stop()) } catch {}
+        await transcribeBlob(blob)
+      }
+      mr.start()
+      setIsRecording(true)
+    } catch (e) {
+      console.error('Mic permission/recording error:', e)
+    }
+  }, [getSupportedMimeType, transcribeBlob])
+
+  const stopRecording = useCallback(() => {
+    const mr = mediaRecorderRef.current
+    if (mr && mr.state !== 'inactive') {
+      try { mr.stop() } catch {}
+    }
+    setIsRecording(false)
+  }, [])
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter' && !e.shiftKey && canGoNext) {
@@ -133,6 +213,38 @@ export function QuizQuestion({
           className="min-h-[150px] resize-none focus:ring-2 focus:ring-accent transition-all"
           aria-label={`Answer for: ${question.prompt}`}
         />
+
+        {/* Mic toolbar */}
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <Button
+              type="button"
+              size="sm"
+              variant={isRecording ? 'destructive' : 'outline'}
+              onClick={isRecording ? stopRecording : startRecording}
+              disabled={isTranscribing}
+              aria-label={isRecording ? 'Stop recording' : 'Record with microphone'}
+            >
+              {isRecording ? (
+                <>
+                  <Square className="mr-2 h-4 w-4" /> Stop
+                </>
+              ) : (
+                <>
+                  <Mic className="mr-2 h-4 w-4" /> Speak
+                </>
+              )}
+            </Button>
+            {isRecording && (
+              <span className="text-xs text-rose-400 animate-pulse">Recording…</span>
+            )}
+            {isTranscribing && (
+              <span className="flex items-center text-xs text-muted-foreground">
+                <Loader2 className="mr-1 h-3.5 w-3.5 animate-spin" /> Transcribing…
+              </span>
+            )}
+          </div>
+        </div>
         
         {/* Word Count */}
         <motion.div 
