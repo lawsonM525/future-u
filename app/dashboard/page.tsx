@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useRef, useState } from 'react'
+import { Suspense, useEffect, useRef, useState } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useSession, signOut } from 'next-auth/react'
 import { Button } from '@/components/ui/button'
@@ -23,9 +23,20 @@ import QuestsTab from '@/components/dashboard/QuestsTab'
 
 
 
+function TabSyncer({ onChange }: { onChange: (tab: DashboardSection) => void }) {
+  const searchParams = useSearchParams()
+  useEffect(() => {
+    // Sync tab from URL search param (e.g., ?tab=quests) and react to changes
+    const tab = searchParams.get('tab') as DashboardSection | null
+    if (tab && ['strategy','goals','quests','resources','feedback','account'].includes(tab)) {
+      onChange(tab)
+    }
+  }, [searchParams, onChange])
+  return null
+}
+
 export default function DashboardPage() {
   const router = useRouter()
-  const searchParams = useSearchParams()
   const { data: session, status } = useSession({
     required: true,
     onUnauthenticated() {
@@ -46,13 +57,7 @@ export default function DashboardPage() {
   // Get first name only
   const firstName = session?.user?.name ? session.user.name.split(' ')[0] : ''
 
-  useEffect(() => {
-    // Sync tab from URL search param (e.g., ?tab=quests) and react to changes
-    const tab = searchParams.get('tab') as DashboardSection | null
-    if (tab && ['strategy','goals','quests','resources','feedback','account'].includes(tab)) {
-      setActive(tab)
-    }
-  }, [searchParams])
+  // Tab is now synchronized via TabSyncer wrapped in Suspense
 
   useEffect(() => {
     // Load avatar preferences from localStorage
@@ -232,6 +237,9 @@ export default function DashboardPage() {
 
   return (
     <div className="min-h-screen bg-night text-foreground px-3 md:px-6 lg:px-8 py-4 pb-24 md:pb-4">
+      <Suspense fallback={null}>
+        <TabSyncer onChange={setActive} />
+      </Suspense>
       <div className="max-w-7xl xl:max-w-[1400px] mx-auto space-y-8">
         {/* New 3-column layout */}
         <div

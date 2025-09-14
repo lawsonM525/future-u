@@ -35,9 +35,9 @@ export function SidebarNav({
           const selectedClasses =
             key === "strategy" || key === "resources" || key === "feedback"
               ? "bg-jonquil/15 border border-jonquil text-jonquil"
-              : key === "friends" || key === "quests"
+              : key === "quests"
               ? "bg-plum-web/15 border border-plum-web text-plum-web"
-              : key === "goals" || key === "coach"
+              : key === "goals" || key === "account"
               ? "bg-fluorescent-cyan/15 border border-fluorescent-cyan text-fluorescent-cyan"
               : "bg-jonquil/15 border border-jonquil text-jonquil"
           const unselectedClasses = "bg-black text-foreground hover:bg-black/80"

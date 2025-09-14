@@ -6,7 +6,7 @@ import Link from 'next/link'
 import { useSession } from 'next-auth/react'
 import { GlowCard } from '@/components/ui/GlowCard'
 import { Button } from '@/components/ui/button'
-import { ArrowLeft, CheckCircle2, Sparkles } from 'lucide-react'
+import { ArrowLeft, Sparkles } from 'lucide-react'
 
 type SubResponse = {
   subscriptionTier: 'free' | 'premium'
@@ -32,6 +32,7 @@ export default function SubscriptionPage() {
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [data, setData] = useState<SubResponse | null>(null)
+  const [goalCount, setGoalCount] = useState<number | null>(null)
 
   useEffect(() => {
     if (status !== 'authenticated') return
@@ -54,6 +55,28 @@ export default function SubscriptionPage() {
       }
     }
     load()
+    return () => {
+      cancelled = true
+    }
+  }, [status])
+
+  // Load user's goal count for personalization
+  useEffect(() => {
+    if (status !== 'authenticated') return
+    let cancelled = false
+    const loadGoals = async () => {
+      try {
+        const res = await fetch('/api/goals/count', { cache: 'no-store' })
+        const json = await res.json()
+        if (cancelled) return
+        if (res.ok && typeof json.count === 'number') {
+          setGoalCount(json.count)
+        }
+      } catch {
+        // silent fail, personalization is optional
+      }
+    }
+    loadGoals()
     return () => {
       cancelled = true
     }
@@ -200,6 +223,13 @@ export default function SubscriptionPage() {
                 Refresh status
               </Button>
             </div>
+            {typeof goalCount === 'number' && (
+              <div className="mt-3 rounded-lg bg-black/50 ring-1 ring-fluorescent-cyan/30 px-3 py-2 text-sm">
+                <span className="text-muted-foreground">You have </span>
+                <span className="text-fluorescent-cyan font-semibold">{goalCount}</span>
+                <span className="text-muted-foreground"> goals — unlock Daily Quests to hit them faster.</span>
+              </div>
+            )}
           </div>
 
           {loading ? (
@@ -278,9 +308,22 @@ export default function SubscriptionPage() {
                   <div className="text-sm text-muted-foreground mt-1">Kick off your journey for free.</div>
                   <div className="text-3xl font-bold mt-4">$0</div>
                   <div className="mt-6">
-                    <Button className="w-full rounded-full" variant="secondary" disabled>
-                      {data.subscriptionTier === 'free' ? 'Your plan today' : 'Manage in billing portal'}
-                    </Button>
+                    {isPremium ? (
+                      <a
+                        href="https://billing.stripe.com/p/login/4gMfZh6Cjd211q3cdo8ww00"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex w-full"
+                      >
+                        <Button className="w-full rounded-full" variant="outline">
+                          Manage in billing portal
+                        </Button>
+                      </a>
+                    ) : (
+                      <Button className="w-full rounded-full" variant="secondary" disabled>
+                        Your plan today
+                      </Button>
+                    )}
                   </div>
                 </div>
               </div>
