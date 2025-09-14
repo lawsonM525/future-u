@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button'
 import { ChevronLeft, ChevronRight, Mic, Square, Loader2 } from 'lucide-react'
 import { QuizQuestion as QuizQuestionType } from '@/lib/quiz-data'
 import { useEffect, useRef, useState, useCallback } from 'react'
+import { useSound } from '@/hooks/useSound'
 
 interface QuizQuestionProps {
   question: QuizQuestionType
@@ -65,6 +66,7 @@ export function QuizQuestion({
   totalQuestions
 }: QuizQuestionProps) {
   const direction = 1 // You can track this in parent component for proper direction
+  const { play } = useSound()
 
   // Microphone recording + STT (ElevenLabs via /api/stt)
   const [isRecording, setIsRecording] = useState(false)
@@ -149,6 +151,7 @@ export function QuizQuestion({
   const handleKeyPress = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter' && !e.shiftKey && canGoNext) {
       e.preventDefault()
+      try { play('ding') } catch {}
       onNext()
     }
   }
@@ -346,7 +349,7 @@ export function QuizQuestion({
             Skip
           </Button>
           <Button
-            onClick={onNext}
+            onClick={() => { try { play('ding') } catch {} ; onNext() }}
             disabled={!canGoNext}
             className="bg-accent text-accent-foreground hover:bg-accent/90 group"
           >
