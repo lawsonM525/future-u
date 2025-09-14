@@ -13,6 +13,7 @@ import { QuizProgress } from '@/components/quiz/QuizProgress'
 import { QuizSectionTransition } from '@/components/quiz/QuizSectionTransition'
 import { Button } from '@/components/ui/button'
 import { AlertCircle, Loader2 } from 'lucide-react'
+import { BrowserWarning } from '@/components/BrowserWarning'
 
 export default function QuizPage() {
   const params = useParams()
@@ -378,6 +379,7 @@ export default function QuizPage() {
 
   return (
     <div className="min-h-screen flex flex-col p-4">
+      <BrowserWarning />
       {/* Progress Header */}
       {!showWelcome && (
         <motion.div
