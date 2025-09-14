@@ -1,4 +1,4 @@
-import { Space_Grotesk, Righteous, Rubik_Mono_One } from 'next/font/google'
+import { Space_Grotesk, Rubik_Mono_One } from 'next/font/google'
 import { ThemeProvider } from '@/components/theme-provider'
 import './globals.css'
 import { Providers } from './providers'
@@ -8,16 +8,11 @@ import Script from 'next/script'
 import { BrowserWarning } from '@/components/BrowserWarning'
 import type { Metadata } from 'next'
 
+
 const spaceGrotesk = Space_Grotesk({ 
   subsets: ['latin'],
   weight: ['300', '400', '500', '600', '700'],
   variable: '--font-space-grotesk'
-})
-
-const righteous = Righteous({ 
-  subsets: ['latin'],
-  weight: '400',
-  variable: '--font-righteous'
 })
 
 const rubikMonoOne = Rubik_Mono_One({ 
@@ -110,7 +105,7 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang="en" suppressHydrationWarning className={`${spaceGrotesk.variable} ${rubikMonoOne.variable}`}>
       <head>
         <Script
           strategy="afterInteractive"
@@ -199,24 +194,9 @@ export default function RootLayout({
           }}
         />
       </head>
-      <body className={`${spaceGrotesk.className} ${righteous.variable} ${rubikMonoOne.variable} bg-background text-foreground min-h-screen flex flex-col`}>
+      <body className={`font-sans bg-background text-foreground min-h-screen flex flex-col`}>
         <ThemeProvider attribute="class" defaultTheme="dark">
           <Providers>
-            <div className="bg-yellow-300 text-black">
-              <div className="max-w-7xl mx-auto px-4 py-2 text-center text-sm">
-                <span className="font-semibold">Beta:</span> This website is still in beta — feel free to try it, but you might run into a bug. If you do, or you have feedback or want to request a feature, tell us{' '}
-                <a
-                  href="https://lwsnlabs.featurebase.app/?b=68b4751d77012e1594a760c9"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="underline font-semibold"
-                >
-                  here
-                </a>
-                .
-              </div>
-            </div>
-            <BrowserWarning />
             <main className="flex-1">
               {children}
             </main>
