@@ -106,6 +106,13 @@ export function DailyQuests() {
                 href="/dashboard?tab=quests"
                 aria-label={`Open quests tab to view ${q.title}`}
                 className="block rounded-lg focus:outline-none focus:ring-2 focus:ring-jonquil/60"
+                onClick={() => {
+                  try {
+                    if (typeof window !== 'undefined' && typeof window.datafast === 'function') {
+                      window.datafast('premium_feature_clicked', { feature: 'daily_quests_card' })
+                    }
+                  } catch {}
+                }}
               >
                 <div className="space-y-2 p-2 rounded-lg hover:bg-white/5 transition-colors cursor-pointer">
                   <div className="flex items-center gap-3 text-sm md:text-base">

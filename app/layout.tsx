@@ -107,6 +107,18 @@ export default function RootLayout({
     <html lang="en" suppressHydrationWarning className={`${spaceGrotesk.variable} ${rubikMonoOne.variable}`}>
       <head>
         <Script
+          id="datafast-queue"
+          strategy="beforeInteractive"
+          dangerouslySetInnerHTML={{
+            __html: `
+  window.datafast = window.datafast || function() {
+    window.datafast.q = window.datafast.q || [];
+    window.datafast.q.push(arguments);
+  };
+            `,
+          }}
+        />
+        <Script
           strategy="afterInteractive"
           src="https://www.googletagmanager.com/gtag/js?id=G-9Y008B0W5Z"
         />

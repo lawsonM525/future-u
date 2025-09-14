@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useEffect, useMemo, useRef, useState, useLayoutEffect, type ReactNode } from "react"
+import React, { useEffect, useMemo, useRef, useState, useLayoutEffect, type ReactNode, useCallback } from "react"
 import { motion, AnimatePresence, useReducedMotion } from "framer-motion"
 import { cn } from "@/lib/utils"
 import type { TimelineCheckpoint } from "@/types/timeline"
@@ -10,10 +10,12 @@ import Image from "next/image"
 import { Check, Loader2 } from "lucide-react"
 import { useSound } from "@/hooks/useSound"
 import AddGoalsModal from "@/components/dashboard/AddGoalsModal"
+import { useSession } from "next-auth/react"
 
 // Note: icons supply the visual accent; no additional color palette needed here
 
 export function StrategyCircles({ checkpoints, positions, intro, isGenerating }: { checkpoints: TimelineCheckpoint[]; positions?: number[]; intro?: ReactNode; isGenerating?: boolean }) {
+  const { data: session } = useSession()
   const items = useMemo(() => {
     const uniqueByYear = new Map<number, TimelineCheckpoint>()
     for (const c of checkpoints) {
@@ -69,6 +71,53 @@ export function StrategyCircles({ checkpoints, positions, intro, isGenerating }:
   // Respect OS/browser reduced-motion preference for accessibility
   const reduceMotion = useReducedMotion()
 
+  // DataFast helper
+  const track = useCallback((goal: string, params?: Record<string, string | undefined>) => {
+    try {
+      if (typeof window !== 'undefined' && typeof window.datafast === 'function') {
+        const cleaned: Record<string, string> = {}
+        if (params) {
+          for (const [k, v] of Object.entries(params)) {
+            if (v !== undefined && v !== null) cleaned[k] = String(v)
+          }
+        }
+        window.datafast(goal, cleaned)
+      }
+    } catch {}
+  }, [])
+
+  const getWeekKey = useCallback(() => {
+    const d = new Date()
+    d.setHours(0, 0, 0, 0)
+    const day = d.getDay()
+    const diff = (day === 0 ? -6 : 1) - day
+    d.setDate(d.getDate() + diff)
+    const y = d.getFullYear()
+    const m = String(d.getMonth() + 1).padStart(2, '0')
+    const dd = String(d.getDate()).padStart(2, '0')
+    return `${y}-${m}-${dd}`
+  }, [])
+
+  // Fire timeline viewed and weekly revisit counters
+  useEffect(() => {
+    if (!items.length) return
+    const user_id = session?.user?.id ? String(session.user.id) : undefined
+    const email = session?.user?.email ? String(session.user.email) : undefined
+    track('timeline_viewed', { user_id, email, component: 'strategy_circles' })
+    try {
+      const wk = getWeekKey()
+      const countKey = `df_timeline_views_${wk}`
+      const firedKey = `df_timeline_multi_${wk}`
+      const current = Number((typeof window !== 'undefined' ? localStorage.getItem(countKey) : '0') || '0')
+      const next = current + 1
+      if (typeof window !== 'undefined') localStorage.setItem(countKey, String(next))
+      if (next >= 2 && typeof window !== 'undefined' && !localStorage.getItem(firedKey)) {
+        track('timeline_multi_views_week', { user_id, email, week: wk, count: String(next) })
+        localStorage.setItem(firedKey, '1')
+      }
+    } catch {}
+  }, [items.length, session, track, getWeekKey])
+
   if (!items.length) {
     if (isGenerating) {
       return (
@@ -116,12 +165,22 @@ export function StrategyCircles({ checkpoints, positions, intro, isGenerating }:
               key={`node-${cp.year}`}
               onClick={() => {
                 play('plop', 0.4)
+                let openedNow = false
                 setOpenSet((prev) => {
                   const next = new Set(prev)
                   if (next.has(i)) next.delete(i)
-                  else next.add(i)
+                  else { next.add(i); openedNow = true }
                   return next
                 })
+                // Track first open of any year
+                try {
+                  if (openedNow && typeof window !== 'undefined' && !localStorage.getItem('df_timeline_first_open')) {
+                    const user_id = session?.user?.id ? String(session.user.id) : undefined
+                    const email = session?.user?.email ? String(session.user.email) : undefined
+                    track('timeline_opened', { user_id, email, year: String(cp.year), title: cp.title })
+                    localStorage.setItem('df_timeline_first_open', '1')
+                  }
+                } catch {}
                 // Mark this year as opened to stop pulsing in the future
                 setDismissedPulseYears(prev => {
                   if (prev.has(year)) return prev

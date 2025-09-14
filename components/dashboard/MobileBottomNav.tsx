@@ -89,7 +89,14 @@ export function MobileBottomNav({
                     "flex h-11 w-full items-center justify-center rounded-lg",
                     selected ? selectedClasses : unselectedClasses
                   )}
-                  onClick={() => onChange(key)}
+                  onClick={() => {
+                    try {
+                      if (key === 'quests' && typeof window !== 'undefined' && typeof window.datafast === 'function') {
+                        window.datafast('premium_feature_clicked', { feature: 'daily_quests_tab' })
+                      }
+                    } catch {}
+                    onChange(key)
+                  }}
                 >
                   {key === 'account' ? (
                     <AvatarCreator

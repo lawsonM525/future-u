@@ -39,6 +39,14 @@ async function addGoalFromCheckpoint(cp: TimelineCheckpoint) {
 
 export function Timeline({ checkpoints, onShare }: TimelineProps) {
   const fallbackShare = useShare()
+  // Track when legacy timeline is viewed
+  React.useEffect(() => {
+    try {
+      if (checkpoints?.length && typeof window !== 'undefined' && typeof window.datafast === 'function') {
+        window.datafast('timeline_viewed', { component: 'timeline_legacy' })
+      }
+    } catch {}
+  }, [checkpoints?.length])
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
@@ -78,6 +86,7 @@ function TimelineItem({ cp, onShare }: { cp: TimelineCheckpoint; onShare: (title
   const ref = React.useRef<HTMLDivElement | null>(null)
   const inView = useInView(ref, { amount: 0.2, once: true })
   const [expanded, setExpanded] = React.useState(false)
+  const openedOnceRef = React.useRef(false)
   const { play } = useSound()
   return (
     <motion.div
@@ -116,7 +125,20 @@ function TimelineItem({ cp, onShare }: { cp: TimelineCheckpoint; onShare: (title
           </div>
         </div>
         <div className="mt-2">
-          <Button variant="ghost" size="sm" onClick={() => setExpanded(v => !v)}>
+          <Button variant="ghost" size="sm" onClick={() => {
+            setExpanded(v => {
+              const next = !v
+              if (next && !openedOnceRef.current) {
+                try {
+                  if (typeof window !== 'undefined' && typeof window.datafast === 'function') {
+                    window.datafast('timeline_opened', { year: String(cp.year), title: (cp.title || '').slice(0, 255) })
+                  }
+                } catch {}
+                openedOnceRef.current = true
+              }
+              return next
+            })
+          }}>
             {expanded ? 'Show less' : 'Expand'}
           </Button>
         </div>

@@ -18,6 +18,16 @@ export function SidebarNav({
   onChange: (key: DashboardSection) => void
   className?: string
 }) {
+  const handleClick = (key: DashboardSection) => {
+    if (key === 'quests') {
+      try {
+        if (typeof window !== 'undefined' && typeof window.datafast === 'function') {
+          window.datafast('premium_feature_clicked', { feature: 'daily_quests_tab' })
+        }
+      } catch {}
+    }
+    onChange(key)
+  }
   return (
     <aside className={cn("space-y-4", className)}>
       <div className="px-2">
@@ -74,7 +84,7 @@ export function SidebarNav({
                   "flex items-center gap-3 px-3 py-2 rounded-lg",
                   selected ? selectedClasses : unselectedClasses
                 )}
-                onClick={() => onChange(key)}
+                onClick={() => handleClick(key)}
               >
                 {iconSrc ? (
                   <Image

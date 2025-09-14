@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useState, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { useSession } from 'next-auth/react'
@@ -33,6 +33,22 @@ export default function SubscriptionPage() {
   const [error, setError] = useState<string | null>(null)
   const [data, setData] = useState<SubResponse | null>(null)
   const [goalCount, setGoalCount] = useState<number | null>(null)
+
+  // DataFast tracking helper
+  const track = useCallback((goal: string, params?: Record<string, string | undefined>) => {
+    try {
+      if (typeof window !== 'undefined' && typeof window.datafast === 'function') {
+        const cleaned: Record<string, string> = {}
+        if (params) {
+          for (const [k, v] of Object.entries(params)) {
+            if (v !== undefined && v !== null) cleaned[k] = String(v)
+          }
+        }
+        window.datafast(goal, cleaned)
+      }
+    } catch {}
+  }, [])
+  const [selectedInterval, setSelectedInterval] = useState<'monthly' | 'annual'>('monthly')
 
   useEffect(() => {
     if (status !== 'authenticated') return
@@ -103,20 +119,64 @@ export default function SubscriptionPage() {
   const currency = data?.prices.currency || 'USD'
   const priceMonthly = useMemo(() => (data ? data.prices.monthly.toFixed(2) : '14.99'), [data])
   const priceAnnual = useMemo(() => (data ? data.prices.annual.toFixed(2) : '149.00'), [data])
-
-  const isPremiumMonthly = data?.subscriptionTier === 'premium' && data.subscriptionInterval === 'monthly'
-  const isPremiumAnnual = data?.subscriptionTier === 'premium' && data.subscriptionInterval === 'annual'
   const isPremium = (data?.subscriptionTier === 'premium') || (session?.user?.subscriptionTier === 'premium')
+
+  // Track pricing page opened
+  useEffect(() => {
+    if (status !== 'authenticated') return
+    const user_id = session?.user?.id ? String(session.user.id) : undefined
+    const email = session?.user?.email ? String(session.user.email) : undefined
+    const referrer = typeof document !== 'undefined' && document.referrer ? document.referrer : undefined
+    track('pricing_opened', { user_id, email, referrer })
+  }, [status, session, track])
+
+  // Detect abandoned checkout attempts (user clicked checkout but is not premium after 30 minutes)
+  useEffect(() => {
+    if (status !== 'authenticated') return
+    if (typeof window === 'undefined') return
+    try {
+      const startedAt = localStorage.getItem('df_checkout_started_at')
+      const plan = localStorage.getItem('df_checkout_plan') || undefined
+      if (!startedAt) return
+      const t = Number(startedAt)
+      const THIRTY_MIN = 30 * 60 * 1000
+      if (Date.now() - t >= THIRTY_MIN && !isPremium) {
+        const user_id = session?.user?.id ? String(session.user.id) : undefined
+        const email = session?.user?.email ? String(session.user.email) : undefined
+        track('checkout_abandoned', { user_id, email, plan: plan || undefined, started_at: String(t) })
+        localStorage.removeItem('df_checkout_started_at')
+        localStorage.removeItem('df_checkout_plan')
+      }
+    } catch {}
+  }, [status, isPremium, session, track])
 
   // Simple sparkle burst before redirect
   const [showBurst, setShowBurst] = useState(false)
   const handleStartMonthly = () => {
     setShowBurst(true)
+    try {
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('df_checkout_started_at', String(Date.now()))
+        localStorage.setItem('df_checkout_plan', 'monthly')
+      }
+      const user_id = session?.user?.id ? String(session.user.id) : undefined
+      const email = session?.user?.email ? String(session.user.email) : undefined
+      track('checkout_initiated', { user_id, email, plan: 'monthly', price: priceMonthly, currency })
+    } catch {}
     setTimeout(() => updatePlan('premium', 'monthly'), 450)
     setTimeout(() => setShowBurst(false), 1200)
   }
   const handleGoAnnual = () => {
     setShowBurst(true)
+    try {
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('df_checkout_started_at', String(Date.now()))
+        localStorage.setItem('df_checkout_plan', 'annual')
+      }
+      const user_id = session?.user?.id ? String(session.user.id) : undefined
+      const email = session?.user?.email ? String(session.user.email) : undefined
+      track('checkout_initiated', { user_id, email, plan: 'annual', price: priceAnnual, currency })
+    } catch {}
     setTimeout(() => updatePlan('premium', 'annual'), 450)
     setTimeout(() => setShowBurst(false), 1200)
   }
@@ -223,13 +283,7 @@ export default function SubscriptionPage() {
                 Refresh status
               </Button>
             </div>
-            {typeof goalCount === 'number' && (
-              <div className="mt-3 rounded-lg bg-black/50 ring-1 ring-fluorescent-cyan/30 px-3 py-2 text-sm">
-                <span className="text-muted-foreground">You have </span>
-                <span className="text-fluorescent-cyan font-semibold">{goalCount}</span>
-                <span className="text-muted-foreground"> goals — unlock Daily Quests to hit them faster.</span>
-              </div>
-            )}
+            
           </div>
 
           {loading ? (
@@ -237,159 +291,107 @@ export default function SubscriptionPage() {
           ) : error ? (
             <div className="mt-6 text-sm text-destructive">{error}</div>
           ) : data ? (
-            <div className="mt-8 space-y-8">
-              <div className="grid gap-5 md:grid-cols-3">
-                {/* Premium plan (dominant) */}
-                <div className="relative md:col-span-2 rounded-xl p-6 ring-1 ring-canary/50 bg-gradient-to-b from-black/40 via-black/30 to-black/20 hover:shadow-[0_0_32px_rgba(254,228,2,0.22)] transition-shadow">
-                  <div className="absolute -top-3 -right-3 rotate-45">
-                    <span className="inline-block bg-canary text-black text-[10px] font-semibold py-1 px-3 rounded-sm shadow-black/30 shadow">2 months free</span>
+            <div className="mt-8 space-y-6 max-w-md mx-auto">
+              {/* Callout replacing reminder */}
+              {typeof goalCount === 'number' && (
+                <div className="rounded-xl p-4 bg-gradient-to-b from-fluorescent-cyan/10 to-transparent ring-1 ring-fluorescent-cyan/30 flex items-start gap-3">
+                  <div className="mt-0.5"><Sparkles className="w-5 h-5 text-fluorescent-cyan" /></div>
+                  <div className="text-sm leading-snug">
+                    <span className="text-muted-foreground">You have </span>
+                    <span className="text-fluorescent-cyan font-semibold">{goalCount}</span>
+                    <span className="text-muted-foreground"> goals — achieve them all with Daily Quests and more.</span>
                   </div>
-                  <div className="flex items-center gap-2">
-                    <div className="text-lg font-semibold">Premium</div>
-                    <span className="text-[10px] py-0.5 px-2 rounded-full bg-canary/20 text-black">Most popular</span>
-                  </div>
-                  <div className="text-sm text-muted-foreground mt-1">Go all in. More tools, more progress, zero commitment.</div>
-                  <div className="grid gap-6 sm:grid-cols-2 mt-4">
-                    <div>
-                      <div className="flex items-baseline gap-2">
-                        <div className="text-3xl font-bold">${priceMonthly}</div>
-                        <span className="text-[10px] py-0.5 px-2 rounded-full bg-fluorescent-cyan/15 text-fluorescent-cyan">7‑day free trial</span>
+                </div>
+              )}
+
+              {/* Features (concise) */}
+              <div className="rounded-xl ring-1 ring-border/60 divide-y divide-border/40 overflow-hidden bg-black/40">
+                <div className="flex items-start gap-3 p-4">
+                  <div className="w-8 h-8 rounded-full bg-fluorescent-cyan/15 flex items-center justify-center">🗡️</div>
+                  <div>
+                    <div className="text-sm font-medium">Daily Quests</div>
+                        <div className="text-xs text-muted-foreground">Focused tasks every day to move closer to your goals.</div>
                       </div>
-                      <div className="text-xs text-muted-foreground">{currency} / month</div>
-                      <Button
-                        className="mt-3 rounded-full w-full"
-                        variant={isPremiumMonthly ? 'default' : 'outline'}
-                        disabled={saving}
-                        onClick={handleStartMonthly}
-                      >
-                        {isPremiumMonthly ? 'You’re on this now' : 'Unlock my trial 🚀'}
-                      </Button>
-                      <div className="text-[11px] text-muted-foreground mt-2 text-center">Cancel anytime with one click</div>
-                    </div>
-                    <div>
-                      <div className="flex items-baseline gap-2">
-                        <div className="text-3xl font-bold">${priceAnnual}</div>
-                      </div>
-                      <div className="text-xs text-muted-foreground">{currency} / year</div>
-                      <Button
-                        className="mt-3 rounded-full w-full"
-                        variant={isPremiumAnnual ? 'default' : 'outline'}
-                        disabled={saving}
-                        onClick={handleGoAnnual}
-                      >
-                        {isPremiumAnnual ? 'You’re on this now' : 'Go annual, save big 💸'}
-                      </Button>
-                    </div>
-                  </div>
-
-                  {data.subscriptionTier === 'premium' && (
-                    <div className="mt-4 text-xs text-muted-foreground">
-                      Next renewal: {nextRenewal || '—'}
-                    </div>
-                  )}
-
-                  {isPremium && (
-                    <div className="mt-4">
-                      <a
-                        href="https://billing.stripe.com/p/login/4gMfZh6Cjd211q3cdo8ww00"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-sm underline hover:no-underline"
-                      >
-                        Manage your subscription in the billing portal
-                      </a>
-                    </div>
-                  )}
                 </div>
-
-                {/* Free plan */}
-                <div className="rounded-xl bg-black/60 p-6 ring-1 ring-border/60">
-                  <div className="text-lg font-semibold">Free</div>
-                  <div className="text-sm text-muted-foreground mt-1">Kick off your journey for free.</div>
-                  <div className="text-3xl font-bold mt-4">$0</div>
-                  <div className="mt-6">
-                    {isPremium ? (
-                      <a
-                        href="https://billing.stripe.com/p/login/4gMfZh6Cjd211q3cdo8ww00"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="inline-flex w-full"
-                      >
-                        <Button className="w-full rounded-full" variant="outline">
-                          Manage in billing portal
-                        </Button>
-                      </a>
-                    ) : (
-                      <Button className="w-full rounded-full" variant="secondary" disabled>
-                        Your plan today
-                      </Button>
-                    )}
+                {/*weekly emails*/}
+                <div className="flex items-start gap-3 p-4">
+                  <div className="w-8 h-8 rounded-full bg-fluorescent-cyan/15 flex items-center justify-center">🗡️</div>
+                  <div>
+                    <div className="text-sm font-medium">Accountability Emails</div>
+                    <div className="text-xs text-muted-foreground">Weekly emails to keep you on track.</div>
+                  </div>
+                </div>
+                
+                <div className="flex items-start gap-3 p-4">
+                  <div className="w-8 h-8 rounded-full bg-canary/20 flex items-center justify-center">🤖</div>
+                  <div>
+                    <div className="text-sm font-medium flex items-center gap-2">Coach (AI) <span className="text-[10px] py-0.5 px-2 rounded-full bg-canary/25 text-black">Coming soon</span></div>
+                    <div className="text-xs text-muted-foreground">Chat with our AI coach to guide action and keep momentum.</div>
+                  </div>
+                </div>
+                <div className="flex items-start gap-3 p-4">
+                  <div className="w-8 h-8 rounded-full bg-canary/20 flex items-center justify-center">📚</div>
+                  <div>
+                    <div className="text-sm font-medium flex items-center gap-2">Advanced Resources <span className="text-[10px] py-0.5 px-2 rounded-full bg-canary/25 text-black">Coming soon</span></div>
+                    <div className="text-xs text-muted-foreground">High‑quality, vetted tools and guides to accelerate progress.</div>
                   </div>
                 </div>
               </div>
 
-              {/* Features */}
-              <div className="rounded-xl bg-black/40 p-6 ring-1 ring-border/60 space-y-5">
-                <div className="text-base font-semibold">What you get with Premium</div>
-                <ul className="grid gap-4 md:grid-cols-2">
-                  <li className="flex items-start gap-3">
-                    <span className="text-lg">🗡️</span>
-                    <div>
-                      <div className="text-sm font-medium">Daily Quests</div>
-                      <div className="text-xs text-muted-foreground">Get new, focused tasks every day to move closer to your goals.</div>
+              {/* Price selection */}
+              <div className="rounded-xl ring-1 ring-border/60 bg-black/40 p-3 space-y-3">
+                <div className="grid grid-cols-2 gap-3">
+                  <button
+                    type="button"
+                    onClick={() => setSelectedInterval('monthly')}
+                    className={`text-left rounded-xl p-3 ring-1 transition ${selectedInterval === 'monthly' ? 'ring-fluorescent-cyan/50 bg-fluorescent-cyan/10' : 'ring-border/40 hover:bg-white/5'}`}
+                  >
+                    <div className="text-xs text-muted-foreground">Monthly</div>
+                    <div className="mt-1 flex items-baseline gap-2">
+                      <div className="text-xl font-bold">${priceMonthly}</div>
+                      <span className="text-[10px] py-0.5 px-2 rounded-full bg-fluorescent-cyan/15 text-fluorescent-cyan">7‑day free trial</span>
                     </div>
-                  </li>
-                  <li className="flex items-start gap-3">
-                    <span className="text-lg">🤖</span>
-                    <div>
-                      <div className="text-sm font-medium flex items-center gap-2">Coach (AI) <span className="text-[10px] py-0.5 px-2 rounded-full bg-canary/20 text-black animate-pulse">Coming soon</span></div>
-                      <div className="text-xs text-muted-foreground">Chat with our AI coach to guide action and keep momentum. Launching Fall 2025.</div>
+                    <div className="text-[11px] text-muted-foreground">{currency} / month</div>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setSelectedInterval('annual')}
+                    className={`text-left rounded-xl p-3 ring-1 transition relative ${selectedInterval === 'annual' ? 'ring-canary/60 bg-canary/10' : 'ring-border/40 hover:bg-white/5'}`}
+                  >
+                    <div className="absolute -top-3 right-2"><span className="text-[10px] py-0.5 px-2 rounded bg-canary text-black">Best value</span></div>
+                    <div className="text-xs text-muted-foreground">Annual</div>
+                    <div className="mt-1 flex items-baseline gap-2">
+                      <div className="text-xl font-bold">${priceAnnual}</div>
+                      <span className="text-[10px] py-0.5 px-2 rounded-full bg-canary/25 text-black">2 months free</span>
                     </div>
-                  </li>
-                  <li className="flex items-start gap-3">
-                    <span className="text-lg">📧</span>
-                    <div>
-                      <div className="text-sm font-medium">Weekly Accountability Emails</div>
-                      <div className="text-xs text-muted-foreground">Stay on track with friendly reminders and focus for the week.</div>
-                    </div>
-                  </li>
-                  <li className="flex items-start gap-3">
-                    <span className="text-lg">📚</span>
-                    <div>
-                      <div className="text-sm font-medium flex items-center gap-2">Advanced Resources <span className="text-[10px] py-0.5 px-2 rounded-full bg-canary/20 text-black animate-pulse">Coming soon</span></div>
-                      <div className="text-xs text-muted-foreground">High‑quality, vetted tools and guides to accelerate progress.</div>
-                    </div>
-                  </li>
-                </ul>
-
-                <div className="space-y-1 text-[11px] text-muted-foreground">
-                  <p>* Monthly plan includes a 7‑day free trial. Cancel any time during trial to avoid charges.</p>
-                  <p>* Annual plan equals ~2 months free vs. paying monthly.</p>
+                    <div className="text-[11px] text-muted-foreground">{currency} / year</div>
+                  </button>
                 </div>
+                <Button
+                  className="w-full rounded-full h-11 text-base"
+                  onClick={() => (selectedInterval === 'annual' ? handleGoAnnual() : handleStartMonthly())}
+                  disabled={saving}
+                >
+                  {selectedInterval === 'annual' ? 'Go annual, save big 💸' : 'Try for free'}
+                </Button>
+                <div className="text-[11px] text-muted-foreground text-center">Cancel anytime. Plans renew automatically.</div>
+                {data.subscriptionTier === 'premium' && (
+                  <div className="mt-1 text-center text-[11px] text-muted-foreground">Next renewal: {nextRenewal || '—'}</div>
+                )}
               </div>
 
-              {/* Comparison */}
-              <div className="rounded-xl bg-black/40 p-6 ring-1 ring-border/60">
-                <div className="text-base font-semibold mb-3">Free vs Premium</div>
-                <div className="grid grid-cols-3 text-sm">
-                  <div className="font-medium">Feature</div>
-                  <div className="text-center font-medium">Free</div>
-                  <div className="text-center font-medium">Premium</div>
-                  <div className="col-span-3 h-px bg-border/60 my-2" />
-                  <div>Daily Quests</div>
-                  <div className="text-center">—</div>
-                  <div className="text-center">✅</div>
-                  <div>Weekly Emails</div>
-                  <div className="text-center">—</div>
-                  <div className="text-center">✅</div>
-                  <div>Coach (AI)</div>
-                  <div className="text-center">Coming soon</div>
-                  <div className="text-center">Coming soon</div>
-                  <div>Advanced Resources</div>
-                  <div className="text-center">Coming soon</div>
-                  <div className="text-center">Coming soon</div>
+              {isPremium && (
+                <div className="text-center">
+                  <a
+                    href="https://billing.stripe.com/p/login/4gMfZh6Cjd211q3cdo8ww00"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-sm underline hover:no-underline"
+                  >
+                    Manage your subscription in the billing portal
+                  </a>
                 </div>
-              </div>
+              )}
             </div>
           ) : null}
         </GlowCard>

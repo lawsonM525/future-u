@@ -2,7 +2,7 @@
 
 import { useRouter } from 'next/navigation'
 import { useSession } from 'next-auth/react'
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState, useCallback } from 'react'
 import type { ReactNode } from 'react'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
@@ -81,6 +81,33 @@ export default function ReportPage() {
   const [progress, setProgress] = useState(0)
   const { toast } = useToast()
   const { play } = useSound()
+
+  // DataFast tracking helper
+  const track = useCallback((goal: string, params?: Record<string, string | undefined>) => {
+    try {
+      if (typeof window !== 'undefined' && typeof window.datafast === 'function') {
+        const cleaned: Record<string, string> = {}
+        if (params) {
+          for (const [k, v] of Object.entries(params)) {
+            if (v !== undefined && v !== null) cleaned[k] = String(v)
+          }
+        }
+        window.datafast(goal, cleaned)
+      }
+    } catch {}
+  }, [])
+
+  function getWeekKey() {
+    const d = new Date()
+    d.setHours(0, 0, 0, 0)
+    const day = d.getDay() // 0 Sun .. 6 Sat
+    const diff = (day === 0 ? -6 : 1) - day // move to Monday
+    d.setDate(d.getDate() + diff)
+    const y = d.getFullYear()
+    const m = String(d.getMonth() + 1).padStart(2, '0')
+    const dd = String(d.getDate()).padStart(2, '0')
+    return `${y}-${m}-${dd}`
+  }
 
   useEffect(() => {
     const sendPendingReport = async () => {
@@ -177,6 +204,26 @@ export default function ReportPage() {
       fetchReport()
     }
   }, [status, session, router])
+
+  // Track report view and weekly revisits
+  useEffect(() => {
+    if (!report) return
+    const user_id = session?.user?.id ? String(session.user.id) : undefined
+    const email = session?.user?.email ? String(session.user.email) : undefined
+    track('report_viewed', { user_id, email, created_at: report.createdAt })
+    try {
+      const wk = getWeekKey()
+      const countKey = `df_report_views_${wk}`
+      const firedKey = `df_report_multi_${wk}`
+      const current = Number((typeof window !== 'undefined' ? localStorage.getItem(countKey) : '0') || '0')
+      const next = current + 1
+      if (typeof window !== 'undefined') localStorage.setItem(countKey, String(next))
+      if (next >= 2 && typeof window !== 'undefined' && !localStorage.getItem(firedKey)) {
+        track('report_multi_views_week', { user_id, email, week: wk, count: String(next) })
+        localStorage.setItem(firedKey, '1')
+      }
+    } catch {}
+  }, [report, session, track])
 
   // Observe section headings for active TOC state
   useEffect(() => {

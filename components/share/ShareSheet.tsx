@@ -19,6 +19,11 @@ export function ShareSheet({
 
   async function handleDownload() {
     try {
+      try {
+        if (typeof window !== 'undefined' && typeof window.datafast === 'function') {
+          window.datafast('report_downloaded', { source: 'share_sheet' })
+        }
+      } catch {}
       const res = await fetch(`${ogUrl}?text=${encodeURIComponent(text)}`)
       const blob = await res.blob()
       const url = URL.createObjectURL(blob)

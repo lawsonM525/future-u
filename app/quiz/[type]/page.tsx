@@ -39,6 +39,39 @@ export default function QuizPage() {
   const [showSectionTransition, setShowSectionTransition] = useState(false)
   const [currentAnswer, setCurrentAnswer] = useState('')
 
+  // DataFast helper
+  const track = useCallback((goal: string, params?: Record<string, string | undefined>) => {
+    try {
+      if (typeof window !== 'undefined' && typeof window.datafast === 'function') {
+        const cleaned: Record<string, string> = {}
+        if (params) {
+          for (const [k, v] of Object.entries(params)) {
+            if (v !== undefined && v !== null) cleaned[k] = String(v)
+          }
+        }
+        window.datafast(goal, cleaned)
+      }
+    } catch {}
+  }, [])
+  const trackQuizCompleted = useCallback((qt: string) => {
+    const normalized = (qt || '').toLowerCase().replace(/[^a-z0-9]+/g, '_')
+    const user_id = session?.user?.id ? String(session.user.id) : undefined
+    const email = session?.user?.email ? String(session.user.email) : undefined
+    const name = session?.user?.name ? String(session.user.name) : undefined
+    track('quiz_completed', { quiz_type: normalized, user_id, email, name })
+    if (normalized === 'quickie' || normalized === 'quick') track('quiz_completed_quick', { user_id, email })
+    if (normalized === 'medium') track('quiz_completed_medium', { user_id, email })
+    if (normalized === 'deep_dive') track('quiz_completed_deep_dive', { user_id, email })
+    // First quiz baseline (client-side heuristic)
+    try {
+      const k = 'df_first_quiz_completed'
+      if (typeof window !== 'undefined' && !localStorage.getItem(k)) {
+        track('first_quiz_completed', { quiz_type: normalized, user_id, email })
+        localStorage.setItem(k, '1')
+      }
+    } catch {}
+  }, [session, track])
+
   // Enable quiz persistence for authenticated users
   useQuizPersistence({ enabled: !showWelcome })
 
@@ -142,6 +175,8 @@ export default function QuizPage() {
           })
           if (!response.ok) throw new Error('Failed to save quiz data')
           const { tempId } = await response.json()
+          // Track completion
+          trackQuizCompleted(quizType)
           clearQuizProgress()
           router.push(`/auth/post-quiz?tempId=${tempId}`)
           return
@@ -164,6 +199,8 @@ export default function QuizPage() {
         } catch (e) {
           console.error('Error initiating timeline generation:', e)
         }
+        // Track completion
+        trackQuizCompleted(quizType)
         clearQuizProgress()
         router.push('/dashboard')
       } catch (err) {
@@ -205,6 +242,8 @@ export default function QuizPage() {
         if (!response.ok) throw new Error('Failed to save quiz data')
 
         const { tempId } = await response.json()
+        // Track completion
+        trackQuizCompleted(quizType)
         clearQuizProgress()
         router.push(`/auth/post-quiz?tempId=${tempId}`)
         return
@@ -232,6 +271,8 @@ export default function QuizPage() {
         console.error('Error initiating timeline generation:', e)
       }
 
+      // Track completion
+      trackQuizCompleted(quizType)
       clearQuizProgress()
       router.push('/dashboard')
     } catch (err) {
