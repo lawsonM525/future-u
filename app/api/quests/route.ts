@@ -69,6 +69,9 @@ export async function GET(request: Request) {
 
     await connect()
 
+    // Subscription gating: only generate quests for premium users
+    const isPremium = session.user?.subscriptionTier === 'premium'
+
     const { searchParams } = new URL(request.url)
     const status = (searchParams.get('status') || 'active').toLowerCase()
     const limit = Math.max(1, Math.min(50, Number(searchParams.get('limit')) || (status === 'completed' ? 20 : 3)))
@@ -134,6 +137,10 @@ export async function GET(request: Request) {
 
     // If requesting active and none are found, generate them from top goals
     if (status === 'active' && list.length === 0) {
+      // Do not generate quests for non-premium users
+      if (!isPremium) {
+        return NextResponse.json({ quests: [] })
+      }
       if (!process.env.OPENAI_API_KEY) {
         return NextResponse.json({ quests: [] })
       }

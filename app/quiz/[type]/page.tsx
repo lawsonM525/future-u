@@ -214,7 +214,7 @@ export default function QuizPage() {
 
     // Otherwise, go to next question
     navigateToQuestion(currentQuestionIndex + 1)
-  }, [currentQuestion, sections, currentSection, markSectionComplete, currentSectionIndex, setShowSectionTransition, currentQuestionIndex, questions.length, saveAnswer, answers, session, quizType, clearQuizProgress, router, navigateToQuestion])
+  }, [currentQuestion, sections, currentSection, markSectionComplete, currentSectionIndex, setShowSectionTransition, currentQuestionIndex, questions.length, saveAnswer, answers, session, quizType, clearQuizProgress, router, navigateToQuestion, trackQuizCompleted])
 
   const handleSubmit = useCallback(async () => {
     setIsProcessing(true)
@@ -281,7 +281,7 @@ export default function QuizPage() {
     } finally {
       setIsProcessing(false)
     }
-  }, [currentQuestion, saveAnswer, currentAnswer, answers, session, clearQuizProgress, router, quizType])
+  }, [currentQuestion, saveAnswer, currentAnswer, answers, session, clearQuizProgress, router, quizType, trackQuizCompleted])
 
   const handleNext = useCallback(async () => {
     if (!currentQuestion) return

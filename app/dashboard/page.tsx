@@ -28,7 +28,7 @@ function TabSyncer({ onChange }: { onChange: (tab: DashboardSection) => void }) 
   useEffect(() => {
     // Sync tab from URL search param (e.g., ?tab=quests) and react to changes
     const tab = searchParams.get('tab') as DashboardSection | null
-    if (tab && ['strategy','goals','quests','resources','feedback','account'].includes(tab)) {
+    if (tab && ['strategy','goals','quests','resources','feedback','account','coach','friends'].includes(tab)) {
       onChange(tab)
     }
   }, [searchParams, onChange])

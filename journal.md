@@ -46,3 +46,7 @@ and yep, something broke!! yay! well let's see if i can get gitdoc to work today
 07/16/25 20:46
 TODOS:
 - Progress bare needs contrasting colors (maybe yellow and white?) .. how do we market this... need a banging marketing strategy!!!
+
+
+09/14/25 02:51
+and just like that, we're done!! I thank God.

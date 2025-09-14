@@ -3,8 +3,10 @@
 import * as React from 'react'
 import { GlowCard } from '@/components/ui/GlowCard'
 import { Button } from '@/components/ui/button'
-import { Plus, Minus, ExternalLink, RotateCcw, Trash2 } from 'lucide-react'
+import { Plus, Minus, ExternalLink, RotateCcw, Trash2, Lock } from 'lucide-react'
 import { useSound } from '@/hooks/useSound'
+import { useSession } from 'next-auth/react'
+import Link from 'next/link'
 
 export type QuestItem = {
   _id: string
@@ -26,6 +28,9 @@ type ResourceItem = {
 }
 
 export default function QuestsTab() {
+  const { data: session } = useSession()
+  const isPremium = session?.user?.subscriptionTier === 'premium'
+
   const [loadingActive, setLoadingActive] = React.useState(true)
   const [activeError, setActiveError] = React.useState<string | null>(null)
   const [active, setActive] = React.useState<QuestItem[]>([])
@@ -48,6 +53,11 @@ export default function QuestsTab() {
   const completedPageSize = 20
 
   const loadActive = React.useCallback(async () => {
+    if (!isPremium) {
+      setActive([])
+      setLoadingActive(false)
+      return
+    }
     setLoadingActive(true)
     setActiveError(null)
     try {
@@ -73,7 +83,7 @@ export default function QuestsTab() {
     } finally {
       setLoadingActive(false)
     }
-  }, [])
+  }, [isPremium])
 
   const reopenQuest = async (q: QuestItem) => {
     try {
@@ -134,6 +144,11 @@ export default function QuestsTab() {
   }
 
   const loadCompleted = React.useCallback(async () => {
+    if (!isPremium) {
+      setCompleted([])
+      setHasMore(false)
+      return
+    }
     if (!hasMore || loadingCompleted) return
     setLoadingCompleted(true)
     setCompletedError(null)
@@ -171,7 +186,7 @@ export default function QuestsTab() {
     } finally {
       setLoadingCompleted(false)
     }
-  }, [cursor, hasMore, loadingCompleted])
+  }, [cursor, hasMore, loadingCompleted, isPremium])
 
   React.useEffect(() => { loadActive() }, [loadActive])
   React.useEffect(() => { loadCompleted() }, [loadCompleted])
@@ -252,6 +267,88 @@ export default function QuestsTab() {
     } finally {
       setResLoading(false)
     }
+  }
+
+  // Premium-gated experience: show blurred teaser with brand colors and CTA
+  if (!isPremium) {
+    return (
+      <div className="space-y-6">
+        <div className="px-1">
+          <h1 className="mt-12 text-2xl md:text-3xl font-bold font-space-grotesk tracking-wide uppercase text-center">
+            YOUR QUESTS
+          </h1>
+        </div>
+        <GlowCard className="relative overflow-hidden p-6 md:p-8 border-transparent rounded-3xl">
+          {/* Teaser content behind blur so colors shine through */}
+          <div aria-hidden className="space-y-5 md:space-y-6 select-none">
+            {/* Top colorful progress stripes */}
+            <div className="space-y-2">
+              <div className="h-2.5 w-full rounded-full bg-white/10 overflow-hidden">
+                <div className="h-full bg-jonquil" style={{ width: '38%' }} />
+              </div>
+              <div className="h-2.5 w-11/12 rounded-full bg-white/10 overflow-hidden">
+                <div className="h-full bg-plum-web" style={{ width: '58%' }} />
+              </div>
+              <div className="h-2.5 w-4/5 rounded-full bg-white/10 overflow-hidden">
+                <div className="h-full bg-fluorescent-cyan" style={{ width: '22%' }} />
+              </div>
+            </div>
+            {/* Ghost quest cards to preserve spacing */}
+            <div className="space-y-4">
+              {[0,1,2].map((i) => (
+                <div key={i} className="rounded-xl p-4 bg-white/5">
+                  <div className="flex items-start justify-between gap-4">
+                    <div className="min-w-0 flex-1">
+                      <div className="h-4 w-3/5 rounded bg-white/10" />
+                      <div className="mt-2 h-3 w-32 rounded bg-white/10" />
+                    </div>
+                    <div className="flex shrink-0 items-center gap-1">
+                      <div className="h-8 w-8 rounded-md bg-white/10" />
+                      <div className="h-8 w-8 rounded-md bg-white/10" />
+                    </div>
+                  </div>
+                  <div className="mt-3 h-2.5 w-full rounded-full bg-white/10 overflow-hidden">
+                    <div className={`h-full ${i === 0 ? 'bg-jonquil' : i === 1 ? 'bg-plum-web' : 'bg-fluorescent-cyan'}`} style={{ width: i === 0 ? '46%' : i === 1 ? '28%' : '64%' }} />
+                  </div>
+                  <div className="mt-3 flex justify-center">
+                    <div className="h-8 w-56 rounded-full bg-white/10" />
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+          {/* Overlay */}
+          <div className="absolute inset-0 rounded-[inherit] bg-gradient-to-br from-night/10 via-night/40 to-night/60 backdrop-blur-lg md:backdrop-blur-xl backdrop-saturate-150 grid place-items-center p-6 md:p-8">
+            <div className="text-center max-w-sm mx-auto">
+              <div className="inline-flex items-center gap-2 text-foreground/80">
+                <Lock className="w-4 h-4" />
+                <span className="text-xs uppercase tracking-wide">Premium Feature</span>
+              </div>
+              <h3 className="mt-2 text-lg font-semibold">Daily Quests</h3>
+              <p className="mt-1.5 text-sm text-muted-foreground">
+                Upgrade to unlock personalized daily quests, progress tracking, and helpful resources.
+              </p>
+              <div className="mt-4">
+                <Button
+                  variant="jonquil"
+                  asChild
+                  onClick={() => {
+                    try {
+                      if (typeof window !== 'undefined' && typeof window.datafast === 'function') {
+                        window.datafast('premium_feature_clicked', { feature: 'daily_quests_tab', locked: 'true' })
+                        window.datafast('pricing_opened')
+                      }
+                    } catch {}
+                  }}
+                >
+                  <Link href="/account/subscription">Unlock Premium</Link>
+                </Button>
+              </div>
+            </div>
+          </div>
+        </GlowCard>
+      </div>
+    )
   }
 
   return (
