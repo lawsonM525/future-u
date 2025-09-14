@@ -21,7 +21,7 @@ export default function RoadmapPage() {
         </h1>
         
         <p className="text-lg text-center mb-3">
-          We&apos;re building Future U to be your comprehensive guide from your present self to your dream future self, severy step of the way.
+          We&apos;re building Future U to be your comprehensive guide from your present self to your dream future self, every step of the way.
         </p>
         <p className="text-lg text-center mb-12">
           Here&apos;s what we&apos;ve already done and what we&apos;re working on next:
@@ -47,28 +47,47 @@ export default function RoadmapPage() {
             </p>
           </div>
 
-          {/* timeline */}
+          {/* Strategy Summary + Timeline (available now) */}
           <div className="bg-white/5 backdrop-blur-sm rounded-xl p-6 mb-6 transition hover:bg-white/10">
             <h3 className="text-xl font-semibold mb-2 flex items-center">
               <span className="mr-2">📸</span>
-              <span> Visual Timeline</span>
+              <span> Strategy Summary + Timeline</span>
             </h3>
             
             <p className="text-md text-gray-200">
-              See a summary of your future path with a timeline graphic that you can post on Instagram stories, LinkedIn, or anywhere else.
+              See a concise summary of your strategy report along with a clear timeline of the steps to reach your dream life.
             </p>
             
             <p className="text-md text-gray-200 mt-2">
-             You get a personalized design based on your quiz results—perfect for reminding yourself or showing the world what you&apos;re working toward.
+              Use it to keep your weekly focus tight and your momentum strong.
             </p>
-            <div className="mt-4 p-4 bg-yellow-500/10 rounded-lg">
-              <p className="text-sm text-yellow-200">
-                🎨 We&apos;re currently looking for an animator to make this more cutesy! 
-                <Link href="/careers" className="ml-1 underline hover:text-yellow-300">
-                  Check out our careers page
-                </Link>
-              </p>
-            </div>
+          </div>
+
+          {/* Future U Avatar (available now) */}
+          <div className="bg-white/5 backdrop-blur-sm rounded-xl p-6 mb-6 transition hover:bg-white/10">
+            <h3 className="text-xl font-semibold mb-2 flex items-center">
+              <span className="mr-2">👩‍✈️</span>
+              <span>Future U Avatar</span>
+            </h3>
+            <p className="text-md text-gray-200 mb-4">
+              Build and customize a character of your Future You — a visual reminder of who you&apos;re becoming. Save it and share it anywhere.
+            </p>
+            <ul className="list-disc pl-6 text-gray-300 space-y-1">
+              <li>Start from a default character</li>
+              <li>Customize to match your vibe and ambition</li>
+              <li>Download as an image for your profile picture</li>
+            </ul>
+          </div>
+
+          {/* Weekly Check-ins (available now, Premium) */}
+          <div className="bg-white/5 backdrop-blur-sm rounded-xl p-6 mb-6 transition hover:bg-white/10">
+            <h3 className="text-xl font-semibold mb-2 flex items-center">
+              <span className="mr-2">💌</span>
+              <span>Weekly Check-ins (Premium)</span>
+            </h3>
+            <p className="text-md text-gray-200">
+              A weekly reminder that keeps your strategy top of mind — what matters this week and what you need to accomplish to move toward your goal.
+            </p>
           </div>
         </div>
 
@@ -79,68 +98,40 @@ export default function RoadmapPage() {
             <span>Coming Soon</span>
           </h2>
           
-          {/* Feature 1 */}
+          {/* Shareable Timeline Card (coming soon) */}
           <div className="bg-white/5 backdrop-blur-sm rounded-xl p-6 mb-6 transition hover:bg-white/10">
             <h3 className="text-xl font-semibold mb-2 flex items-center">
-              <span className="mr-2">👩‍✈️</span>
-              <span>Future U Avatar</span>
+              <span className="mr-2">🖼️</span>
+              <span>Shareable Timeline Card</span>
             </h3>
-            
             <p className="text-md text-gray-200 mb-4">
-              Build a customized character of your future self that represents who you&apos;re trying to become.
+              A polished visual card of your strategy timeline — perfect for Instagram Stories, LinkedIn, or anywhere you share wins.
             </p>
-            
-            <ul className="list-disc pl-6 text-gray-300 space-y-1">
-              <li>Start with a random default character</li>
-              <li>Customize it to represent who you&apos;re trying to be - that CEO, that poet, that rockstar 🎸</li>
-              <li>You can save an image of this character to use as your profile picture!</li>
-            </ul>
-
             <div className="mt-4 p-4 bg-yellow-500/10 rounded-lg">
               <p className="text-sm text-yellow-200">
-                🎨 We&apos;re currently looking for an illustrator to help out with this! 
+                🎨 We&apos;re looking for an animator to make this extra cute!
                 <Link href="/careers" className="ml-1 underline hover:text-yellow-300">
-                  Check out our careers page
+                  See open roles
                 </Link>
               </p>
             </div>
           </div>
           
-          {/* Feature 2 */}
+          {/* Weekly Scorecard + XP System (coming soon) */}
           <div className="bg-white/5 backdrop-blur-sm rounded-xl p-6 mb-6 transition hover:bg-white/10">
             <h3 className="text-xl font-semibold mb-2 flex items-center">
               <span className="mr-2">📈</span>
-              <span>Weekly Glow Scorecard + XP System</span>
+              <span>Weekly Scorecard + XP System</span>
             </h3>
             
             <p className="text-md text-gray-200 mb-4">
-              Based on your strategy report, you&apos;ll be given weekly tasks you can complete to help you get closer and closer to your Future U.
-              By checking off those tasks, you earn more points in an XP system.
+              We&apos;ll help keep you accountable to your goals. Snap pictures of the quests you complete each week — the more you complete, the more we update your scorecard and your XP.
             </p>
             
             <ul className="list-disc pl-6 text-gray-300 space-y-1">
-              <li>We&apos;ll send over a weekly scorecard to let you know what you&apos;ve completed</li>
-              <li>Share your progress with friends and your social media community</li>
-              <li>Let them know that you&apos;re taking yourself seriously and you&apos;re on track</li>
-            </ul>
-          </div>
-          
-          {/* Feature 3 */}
-          <div className="bg-white/5 backdrop-blur-sm rounded-xl p-6 mb-6 transition hover:bg-white/10">
-            <h3 className="text-xl font-semibold mb-2 flex items-center">
-              <span className="mr-2">💌</span>
-              <span>Weekly Check-ins from Your Future U</span>
-            </h3>
-            
-            <p className="text-md text-gray-200 mb-4">
-              Each week, get an email check-in to remind you and encourage you along the way with some of our favorite quotes.
-              Choose your tone:
-            </p>
-            
-            <ul className="list-disc pl-6 text-gray-300 space-y-1">
-              <li>Affirming mom</li>
-              <li>Brutally honest baddie</li>
-              <li>Wise Ghanaian uncle</li>
+              <li>Weekly scorecard summarizes your wins and progress</li>
+              <li>XP system grows as you complete more quests</li>
+              <li>Share progress with friends and your community</li>
             </ul>
           </div>
           

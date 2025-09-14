@@ -127,13 +127,7 @@ export function BrowserWarning(): JSX.Element | null {
             </div>
           )}
           <div className="flex flex-col space-y-2 pt-2">
-            <Button 
-              onClick={tryOpenExternally}
-              className="flex items-center justify-center gap-2"
-            >
-              <ExternalLink size={16} />
-              Open in Browser
-            </Button>
+          
             <Button 
               onClick={copyLinkToClipboard}
               className="flex items-center justify-center gap-2"
