@@ -142,12 +142,13 @@ export async function POST(request: Request) {
         const obj = input as Record<string, unknown>
         const summary = typeof obj.summary === 'string' ? obj.summary.trim() : ''
         const archetypeTagRaw = typeof obj.archetypeTag === 'string' ? obj.archetypeTag.trim() : ''
+        const archetypeTagNormalized = archetypeTagRaw.toLowerCase()
         const report_md = typeof obj.report_md === 'string' ? obj.report_md : ''
-        const isValidTag = (archetypeOptions as readonly string[]).includes(archetypeTagRaw)
+        const isValidTag = (archetypeOptions as readonly string[]).includes(archetypeTagNormalized)
         if (!summary || !report_md || !isValidTag) {
           throw new Error('Model output missing required fields or invalid archetypeTag')
         }
-        return { summary, archetypeTag: archetypeTagRaw as ArchetypeTag, report_md }
+        return { summary, archetypeTag: archetypeTagNormalized as ArchetypeTag, report_md }
       }
 
       const completion = await openai.chat.completions.create({

@@ -5,7 +5,6 @@ import { Providers } from './providers'
 import { ToastContainer } from '@/components/ui/toast'
 import { Footer } from '@/components/Footer'
 import Script from 'next/script'
-import { BrowserWarning } from '@/components/BrowserWarning'
 import type { Metadata } from 'next'
 
 
