@@ -41,6 +41,8 @@ export async function GET() {
     return NextResponse.json({
       reportId: report._id.toString(),
       reportContent: report.content,
+      summary: report.summary || null,
+      archetypeTag: report.archetypeTag || null,
       createdAt: report.createdAt
     })
   } catch (error) {

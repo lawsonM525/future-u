@@ -6,9 +6,11 @@ import { Button } from '@/components/ui/button'
 import { motion, useInView } from 'framer-motion'
 import * as React from 'react'
 import { Plus, Share2 } from 'lucide-react'
+import { useSound } from '@/hooks/useSound'
 
 interface TimelineProps {
   checkpoints: TimelineCheckpoint[]
+  onShare?: (title: string, text: string) => void
 }
 
 function useShare() {
@@ -30,13 +32,13 @@ async function addGoalFromCheckpoint(cp: TimelineCheckpoint) {
     await fetch('/api/goals', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ title: cp.title, description: cp.description, checkpointYear: cp.year })
+      body: JSON.stringify({ title: cp.title, description: cp.description ?? '', checkpointYear: cp.year })
     })
   } catch {}
 }
 
-export function Timeline({ checkpoints }: TimelineProps) {
-  const share = useShare()
+export function Timeline({ checkpoints, onShare }: TimelineProps) {
+  const fallbackShare = useShare()
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
@@ -65,7 +67,7 @@ export function Timeline({ checkpoints }: TimelineProps) {
       </aside>
       <section className="md:col-span-9 space-y-4">
         {checkpoints.map((cp, i) => (
-          <TimelineItem key={`${cp.year}-${i}`} cp={cp} onShare={share} />
+          <TimelineItem key={`${cp.year}-${i}`} cp={cp} onShare={onShare ?? fallbackShare} />
         ))}
       </section>
     </div>
@@ -76,6 +78,7 @@ function TimelineItem({ cp, onShare }: { cp: TimelineCheckpoint; onShare: (title
   const ref = React.useRef<HTMLDivElement | null>(null)
   const inView = useInView(ref, { amount: 0.2, once: true })
   const [expanded, setExpanded] = React.useState(false)
+  const { play } = useSound()
   return (
     <motion.div
       ref={ref}
@@ -100,10 +103,14 @@ function TimelineItem({ cp, onShare }: { cp: TimelineCheckpoint; onShare: (title
             )}
           </div>
           <div className="flex gap-2">
-            <Button size="sm" variant="outline" onClick={() => addGoalFromCheckpoint(cp)} className="gap-1">
+            <Button
+              variant="jonquil"
+              className="gap-1 rounded-full px-4 font-bold text-black text-base"
+              onClick={() => { play('plop', 0.45); addGoalFromCheckpoint(cp) }}
+            >
               <Plus className="w-4 h-4" /> Add to Goals
             </Button>
-            <Button size="sm" variant="outline" onClick={() => onShare(cp.title, cp.description)} className="gap-1">
+            <Button size="sm" variant="outline" onClick={() => onShare(cp.title, cp.description ?? '')} className="gap-1">
               <Share2 className="w-4 h-4" /> Share
             </Button>
           </div>

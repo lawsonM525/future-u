@@ -77,7 +77,7 @@ export function Footer() {
         {/* Copyright */}
         <div className="mt-8 pt-8 border-t border-zinc-800">
           <p className="text-center text-zinc-500 text-sm font-light">
-            Copyright {new Date().getFullYear()} FutureU by Michelle Lawson. All rights reserved.
+            Copyright {new Date().getFullYear()} Future U by LWSN Labs. All rights reserved.
           </p>
         </div>
       </div>

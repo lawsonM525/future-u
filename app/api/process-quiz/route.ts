@@ -3,6 +3,7 @@ import { OpenAI } from 'openai'
 import { Pinecone } from '@pinecone-database/pinecone'
 import { connect } from '@/lib/mongodb'
 import { Report } from '@/models/Report'
+import { parseReportContent } from '@/lib/reportParser'
 // Timeline generation has been split into a separate endpoint to avoid long runtimes
 import { auth } from '@/app/utils/authOptions'
 
@@ -115,78 +116,96 @@ export async function POST(request: Request) {
         console.warn('No relevant data found in Pinecone response')
       }
 
-      // 5. Generate career roadmap report with actionable, data-driven insights
+      // 5. Generate structured output: concise summary, archetype tag, and a markdown report (strengths + strategies only)
+      function extractJson(content: string): unknown {
+        const trimmed = content.trim()
+        const fenceMatch = trimmed.match(/```(?:json)?\n([\s\S]*?)\n```/i)
+        const jsonStr = fenceMatch ? fenceMatch[1] : trimmed
+        return JSON.parse(jsonStr)
+      }
+
+      const archetypeOptions = [
+        'the spark','the oracle','the outlaw','the lighthouse','the glitch','the alchemist','the phoenix','the visionary','the shapeshifter','the maverick','the muse','the architect','the adventurer','the storm','the mirror','the rebel heart','the gardener','the trailblazer','the nomad','the north star','the hacker','the flame','the scribe','the dreamweaver','the creator'
+      ] as const
+
+      type ArchetypeTag = typeof archetypeOptions[number]
+      interface ModelResponse {
+        summary: string
+        archetypeTag: ArchetypeTag
+        report_md: string
+      }
+
+      function coerceModelResponse(input: unknown): ModelResponse {
+        if (typeof input !== 'object' || input === null) {
+          throw new Error('Model output is not an object')
+        }
+        const obj = input as Record<string, unknown>
+        const summary = typeof obj.summary === 'string' ? obj.summary.trim() : ''
+        const archetypeTagRaw = typeof obj.archetypeTag === 'string' ? obj.archetypeTag.trim() : ''
+        const archetypeTagNormalized = archetypeTagRaw.toLowerCase()
+        const report_md = typeof obj.report_md === 'string' ? obj.report_md : ''
+        const isValidTag = (archetypeOptions as readonly string[]).includes(archetypeTagNormalized)
+        if (!summary || !report_md || !isValidTag) {
+          throw new Error('Model output missing required fields or invalid archetypeTag')
+        }
+        return { summary, archetypeTag: archetypeTagNormalized as ArchetypeTag, report_md }
+      }
+
       const completion = await openai.chat.completions.create({
         model: "gpt-4o",
         messages: [
           {
             role: "system",
-            content: `You are a career guidance expert. Analyze the user's quiz responses and the provided relevant career insights data (extracted from tweets, job boards, reddit posts, etc.) and generate a detailed, step-by-step career roadmap report that takes the user from where they are now to becoming their career hero. Think "your future, mapped out" - a journey that transforms them from zero to hero with actionable, specific checkpoints.
+            content: `You are a career guidance expert. Analyze the user's quiz responses and the provided relevant career insights data and return ONLY valid JSON with this exact shape:
+{
+  "summary": string, // 1-2 sentences, concise, plain text (no markdown)
+  "archetypeTag": string, // exactly one of: ${archetypeOptions.join(', ')}
+  "report_md": string // markdown containing ONLY the following H2 sections in this order: \n## CURRENT STRENGTHS & TALENTS\n\n## STRATEGIES FOR GROWTH\n
+}
 
-Break your report into these sections:
+Instructions:
+- Do NOT include any milestones or timeline content in report_md. Those are generated elsewhere.
+- CURRENT STRENGTHS & TALENTS: Provide 3-4 strengths. For each, write a short title line followed by one paragraph. Use paragraphs only. Do NOT use bullets. Do NOT add any bold/italic formatting or markdown beyond the H2 heading and plain paragraphs.
+- STRATEGIES FOR GROWTH: Provide 3-4 strategies. For each, include a short title line and a bullet list of 1-3 concise actions. Use bullets here.
+- Use data-driven insights when possible (from the provided context).
 
-1. **VISION & DREAM STATE**
- - Describe the ultimate career vision the user aspires to achieve using vivid, inspiring language.
- - Guide them to visualize their dream future as both attainable and transformative.
-
-2. **CURRENT STRENGTHS & TALENTS**
- - Identify 3-4 key strengths and talents from their quiz responses.
- - Provide clear titles and detailed explanations with practical examples on leveraging these strengths.
-
-3. **MILESTONES & CHECKPOINTS (YOUR ROADMAP TO SUCCESS)**
- - Outline 5-7 actionable milestones marking key steps on the journey from zero to hero.
- - For each milestone, include specific, measurable actions the user can take.
- - Incorporate unique and actionable career insights derived from the provided data - like emerging skills, networking tips, or industry trends.
- - Stress the importance of celebrating small wins and re-committing to your dream at each checkpoint.
-
-4. **STRATEGIES FOR GROWTH & OVERCOMING OBSTACLES**
- - Offer 3-4 practical strategies to navigate setbacks, detours, and distractions.
- - Focus on how this specific user can build resilience, adapt to change, and maintain unwavering commitment.
- - Integrate data-driven advice (e.g., trending career skills, innovative industry strategies) from the relevant career context.
- - Include motivational insights that reinforce persistence and the power of recommitment.
-
-Format each section with a clear title in bold, followed by detailed explanations. Use bullet points or numbered lists where appropriate, and ensure double line breaks between sections and points for clarity.
-
-WRITING STYLE RULES:
-- Use clear, simple language.
-- Be spartan and informative.
-- Use short, impactful sentences.
-- Use active voice. Avoid passive voice.
-- Focus on practical, actionable insights.
-- Use bullet point lists for social-media-ready snippets.
-- Use data and examples to support claims when possible.
-- Address the reader directly using "you" and "your".
-- Do not use em dashes. Use commas or periods.
-- Avoid constructions like "not just this, but also this".
-- Avoid metaphors and clichés.
-- Avoid generalizations.
-- Do not include any setup phrases like "in conclusion" or "in closing".
-- Do not include warnings or notes. Output the content only.
-- Avoid unnecessary adjectives and adverbs.
-- Do not use hashtags.
-- Do not use semicolons.
-- Do not use markdown formatting characters beyond headings and lists already specified. No asterisks outside headings/lists.
-- Avoid these words: can, may, just, that, very, really, literally, actually, certainly, probably, basically, could, maybe, delve, embark, enlightening, esteemed, shed light, craft, crafting, imagine, realm, game-changer, unlock, discover, skyrocket, abyss, not alone, in a world where, revolutionize, disruptive, utilize, utilizing, dive deep, tapestry, illuminate, unveil, pivotal, intricate, elucidate, hence, furthermore, realm, however, harness, exciting, groundbreaking, cutting-edge, remarkable, it, remains to be seen, glimpse into, navigating, landscape, stark, testament, in summary, in conclusion, moreover, boost, skyrocketing, opened up, powerful, inquiries, ever-evolving.
-
-Tone: encouraging and hopeful. Back every encouragement with practical actions the reader can take to reach their checkpoints.
+Formatting rules:
+- Leave a blank line between headings, titles, and paragraphs.
+- Avoid markdown characters other than headings and bullet hyphens in the strategies list.
+- No hashtags, semicolons, or em dashes. Use commas or periods.
+- Avoid filler words and clichés. Be specific.
 `
           },
           {
             role: "user",
-            content: `User Profile:\n` + userProfile + `\n\nRelevant Career Context:\n` + relevantData
+            content: `User Profile:\n${userProfile}\n\nRelevant Career Context:\n${relevantData}`
           }
         ],
         temperature: 0.7,
         max_tokens: 2000
       }, { signal: controller.signal })
 
-      const reportContent = completion.choices[0].message.content
+      const raw = completion.choices[0].message.content || '{}'
+      let parsedUnknown: unknown
+      try {
+        parsedUnknown = extractJson(raw)
+      } catch {
+        const fallback = raw.replace(/^.*?(\{[\s\S]*\}).*$/, '$1')
+        parsedUnknown = JSON.parse(fallback)
+      }
+
+      const parsed = coerceModelResponse(parsedUnknown)
+      const summary = parsed.summary
+      const archetypeTag = parsed.archetypeTag
+      const reportContent = parsed.report_md
 
       // Timeline generation moved to /api/generate-timeline to reduce request duration
 
       // Create report document
       const report = new Report({
         content: reportContent,
+        summary,
+        archetypeTag,
         userId: session.user.id,
         careers: queryResponse.matches
           .filter((match): match is typeof match & { score: number } => 
@@ -202,6 +221,85 @@ Tone: encouraging and hopeful. Back every encouragement with practical actions t
 
       await report.save()
 
+      // 6. Generate Strategy Resources (Exa) ONCE and store on the report
+      try {
+        const exaKey = process.env.EXA_API_KEY
+        if (exaKey) {
+          const parsedReport = parseReportContent(reportContent)
+          const strategies = parsedReport.strategies || []
+          type ExaResult = {
+            title: string
+            url: string
+            author?: string | null
+            publishedDate?: string | null
+            text?: string
+            summary?: string
+            favicon?: string
+            image?: string
+          }
+          const perBullet = 2
+          const groups: Array<{
+            title: string
+            details: Array<{ text: string; results: Array<{ title: string; url: string; snippet?: string; author?: string | null; publishedDate?: string | null; favicon?: string; image?: string }> }>
+          }> = []
+
+          for (const s of strategies) {
+            const details = Array.isArray(s.details) ? s.details.filter(Boolean) : []
+            const queries = details.map(text => ({ text }))
+
+            const responses = await Promise.all(
+              queries.map(async ({ text }) => {
+                const body = {
+                  query: text,
+                  type: 'auto',
+                  numResults: perBullet,
+                  contents: { text: true },
+                  moderation: true,
+                }
+                const res = await fetch('https://api.exa.ai/search', {
+                  method: 'POST',
+                  headers: {
+                    'content-type': 'application/json',
+                    'x-api-key': exaKey,
+                  },
+                  body: JSON.stringify(body),
+                })
+                if (!res.ok) return { text, results: [] as ExaResult[] }
+                const json = await res.json()
+                const results: ExaResult[] = Array.isArray(json.results) ? json.results : []
+                return { text, results }
+              })
+            )
+
+            const detailResults = responses.map(r => ({
+              text: r.text,
+              results: r.results.slice(0, perBullet).map((rr) => ({
+                title: rr.title,
+                url: rr.url,
+                snippet: rr.summary || (typeof rr.text === 'string' ? rr.text.slice(0, 240) : undefined),
+                author: rr.author ?? null,
+                publishedDate: rr.publishedDate ?? null,
+                favicon: rr.favicon,
+                image: rr.image,
+              }))
+            }))
+
+            groups.push({ title: s.title, details: detailResults })
+          }
+
+          report.strategyResources = {
+            strategies: groups,
+            generatedAt: new Date(),
+          }
+          await report.save()
+        } else {
+          console.warn('EXA_API_KEY not set; skipping strategy resources generation')
+        }
+      } catch (e) {
+        console.error('Failed to generate strategy resources:', e)
+        // do not fail the request; resources can be generated lazily later
+      }
+
       // Timeline will be generated asynchronously by calling /api/generate-timeline
 
       // Clear timeout
@@ -209,7 +307,9 @@ Tone: encouraging and hopeful. Back every encouragement with practical actions t
 
       return NextResponse.json({ 
         reportId: report._id.toString(),
-        reportContent, 
+        reportContent,
+        summary,
+        archetypeTag,
         relevantCareers: report.careers.map((career: { metadata: { text?: string } }) => career.metadata?.text).filter(Boolean).join('\n')
       })
     } catch (err: unknown) {

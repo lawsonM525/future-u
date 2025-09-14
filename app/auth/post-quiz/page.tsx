@@ -38,7 +38,7 @@ function PostQuizContent() {
         throw new Error(errorData.error || 'Failed to process quiz');
       }
 
-      router.push('/report/latest')
+      router.push('/dashboard')
     } catch (error) {
       console.error('Error processing quiz:', error);
       setError(error instanceof Error ? error.message : 'An unexpected error occurred');

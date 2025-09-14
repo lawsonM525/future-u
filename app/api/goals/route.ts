@@ -45,12 +45,27 @@ export async function POST(request: Request) {
 
     await connect()
 
+    // Prevent duplicates by checking existing goals with same normalized title and same year
+    const norm = (s: string) => s.toLowerCase().replace(/\s+/g, ' ').trim()
+    const incomingYear = Number.isFinite(Number(body.checkpointYear)) ? Number(body.checkpointYear) : undefined
+
+    const existing = await Goal.find({ userId: session.user.id }).select('title checkpointYear status createdAt').lean()
+    const match = existing.find(g => norm(String(g.title || '')) === norm(title) && (
+      (typeof incomingYear === 'number' && typeof g.checkpointYear === 'number' && g.checkpointYear === incomingYear) ||
+      (incomingYear === undefined && (g.checkpointYear === undefined || g.checkpointYear === null))
+    ))
+
+    if (match) {
+      // Idempotent response: return existing goal
+      return NextResponse.json({ goal: match }, { status: 200 })
+    }
+
     const goal = await Goal.create({
       userId: session.user.id,
       title,
       description: body.description?.trim() || '',
       status: body.status || 'pending',
-      checkpointYear: Number.isFinite(Number(body.checkpointYear)) ? Number(body.checkpointYear) : undefined,
+      checkpointYear: incomingYear,
       dueDate: body.dueDate ? new Date(body.dueDate) : null,
     })
 

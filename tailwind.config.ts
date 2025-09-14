@@ -16,6 +16,14 @@ const config: Config = {
   			'rubik-mono-one': ['var(--font-rubik-mono-one)', 'monospace'],
   		},
   		colors: {
+        'eerie-black': '#1c1c1c',
+        'night': '#000000',
+        'cream': '#FFFFEE',
+        'canary': '#fee402',
+        'jonquil': '#fdca00',
+        'fluorescent-cyan': '#0beae2',
+        'plum-web': '#e69ee4',
+        'lime': '#b8f500',
   			background: 'hsl(var(--background))',
   			foreground: 'hsl(var(--foreground))',
   			card: {
