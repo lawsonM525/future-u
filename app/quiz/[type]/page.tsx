@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect, useCallback } from 'react'
+import posthog from 'posthog-js'
 import { useParams, useRouter } from 'next/navigation'
 import { useSession } from 'next-auth/react'
 import { motion, AnimatePresence } from 'framer-motion'
@@ -43,15 +44,20 @@ export default function QuizPage() {
   // DataFast helper
   const track = useCallback((goal: string, params?: Record<string, string | undefined>) => {
     try {
-      if (typeof window !== 'undefined' && typeof window.datafast === 'function') {
-        const cleaned: Record<string, string> = {}
-        if (params) {
-          for (const [k, v] of Object.entries(params)) {
-            if (v !== undefined && v !== null) cleaned[k] = String(v)
-          }
+      const cleaned: Record<string, string> = {}
+      if (params) {
+        for (const [k, v] of Object.entries(params)) {
+          if (v !== undefined && v !== null) cleaned[k] = String(v)
         }
+      }
+
+      // DataFast (existing)
+      if (typeof window !== 'undefined' && typeof window.datafast === 'function') {
         window.datafast(goal, cleaned)
       }
+
+      // PostHog
+      posthog.capture(goal, cleaned)
     } catch {}
   }, [])
   const trackQuizCompleted = useCallback((qt: string) => {
