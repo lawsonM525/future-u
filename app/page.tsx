@@ -80,7 +80,7 @@ export default function LandingPage() {
               <Button 
                 variant="yellow"
                 size="lg" 
-                className="animate-slide-then-pulse font-extrabold rounded-full transition-transform duration-200 ease-out hover:scale-110"
+                className="animate-slide-then-pulse font-extrabold rounded-full transition-transform duration-200 ease-out hover:scale-110 h-12 md:h-14 px-10 md:px-12 text-lg md:text-xl"
               >
                 Start your Journey
               </Button>
