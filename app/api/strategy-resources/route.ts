@@ -40,8 +40,11 @@ interface StrategyResourcesGroup {
 function pickTop(results: ExaResult[], limit: number) {
   const out: StrategyResourceItem['results'] = []
   for (const r of results.slice(0, limit)) {
+    const safeTitle = (typeof r.title === 'string' && r.title.trim().length > 0)
+      ? r.title.trim()
+      : (r.url || 'Resource')
     const item: StrategyResourceItem['results'][number] = {
-      title: r.title,
+      title: safeTitle,
       url: r.url,
       snippet: r.summary || (typeof r.text === 'string' ? r.text.slice(0, 240) : undefined),
       author: r.author ?? null,
@@ -83,12 +86,15 @@ export async function GET(request: Request) {
     }
 
     const parsed = parseReportContent(String(report.content || ''))
-    const strategies = parsed.strategies || []
+    const strategies = Array.isArray(parsed.strategies)
+      ? parsed.strategies.filter((s) => !!s && typeof s.title === 'string' && s.title.trim().length > 0)
+      : []
 
     // For each strategy detail sentence, query Exa
     const groups: StrategyResourcesGroup[] = []
 
     for (const s of strategies) {
+      const groupTitle = String(s.title).trim()
       const details = Array.isArray(s.details) ? s.details.filter(Boolean) : []
       const detailResults: StrategyResourceItem[] = []
 
@@ -126,7 +132,7 @@ export async function GET(request: Request) {
         detailResults.push({ text: r.text, results: pickTop(r.results, perBullet) })
       }
 
-      groups.push({ title: s.title, details: detailResults })
+      groups.push({ title: groupTitle, details: detailResults })
     }
 
     // Save to report so we only generate once per report
