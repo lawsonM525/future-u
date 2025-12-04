@@ -70,7 +70,7 @@ const SECTIONS = [
           <p className="font-bold mb-2">BONUS TIP 💡</p>
           <p>
             You can get pretty good at Python by watching the free full Python
-            course on Youtube by 'Programming with Mosh'.
+            course on Youtube by &apos;Programming with Mosh&apos;.
           </p>
           <div className="flex gap-1 text-[#00ff00] mt-2">
             <span>★</span>
@@ -94,7 +94,7 @@ const SECTIONS = [
         <div className="mt-8">
           <p className="font-bold mb-2">Bonus AI Tools:</p>
           <p>
-            If you're down to code with AI, you can also check out these IDEs:
+            If you&apos;re down to code with AI, you can also check out these IDEs:
           </p>
           <ul className="mt-2 space-y-1">
             <li>★ Windsurf ★</li>
@@ -123,7 +123,7 @@ const SECTIONS = [
           <li>You will plug that output into your application.</li>
           <li>
             (can also be done for images, audio and other media, but start with
-            text.. it's cheaper)
+            text.. it&apos;s cheaper)
           </li>
         </ul>
 
