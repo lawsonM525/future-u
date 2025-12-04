@@ -1,4 +1,4 @@
-import { Space_Grotesk, Rubik_Mono_One } from 'next/font/google'
+import { Space_Grotesk, Rubik_Mono_One, VT323 } from 'next/font/google'
 import { ThemeProvider } from '@/components/theme-provider'
 import './globals.css'
 import { Providers } from './providers'
@@ -18,6 +18,12 @@ const rubikMonoOne = Rubik_Mono_One({
   subsets: ['latin'],
   weight: '400',
   variable: '--font-rubik-mono-one'
+})
+
+const vt323 = VT323({
+  subsets: ['latin'],
+  weight: '400',
+  variable: '--font-vt323'
 })
 
 export const metadata: Metadata = {
@@ -104,7 +110,7 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="en" suppressHydrationWarning className={`${spaceGrotesk.variable} ${rubikMonoOne.variable}`}>
+    <html lang="en" suppressHydrationWarning className={`${spaceGrotesk.variable} ${rubikMonoOne.variable} ${vt323.variable}`}>
       <head>
         <Script
           id="datafast-queue"

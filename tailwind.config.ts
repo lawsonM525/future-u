@@ -14,6 +14,7 @@ const config: Config = {
   			'space-grotesk': ['var(--font-space-grotesk)', 'sans-serif'],
   			'righteous': ['var(--font-righteous)', 'sans-serif'],
   			'rubik-mono-one': ['var(--font-rubik-mono-one)', 'monospace'],
+  			'terminal': ['var(--font-vt323)', 'monospace'],
   		},
   		colors: {
         'eerie-black': '#1c1c1c',
