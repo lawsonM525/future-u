@@ -19,13 +19,6 @@ export function SidebarNav({
   className?: string
 }) {
   const handleClick = (key: DashboardSection) => {
-    if (key === 'quests') {
-      try {
-        if (typeof window !== 'undefined' && typeof window.datafast === 'function') {
-          window.datafast('premium_feature_clicked', { feature: 'daily_quests_tab' })
-        }
-      } catch {}
-    }
     onChange(key)
   }
   return (

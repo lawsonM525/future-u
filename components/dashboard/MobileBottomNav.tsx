@@ -90,11 +90,6 @@ export function MobileBottomNav({
                     selected ? selectedClasses : unselectedClasses
                   )}
                   onClick={() => {
-                    try {
-                      if (key === 'quests' && typeof window !== 'undefined' && typeof window.datafast === 'function') {
-                        window.datafast('premium_feature_clicked', { feature: 'daily_quests_tab' })
-                      }
-                    } catch {}
                     onChange(key)
                   }}
                 >
