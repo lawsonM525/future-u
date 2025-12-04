@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
 
@@ -9,7 +9,7 @@ const SECTIONS = [
     id: "what-does",
     title: "Section 1.\nWhat an AI Engineer Does",
     content: (
-      <div className="space-y-6">
+      <div className="space-y-6 animate-in fade-in duration-500">
         <p>
           An AI Engineer builds software that uses AI systems.
           <br />
@@ -50,7 +50,7 @@ const SECTIONS = [
     id: "foundations",
     title: "Section 2.\nTechnical Foundations",
     content: (
-      <div className="space-y-6">
+      <div className="space-y-6 animate-in fade-in duration-500">
         <p>Choose one coding path.</p>
         <ul className="space-y-1">
           <li>Frontend with JavaScript/TypeScript.</li>
@@ -111,34 +111,53 @@ const SECTIONS = [
     id: "using-models",
     title: "Section 3.\nUsing AI Models",
     content: (
-      <div className="space-y-6">
+      <div className="space-y-8 animate-in fade-in duration-500">
         <div className="border border-[#00ff00] p-4">
-          <p>You can now work with model APIs.</p>
-          <p>This is where your AI skills begin.</p>
-        </div>
+            <p className="mb-4 text-xl">Use a simple diagram to guide your thinking.</p>
+            
+            <div className="flex flex-col md:flex-row items-center justify-between gap-4 my-6 text-center font-mono">
+                <div className="flex flex-col items-center">
+                    <div className="border border-[#00ff00] px-4 py-2 mb-2">Input</div>
+                    <p className="text-sm text-[#00ff00]/70 max-w-[120px]">Your message or data.</p>
+                </div>
+                <div className="text-2xl">→</div>
+                <div className="flex flex-col items-center">
+                    <div className="border border-[#00ff00] px-4 py-2 mb-2">Model</div>
+                    <p className="text-sm text-[#00ff00]/70 max-w-[120px]">The API that processes your input.</p>
+                </div>
+                <div className="text-2xl">→</div>
+                <div className="flex flex-col items-center">
+                    <div className="border border-[#00ff00] px-4 py-2 mb-2">Output</div>
+                    <p className="text-sm text-[#00ff00]/70 max-w-[120px]">The response you use in your product.</p>
+                </div>
+            </div>
 
-        <ul className="space-y-2">
-          <li>You will learn to send text to a model.</li>
-          <li>You will get text back.</li>
-          <li>You will plug that output into your application.</li>
-          <li>
-            (can also be done for images, audio and other media, but start with
-            text.. it&apos;s cheaper)
-          </li>
-        </ul>
+            <p className="font-bold mb-2 mt-6">Action step</p>
+            <p className="mb-2">Draw this diagram on paper.</p>
+            <p className="mb-2">Write an example input and output. This helps you understand the flow of AI work.</p>
+        </div>
 
         <div className="mt-8">
-          <p className="font-bold mb-2">To do:</p>
-          <p>Visit platform.openai.com/playground</p>
-          <p>Type a question into the text box.</p>
-          <p>Press submit.</p>
-          <p>This shows you how AI responds to inputs.</p>
+            <p className="font-bold mb-2">BONUS TIP</p>
+            <p>Always decide what you want the output format to be and clarify this in your code via prompt engineering.</p>
         </div>
 
-        <p className="mt-6">
-          Now go figure out how to get the Open AI API communicating with your
-          codebase (no biggie, i promise)
-        </p>
+        <div className="mt-8 border-t border-[#00ff00] pt-6">
+             <p className="mb-4">You can use four model features early on.</p>
+             <ul className="list-disc list-inside space-y-2 ml-2">
+                 <li>Chat completions for text.</li>
+                 <li>Embeddings for finding meaning.</li>
+                 <li>Vision for image inputs.</li>
+                 <li>Fine tuning for custom behavior.</li>
+             </ul>
+        </div>
+
+        <div className="mt-8">
+            <p className="font-bold mb-2">To do:</p>
+            <p>Call one model through an API. (fr, try it)</p>
+            <p>Use the sample code from the docs.</p>
+            <p>Run it and print the output to your terminal.</p>
+        </div>
       </div>
     ),
   },
@@ -146,8 +165,23 @@ const SECTIONS = [
     id: "open-source",
     title: "Section 4.\nOpen Source Models",
     content: (
-      <div className="space-y-6">
-        <p>Coming soon...</p>
+      <div className="space-y-6 animate-in fade-in duration-500">
+        <div className="border-l-2 border-[#00ff00] pl-4">
+            <p className="mb-4">Open source models teach you how models run outside cloud APIs.</p>
+            <p className="mb-4">You can use Ollama for local tests.</p>
+            <p className="mb-4">You can use Hugging Face for model downloads.</p>
+            <p>You should learn how model size affects speed.</p>
+        </div>
+
+        <div className="border border-[#00ff00] p-4 mt-8">
+            <p className="font-bold mb-2">To do:</p>
+            <ul className="space-y-2">
+                <li>Install Ollama.</li>
+                <li>Run a small model like llama3.</li>
+                <li>Ask it a simple question.</li>
+                <li>Observe the response time.</li>
+            </ul>
+        </div>
       </div>
     ),
   },
@@ -155,8 +189,63 @@ const SECTIONS = [
     id: "embeddings",
     title: "Section 5.\nEmbeddings and Vector Databases",
     content: (
-      <div className="space-y-6">
-        <p>Coming soon...</p>
+      <div className="space-y-6 animate-in fade-in duration-500">
+        <p>Embeddings convert text into vectors.</p>
+        <p>Vectors let you compare the meanings of words and phrases with similarity scores.</p>
+        <p>You store vectors in a database built for this purpose.</p>
+
+        <div className="border border-[#00ff00] p-4 mt-8 relative min-h-[300px] flex items-center justify-center bg-black/50">
+            {/* Vector Graph SVG */}
+            <svg width="100%" height="300" viewBox="0 0 400 300" className="w-full h-full overflow-visible">
+                {/* Axes */}
+                <line x1="40" y1="260" x2="360" y2="260" stroke="#00ff00" strokeWidth="2" markerEnd="url(#arrow)" />
+                <line x1="40" y1="260" x2="40" y2="40" stroke="#00ff00" strokeWidth="2" markerEnd="url(#arrow)" />
+                
+                {/* Axis Labels */}
+                <text x="200" y="290" fill="#00ff00" textAnchor="middle" fontFamily="monospace">Dimension 1</text>
+                <text x="20" y="150" fill="#00ff00" textAnchor="middle" fontFamily="monospace" transform="rotate(-90 20 150)">Dimension 2</text>
+
+                {/* Vectors */}
+                {/* King */}
+                <line x1="40" y1="260" x2="150" y2="100" stroke="#00ff00" strokeWidth="1.5" markerEnd="url(#arrow-sm)" className="opacity-70" />
+                <circle cx="150" cy="100" r="3" fill="#00ff00" />
+                <text x="140" y="90" fill="#00ff00" fontSize="14">King</text>
+
+                {/* Queen */}
+                <line x1="40" y1="260" x2="220" y2="120" stroke="#00ff00" strokeWidth="1.5" markerEnd="url(#arrow-sm)" className="opacity-70" />
+                <circle cx="220" cy="120" r="3" fill="#00ff00" />
+                <text x="220" y="110" fill="#00ff00" fontSize="14">Queen</text>
+
+                {/* Man */}
+                <line x1="40" y1="260" x2="120" y2="200" stroke="#00ff00" strokeWidth="1.5" markerEnd="url(#arrow-sm)" className="opacity-70" />
+                <circle cx="120" cy="200" r="3" fill="#00ff00" />
+                <text x="110" y="190" fill="#00ff00" fontSize="14">Man</text>
+
+                {/* Woman */}
+                <line x1="40" y1="260" x2="250" y2="210" stroke="#00ff00" strokeWidth="1.5" markerEnd="url(#arrow-sm)" className="opacity-70" />
+                <circle cx="250" cy="210" r="3" fill="#00ff00" />
+                <text x="250" y="200" fill="#00ff00" fontSize="14">Woman</text>
+
+                {/* Orange (far away) */}
+                <line x1="40" y1="260" x2="300" y2="250" stroke="#00ff00" strokeWidth="1.5" markerEnd="url(#arrow-sm)" className="opacity-70" />
+                <circle cx="300" cy="250" r="3" fill="#00ff00" />
+                <text x="290" y="270" fill="#00ff00" fontSize="14">Orange</text>
+
+                {/* Relationships */}
+                <line x1="150" y1="100" x2="220" y2="120" stroke="#00ff00" strokeWidth="1" strokeDasharray="4" className="opacity-50" />
+                <line x1="120" y1="200" x2="250" y2="210" stroke="#00ff00" strokeWidth="1" strokeDasharray="4" className="opacity-50" />
+
+                {/* Definitions */}
+                <defs>
+                    <marker id="arrow" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
+                        <path d="M0,0 L0,6 L9,3 z" fill="#00ff00" />
+                    </marker>
+                    <marker id="arrow-sm" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
+                        <path d="M0,0 L0,6 L9,3 z" fill="#00ff00" />
+                    </marker>
+                </defs>
+            </svg>
+        </div>
       </div>
     ),
   },
@@ -164,8 +253,30 @@ const SECTIONS = [
     id: "rag",
     title: "Section 6.\nRAG Systems",
     content: (
-      <div className="space-y-6">
-        <p>Coming soon...</p>
+      <div className="space-y-6 animate-in fade-in duration-500">
+        <p>RAG stands for Retrieval Augmented Generation.</p>
+        <p>RAG lets your model pull from real, accurate data instead of &quot;guessing&quot;.</p>
+        
+        <div className="border-l-2 border-[#00ff00] pl-4 my-6">
+            <p>You use RAG for tasks where answers must match real data e.g, company policies or health documentation</p>
+        </div>
+
+        <div className="mt-6">
+            <p className="font-bold mb-4">Here is how RAG works:</p>
+            <ul className="space-y-2 list-disc list-inside">
+                <li>You split your documents into small chunks.</li>
+                <li>You turn each chunk into an embedding.</li>
+                <li>You store those embeddings in a vector database.</li>
+                <li>When the user asks a question, you search for the most similar chunks.</li>
+                <li>You send those chunks into the model, along with the question.</li>
+            </ul>
+        </div>
+
+        <div className="mt-8 border border-[#00ff00] p-4">
+            <p className="font-bold mb-2">BONUS TIP 💡</p>
+            <p>When building a RAG app, start with one source of truth, not many.</p>
+            <p>One clean dataset is easier to debug than ten messy ones.</p>
+        </div>
       </div>
     ),
   },
@@ -173,7 +284,16 @@ const SECTIONS = [
     id: "agents",
     title: "Section 7.\nAI Agents and Automation",
     content: (
-      <div className="space-y-6">
+      <div className="space-y-6 animate-in fade-in duration-500">
+        <p>Coming soon...</p>
+      </div>
+    ),
+  },
+  {
+    id: "projects",
+    title: "Section 8.\nBuilding Projects",
+    content: (
+      <div className="space-y-6 animate-in fade-in duration-500">
         <p>Coming soon...</p>
       </div>
     ),
@@ -183,7 +303,7 @@ const SECTIONS = [
 export default function AIEngineerGuide() {
   const router = useRouter();
   const [selectedSection, setSelectedSection] = useState(0);
-  const scrollRef = React.useRef<HTMLDivElement>(null);
+  const scrollRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -212,32 +332,46 @@ export default function AIEngineerGuide() {
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [router]);
 
+  // Reset scroll on section change
+  useEffect(() => {
+    if (scrollRef.current) {
+        scrollRef.current.scrollTop = 0;
+    }
+  }, [selectedSection]);
+
   return (
-    <div className="min-h-screen bg-black text-[#00ff00] font-terminal p-4 md:p-8 overflow-hidden flex flex-col">
-      {/* Screen overlay effects could go here (scanlines, etc) */}
-      <div className="fixed inset-0 pointer-events-none bg-[linear-gradient(rgba(18,16,16,0)_50%,rgba(0,0,0,0.25)_50%),linear-gradient(90deg,rgba(255,0,0,0.06),rgba(0,255,0,0.02),rgba(0,0,255,0.06))] z-50 bg-[length:100%_2px,3px_100%] opacity-20" />
+    <div className="min-h-screen bg-black text-[#00ff00] font-terminal p-4 md:p-8 overflow-hidden flex flex-col relative">
+      {/* CRT Effects */}
+      <div className="pointer-events-none fixed inset-0 z-50">
+        {/* Scanlines */}
+        <div className="absolute inset-0 bg-[linear-gradient(rgba(18,16,16,0)_50%,rgba(0,0,0,0.25)_50%),linear-gradient(90deg,rgba(255,0,0,0.06),rgba(0,255,0,0.02),rgba(0,0,255,0.06))] bg-[length:100%_2px,3px_100%] opacity-20"></div>
+        {/* Flicker */}
+        <div className="absolute inset-0 bg-white opacity-[0.02] animate-flicker pointer-events-none"></div>
+        {/* Vignette */}
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,transparent_50%,rgba(0,0,0,0.4)_100%)]"></div>
+      </div>
       
       <div className="flex-1 flex gap-8 max-w-6xl mx-auto w-full relative z-10 h-[calc(100vh-100px)]">
         {/* Sidebar */}
         <div className="w-1/3 border-r border-[#00ff00]/30 pr-8 overflow-y-auto scrollbar-hide">
-          <h2 className="text-xl mb-6 border-b border-[#00ff00] pb-2">SECTIONS</h2>
+          <h2 className="text-xl mb-6 border-b border-[#00ff00] pb-2 tracking-widest">SECTIONS</h2>
           <div className="space-y-4">
             {SECTIONS.map((section, index) => (
               <div
                 key={section.id}
                 onClick={() => setSelectedSection(index)}
                 className={cn(
-                  "p-4 border cursor-pointer transition-all relative",
+                  "p-4 border cursor-pointer transition-all relative group",
                   selectedSection === index
                     ? "border-[#00ff00] shadow-[0_0_10px_rgba(0,255,0,0.3)] bg-[#00ff00]/10"
                     : "border-[#00ff00]/30 hover:border-[#00ff00]/60"
                 )}
               >
-                <pre className="whitespace-pre-wrap font-inherit text-lg leading-tight">
+                <pre className="whitespace-pre-wrap font-inherit text-lg leading-tight group-hover:text-white transition-colors">
                   {section.title}
                 </pre>
                 {selectedSection === index && (
-                  <div className="absolute -right-[33px] top-1/2 -translate-y-1/2 w-8 h-[1px] bg-[#00ff00]" />
+                  <div className="absolute -right-[33px] top-1/2 -translate-y-1/2 w-8 h-[1px] bg-[#00ff00] shadow-[0_0_5px_#00ff00]" />
                 )}
               </div>
             ))}
@@ -246,16 +380,17 @@ export default function AIEngineerGuide() {
 
         {/* Content */}
         <div 
-            className="flex-1 border border-[#00ff00] p-8 text-xl md:text-2xl leading-relaxed shadow-[0_0_15px_rgba(0,255,0,0.1)] overflow-y-auto custom-scrollbar"
+            className="flex-1 border border-[#00ff00] p-8 text-xl md:text-2xl leading-relaxed shadow-[0_0_15px_rgba(0,255,0,0.1)] overflow-y-auto custom-scrollbar relative bg-black"
             ref={scrollRef}
         >
+          <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-[#00ff00]/50 to-transparent opacity-50 animate-scan" />
           {SECTIONS[selectedSection].content}
         </div>
       </div>
 
       {/* Footer Controls */}
       <div className="mt-auto pt-4 border-t border-[#00ff00]/30 text-[#00ff00]/70 text-center font-mono text-lg relative z-10">
-        UP, DOWN: select folder | LEFT, RIGHT: scroll | q: exit
+        <span className="animate-pulse">_</span> UP, DOWN: select folder | LEFT, RIGHT: scroll | q: exit
       </div>
       
       <style jsx global>{`
@@ -271,6 +406,27 @@ export default function AIEngineerGuide() {
         .custom-scrollbar::-webkit-scrollbar-thumb {
           background: #003300;
           border: 1px solid #00ff00;
+        }
+        @keyframes flicker {
+            0% { opacity: 0.02; }
+            5% { opacity: 0.05; }
+            10% { opacity: 0.02; }
+            15% { opacity: 0.06; }
+            20% { opacity: 0.02; }
+            50% { opacity: 0.02; }
+            55% { opacity: 0.05; }
+            60% { opacity: 0.02; }
+            100% { opacity: 0.02; }
+        }
+        .animate-flicker {
+            animation: flicker 4s infinite;
+        }
+        @keyframes scan {
+            0% { transform: translateY(0); }
+            100% { transform: translateY(100vh); }
+        }
+        .animate-scan {
+            animation: scan 8s linear infinite;
         }
       `}</style>
     </div>
