@@ -27,6 +27,11 @@ export function Footer() {
             <h3 className="text-zinc-400 font-semibold">1% Better Daily</h3>
             <ul className="space-y-2">
               <li>
+                <Link href="/guides" className="text-zinc-500 hover:text-zinc-300 text-sm font-light">
+                  Guides
+                </Link>
+              </li>
+              <li>
                 <Link href="/roadmap" className="text-zinc-500 hover:text-zinc-300 text-sm font-light">
                   Future U Roadmap
                 </Link>

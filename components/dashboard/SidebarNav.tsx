@@ -81,19 +81,6 @@ export function SidebarNav({
                     )}
                     <span className="text-base font-medium">{label}</span>
                   </a>
-                ) : key === 'guides' ? (
-                  <Link
-                    key={key}
-                    href="/guides"
-                    className={cn(
-                      "flex items-center gap-3 px-3 py-2 rounded-lg",
-                      selected ? selectedClasses : unselectedClasses
-                    )}
-                    aria-label={label}
-                  >
-                    <Compass className="w-6 h-6" />
-                    <span className="text-base font-medium">{label}</span>
-                  </Link>
                 ) : (
                   <button
                     key={key}

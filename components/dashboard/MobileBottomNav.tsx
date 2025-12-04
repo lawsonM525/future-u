@@ -2,7 +2,6 @@
 
 import React, { useEffect, useState } from "react"
 import Image from "next/image"
-import Link from "next/link"
 import { Compass } from "lucide-react"
 import { useSession } from "next-auth/react"
 import AvatarCreator from "@/components/AvatarCreator"
@@ -82,18 +81,6 @@ export function MobileBottomNav({
                   )}
                   <span className="sr-only">{label}</span>
                 </a>
-              ) : key === 'guides' ? (
-                <Link
-                  href="/guides"
-                  aria-label={label}
-                  className={cn(
-                    "flex h-11 w-full items-center justify-center rounded-lg",
-                    selected ? selectedClasses : unselectedClasses
-                  )}
-                >
-                  <Compass className="w-5 h-5" />
-                  <span className="sr-only">{label}</span>
-                </Link>
               ) : (
                 <button
                   type="button"

@@ -2,7 +2,6 @@
 
 export const NAV = [
   { key: "strategy", label: "Strategy", iconSrc: null as string | null },
-  { key: "guides", label: "Guides", iconSrc: null as string | null },
   { key: "goals", label: "Goals", iconSrc: "/icons/goals.png" },
   { key: "quests", label: "Quests", iconSrc: "/icons/quests.png" },
   { key: "resources", label: "Resources", iconSrc: "/icons/resources.png" },
