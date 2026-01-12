@@ -187,12 +187,6 @@ export default function DashboardPage() {
       .map(part => part.charAt(0).toUpperCase() + part.slice(1))
       .join(' ')
 
-  // Plan badge styling
-  const planTier: 'free' | 'premium' = session?.user?.subscriptionTier === 'premium' ? 'premium' : 'free'
-  const planLabel = planTier === 'premium' ? 'Premium' : 'BASIC'
-  const planBadgeClasses = planTier === 'premium'
-    ? 'bg-canary/25 text-black shadow-[inset_0_1px_0_rgba(255,255,255,0.35)] shadow-black/20 hover:brightness-105 active:brightness-95'
-    : 'bg-fluorescent-cyan/25 text-fluorescent-cyan shadow-[inset_0_1px_0_rgba(255,255,255,0.35)] shadow-black/20 hover:brightness-110 active:brightness-95'
 
   if (status === 'loading' || loading) {
     return (
@@ -283,17 +277,8 @@ export default function DashboardPage() {
                   <div className="flex flex-col items-center text-center">
                     <AvatarCreator seed={session?.user?.email || ''} size={140} {...avatarPreferences} />
                     <div className="mt-3">
-                      <div className="font-semibold flex items-center gap-2">
+                      <div className="font-semibold">
                         <span>{session?.user?.name || 'Your Avatar'}</span>
-                        <button
-                          type="button"
-                          title="Manage subscription"
-                          aria-label="Manage subscription"
-                          onClick={() => router.push('/account/subscription')}
-                          className={`text-[10px] py-0.5 px-2 rounded-full transition ${planBadgeClasses}`}
-                        >
-                          {planLabel}
-                        </button>
                       </div>
                       <div className="text-xs text-muted-foreground">{archetypeTag ? formatTag(archetypeTag) : 'The Adventurer'}</div>
                     </div>
@@ -378,17 +363,8 @@ export default function DashboardPage() {
               </div>
               <AvatarCreator seed={session?.user?.email || ''} size={isDesktop ? 180 : 140} {...avatarPreferences} />
               <div className="mt-3 md:mt-4">
-                <div className="font-semibold flex items-center gap-2">
+                <div className="font-semibold">
                   <span>{session?.user?.name || 'Your Avatar'}</span>
-                  <button
-                    type="button"
-                    title="Manage subscription"
-                    aria-label="Manage subscription"
-                    onClick={() => router.push('/account/subscription')}
-                    className={`text-[10px] py-0.5 px-2 rounded-full transition ${planBadgeClasses}`}
-                  >
-                    {planLabel}
-                  </button>
                 </div>
                 <div className="text-xs text-muted-foreground">{archetypeTag ? formatTag(archetypeTag) : 'The Adventurer'}</div>
               </div>

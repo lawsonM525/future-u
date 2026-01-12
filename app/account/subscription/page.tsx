@@ -229,12 +229,6 @@ export default function SubscriptionPage() {
     ? new Date(data.subscriptionCurrentPeriodEnd).toLocaleDateString()
     : null
 
-  // Plan badge styling from session
-  const planTier: 'free' | 'premium' = session?.user?.subscriptionTier === 'premium' ? 'premium' : 'free'
-  const planLabel = planTier === 'premium' ? 'Premium' : 'BASIC'
-  const planBadgeClasses = planTier === 'premium'
-    ? 'bg-canary/15 border border-canary text-canary'
-    : 'bg-fluorescent-cyan/15 border border-fluorescent-cyan text-fluorescent-cyan'
 
   return (
     <div className="min-h-screen bg-night text-foreground px-3 md:px-6 lg:px-8 py-6">
@@ -265,11 +259,9 @@ export default function SubscriptionPage() {
           <div className="space-y-2">
             <div className="flex items-center gap-3">
               <h1 className="text-2xl font-bold">Manage Subscription</h1>
-              <span className={`text-[10px] py-0.5 px-2 rounded-full ${planBadgeClasses}`}>{planLabel}</span>
             </div>
             <div className="flex items-center gap-2 text-sm">
               <span className="font-medium">{session?.user?.name || 'Your Account'}</span>
-              <span className={`text-[10px] py-0.5 px-2 rounded-full ${planBadgeClasses}`}>{planLabel}</span>
             </div>
             <p className="text-sm text-muted-foreground">Choose the plan that fits you. Upgrade or downgrade anytime.</p>
             <div>
