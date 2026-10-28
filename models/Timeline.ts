@@ -8,6 +8,7 @@ export interface TimelineCheckpoint {
 }
 
 const TimelineSchema = new mongoose.Schema({
+  reportId: { type: String, index: true },
   userId: {
     type: String,
     required: true,
@@ -36,5 +37,7 @@ const TimelineSchema = new mongoose.Schema({
     default: Date.now
   }
 })
+
+TimelineSchema.index({ userId: 1, reportId: 1 }, { unique: true, partialFilterExpression: { reportId: { $type: 'string' } } })
 
 export const Timeline = mongoose.models.Timeline || mongoose.model('Timeline', TimelineSchema)

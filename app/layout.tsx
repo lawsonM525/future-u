@@ -6,6 +6,7 @@ import { ToastContainer } from '@/components/ui/toast'
 import { Footer } from '@/components/Footer'
 import Script from 'next/script'
 import type { Metadata } from 'next'
+import { AnalyticsScripts } from '@/components/AnalyticsScripts'
 
 
 const spaceGrotesk = Space_Grotesk({ 
@@ -124,28 +125,6 @@ export default function RootLayout({
             `,
           }}
         />
-        <Script
-          strategy="afterInteractive"
-          src="https://www.googletagmanager.com/gtag/js?id=G-9Y008B0W5Z"
-        />
-        <Script
-          id="google-analytics"
-          strategy="afterInteractive"
-          dangerouslySetInnerHTML={{
-            __html: `
-              window.dataLayer = window.dataLayer || [];
-              function gtag(){dataLayer.push(arguments);}
-              gtag('js', new Date());
-              gtag('config', 'G-9Y008B0W5Z');
-            `,
-          }}
-        />
-        <Script
-          defer
-          data-website-id="68b369d183c35f185a6d208d"
-          data-domain="future-u.app"
-          src="https://datafa.st/js/script.js"
-        />
         {/* Structured Data for AI/SEO */}
         <Script
           id="ld-org"
@@ -214,6 +193,7 @@ export default function RootLayout({
       <body className={`font-sans bg-background text-foreground min-h-screen flex flex-col`}>
         <ThemeProvider attribute="class" defaultTheme="dark">
           <Providers>
+            <AnalyticsScripts />
             <main className="flex-1">
               {children}
             </main>

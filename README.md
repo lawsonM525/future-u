@@ -52,3 +52,15 @@ redeploying
 - TODO: If user has no quests, no daily quests should be displayed in quests card
 - TODO: Add more details to coming soon for coach and friends so users know what to expect
 - TODO: Clicking feedback should redirect to featurebase
+
+## Guest results and regression checks
+
+Completing a quiz while signed out now opens `/results/<private-token>`. The full strategy is readable before sign-in. Visitors can email themselves the reopening link or explicitly save the existing report to an account. Keep report links private: possession of the link grants read access. Tokens are random, only their hashes are stored, and results pages suppress analytics, indexing, and referrers.
+
+Email uses the existing `RESEND_API_KEY`, a verified `reports@future-u.app` sender, and the canonical `NEXTAUTH_URL`. The email action does not enroll recipients in marketing. Real provider delivery and the deployed Google callback should be smoke-tested after release.
+
+- `npm run test:unit` runs access, validation, generation-failure, and account-claim tests, including a disposable MongoDB instance. The first run downloads a local MongoDB test binary.
+- `npm run test:regressions` runs the quiz, draft, mobile, avatar, guest-results, and account-save browser regressions on port 3107. These tests mock provider responses and the browser session; they never call production AI or email services.
+- `npm run build` checks the production bundle, lint, and types.
+
+For a local visual preview, point `.env.local` at `mongodb://127.0.0.1:27099/future_u_verification`, set `NEXTAUTH_URL=http://localhost:3107`, and run `node scripts/preview-guest-results.mjs` alongside `npm run dev -- --port 3107`. The script prints a local report URL, seeds fictional data only, and removes the disposable database when stopped. Do not use production service credentials for this preview.

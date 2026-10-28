@@ -5,6 +5,8 @@ export interface QuizTempDocument extends Document {
   quizType: string
   userId?: string
   processed: boolean
+  reportId?: string
+  processingStartedAt?: Date
   createdAt: Date
 }
 
@@ -21,6 +23,8 @@ const QuizTempSchema = new Schema({
     type: String,
     default: null
   },
+  reportId: String,
+  processingStartedAt: Date,
   processed: {
     type: Boolean,
     default: false

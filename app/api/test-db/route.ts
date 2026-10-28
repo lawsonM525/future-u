@@ -1,7 +1,10 @@
 import { NextResponse } from 'next/server'
 import { connect } from '@/lib/mongodb'
 
+export const dynamic = 'force-dynamic'
+
 export async function GET() {
+  if (process.env.NODE_ENV === 'production') return new NextResponse(null, { status: 404 })
   try {
     if (!process.env.MONGODB_URI) {
       throw new Error('MONGODB_URI is not defined in environment variables')

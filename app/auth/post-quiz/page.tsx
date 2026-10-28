@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useCallback, Suspense } from 'react'
+import { useState, useEffect, useCallback, useRef, Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { signIn, useSession } from 'next-auth/react'
 import { Button } from '@/components/ui/button'
@@ -15,15 +15,19 @@ function PostQuizContent() {
   const searchParams = useSearchParams()
   const { status } = useSession()
   
+  const submissionStarted = useRef(false)
   const tempId = searchParams.get('tempId')
 
   const handleQuizSubmission = useCallback(async () => {
+    const controller = new AbortController()
+    const timeout = setTimeout(() => controller.abort(), 210_000)
     try {
       setIsProcessing(true)
       setError(null)
 
       // Process the temporary quiz using the new endpoint
       const response = await fetch('/api/process-temp-quiz', {
+        signal: controller.signal,
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
@@ -41,8 +45,11 @@ function PostQuizContent() {
       router.push('/dashboard')
     } catch (error) {
       console.error('Error processing quiz:', error);
-      setError(error instanceof Error ? error.message : 'An unexpected error occurred');
+      setError(error instanceof Error && error.name !== 'AbortError' ? error.message : 'This is taking too long. Your answers are saved. Please retry.');
+      submissionStarted.current = false;
       setIsProcessing(false);
+    } finally {
+      clearTimeout(timeout)
     }
   }, [tempId, router])
 
@@ -54,8 +61,9 @@ function PostQuizContent() {
     }
 
     // If user is already authenticated, process the quiz
-    if (status === 'authenticated') {
-      handleQuizSubmission()
+    if (status === 'authenticated' && !submissionStarted.current) {
+      submissionStarted.current = true
+      void handleQuizSubmission()
     }
   }, [status, tempId, handleQuizSubmission, router])
 
@@ -87,11 +95,11 @@ function PostQuizContent() {
           <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative">
             <strong className="font-bold">Error: </strong>
             <span className="block sm:inline">{error}</span>
-            <Button 
-              onClick={() => router.push('/quiz-selection')}
+            <Button
+              onClick={() => void handleQuizSubmission()}
               className="mt-3 w-full bg-accent text-white hover:bg-accent/90"
             >
-              Return to Quiz Selection
+              Try again
             </Button>
           </div>
         )}

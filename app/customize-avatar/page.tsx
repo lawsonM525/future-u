@@ -361,13 +361,7 @@ export default function CustomizeAvatarPage() {
                     seed={userEmail} 
                     size={200} 
                     showRandomizeButton={true}
-                    onRandomize={() => {
-                      // Load from localStorage after randomization
-                      const savedPrefs = localStorage.getItem('avatarPreferences')
-                      if (savedPrefs) {
-                        setSelectedOptions(JSON.parse(savedPrefs))
-                      }
-                    }}
+                    onRandomize={(preferences) => setSelectedOptions({ ...preferences })}
                     {...selectedOptions} 
                   />
                 </div>

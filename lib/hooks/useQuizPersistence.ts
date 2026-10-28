@@ -1,7 +1,6 @@
 import { useEffect, useCallback, useRef } from 'react'
 import { useSession } from 'next-auth/react'
 import { useQuiz } from '@/lib/quiz-context'
-import { debounce } from '@/lib/utils'
 
 interface UseQuizPersistenceOptions {
   autoSaveInterval?: number // in milliseconds
@@ -56,12 +55,6 @@ export function useQuizPersistence(options: UseQuizPersistenceOptions = {}) {
     }
   }, [enabled, session, currentQuizType, currentQuestionIndex, answers, completedSections])
 
-  // Debounced save function (saves after 2 seconds of inactivity)
-  const debouncedSave = useCallback(
-    () => debounce(saveProgress, 2000)(),
-    [saveProgress]
-  )
-
   // Load progress on mount for authenticated users
   useEffect(() => {
     if (!enabled || !session?.user?.id || !currentQuizType) return
@@ -89,7 +82,7 @@ export function useQuizPersistence(options: UseQuizPersistenceOptions = {}) {
     if (!enabled || !quizProgress) return
 
     // Save immediately when answers change
-    debouncedSave()
+    const debounceTimer = setTimeout(saveProgress, 2000)
 
     // Also set up periodic auto-save
     if (saveTimeoutRef.current) {
@@ -99,11 +92,12 @@ export function useQuizPersistence(options: UseQuizPersistenceOptions = {}) {
     saveTimeoutRef.current = setInterval(saveProgress, autoSaveInterval)
 
     return () => {
+      clearTimeout(debounceTimer)
       if (saveTimeoutRef.current) {
         clearInterval(saveTimeoutRef.current)
       }
     }
-  }, [enabled, quizProgress, debouncedSave, saveProgress, autoSaveInterval])
+  }, [enabled, quizProgress, saveProgress, autoSaveInterval])
 
   // Save on page unload
   useEffect(() => {

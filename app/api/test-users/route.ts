@@ -2,7 +2,10 @@ import { NextResponse } from 'next/server'
 import { connect } from '@/lib/mongodb'
 import { User } from '@/models/User'
 
+export const dynamic = 'force-dynamic'
+
 export async function GET() {
+  if (process.env.NODE_ENV === 'production') return new NextResponse(null, { status: 404 })
   try {
     await connect()
     const users = await User.find({}).select('email name').limit(5)

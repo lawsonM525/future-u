@@ -1,7 +1,7 @@
-import { test, expect } from '@playwright/test';
+import { test, expect, type Page } from '@playwright/test';
 
 // Reuse the project's pattern of mocking auth via localStorage
-async function mockAuth(page) {
+async function mockAuth(page: Page) {
   await page.goto('http://localhost:3000');
   await page.evaluate(() => {
     window.localStorage.setItem('mock-auth', JSON.stringify({
