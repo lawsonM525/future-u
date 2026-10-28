@@ -9,6 +9,7 @@ export default function robots(): MetadataRoute.Robots {
       disallow: [
         // App-only or gated areas
         '/dashboard',
+        '/results/',
         '/login',
         '/signup',
         '/auth',

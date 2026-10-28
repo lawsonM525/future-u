@@ -323,7 +323,7 @@ export function QuizQuestion({
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.4 }}
-        className="flex justify-between items-center gap-4"
+        className="grid grid-cols-2 items-center gap-3 sm:flex sm:justify-between sm:gap-4"
       >
         <Button
           onClick={onPrevious}
@@ -335,15 +335,15 @@ export function QuizQuestion({
           Previous
         </Button>
 
-        <span className="text-sm text-muted-foreground">
+        <span className="col-span-2 row-start-1 text-center text-sm text-muted-foreground sm:order-none">
           Question {currentIndex} of {totalQuestions}
         </span>
 
-        <div className="flex items-center gap-2">
+        <div className="flex min-w-0 items-center justify-end gap-1 sm:gap-2">
           <Button
             onClick={onSkip}
             variant="ghost"
-            className="group"
+            className="group px-2 sm:px-4"
             aria-label="Skip this question"
           >
             Skip
@@ -351,7 +351,7 @@ export function QuizQuestion({
           <Button
             onClick={() => { try { play('ding') } catch {} ; onNext() }}
             disabled={!canGoNext}
-            className="bg-accent text-accent-foreground hover:bg-accent/90 group"
+            className="bg-accent text-accent-foreground hover:bg-accent/90 group px-3 sm:px-4"
           >
             {isLastQuestion ? 'Finish' : 'Next'}
             {!isLastQuestion && (

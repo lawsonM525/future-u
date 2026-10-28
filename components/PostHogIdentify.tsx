@@ -3,11 +3,14 @@
 import { useEffect } from 'react'
 import { useSession } from 'next-auth/react'
 import posthog from 'posthog-js'
+import { usePathname } from 'next/navigation'
 
 export function PostHogIdentify() {
   const { data: session, status } = useSession()
+  const pathname = usePathname()
 
   useEffect(() => {
+    if (pathname.startsWith('/results/')) return
     if (status === 'authenticated' && session?.user?.id) {
       const distinctId = String(session.user.id)
       const props: Record<string, unknown> = {
@@ -28,7 +31,7 @@ export function PostHogIdentify() {
       // Clear identity on sign-out
       posthog.reset()
     }
-  }, [session, status])
+  }, [session, status, pathname])
 
   return null
 }

@@ -60,7 +60,7 @@ interface AvatarCreatorProps extends AvatarOptions {
   seed: string
   size?: number
   className?: string
-  onRandomize?: () => void
+  onRandomize?: (options: AvatarOptions) => void
   showRandomizeButton?: boolean
 }
 
@@ -97,11 +97,9 @@ export default function AvatarCreator({
       backgroundType: ['solid'],
     }
     
-    // Save to localStorage
-    localStorage.setItem('avatarPreferences', JSON.stringify(randomOptions))
-    
+    // This is a preview. Only Save Changes in the editor commits preferences.
     if (onRandomize) {
-      onRandomize()
+      onRandomize(randomOptions)
     }
   }
 

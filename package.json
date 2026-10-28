@@ -8,7 +8,9 @@
     "start": "next start",
     "lint": "next lint",
     "test:e2e": "playwright test",
-    "upload-data": "NODE_ENV=development ts-node -P tsconfig.json -r dotenv/config scripts/upload-career-data.ts dotenv_config_path=.env.local"
+    "upload-data": "NODE_ENV=development ts-node -P tsconfig.json -r dotenv/config scripts/upload-career-data.ts dotenv_config_path=.env.local",
+    "test:unit": "vitest run",
+    "test:regressions": "playwright test --config=playwright.regressions.config.ts"
   },
   "dependencies": {
     "@amplitude/analytics-browser": "^2.12.1",
@@ -73,11 +75,13 @@
     "@types/react-dom": "^18",
     "eslint": "^8",
     "eslint-config-next": "14.2.16",
+    "mongodb-memory-server": "^10.2.0",
     "postcss": "^8",
     "prisma": "^6.5.0",
     "tailwindcss": "^3.4.1",
     "ts-node": "^10.9.2",
-    "typescript": "^5.7.2"
+    "typescript": "^5.7.2",
+    "vitest": "3.2.4"
   },
   "description": "This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).",
   "main": "index.js",

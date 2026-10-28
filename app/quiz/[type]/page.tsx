@@ -143,7 +143,8 @@ export default function QuizPage() {
 
   const handleAnswerChange = useCallback((answer: string) => {
     setCurrentAnswer(answer)
-  }, [])
+    if (currentQuestion) saveAnswer(currentQuestion.id, answer)
+  }, [currentQuestion, saveAnswer])
   
   const handleSkip = useCallback(async () => {
     if (!currentQuestion) return
@@ -175,17 +176,18 @@ export default function QuizPage() {
         }
 
         if (!session?.user?.id) {
-          const response = await fetch('/api/save-temp-quiz', {
+          const response = await fetch('/api/guest-reports', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ answers: finalAnswers, quizType })
           })
           if (!response.ok) throw new Error('Failed to save quiz data')
-          const { tempId } = await response.json()
+          const { url } = await response.json()
           // Track completion
           trackQuizCompleted(quizType)
           clearQuizProgress()
-          router.push(`/auth/post-quiz?tempId=${tempId}`)
+          // Start a fresh document so analytics loaded on the quiz page cannot observe this private URL.
+          window.location.assign(url)
           return
         }
 
@@ -240,7 +242,7 @@ export default function QuizPage() {
 
       if (!session?.user?.id) {
         // Save to temporary storage for unauthenticated users
-        const response = await fetch('/api/save-temp-quiz', {
+        const response = await fetch('/api/guest-reports', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ answers: finalAnswers, quizType })
@@ -248,11 +250,12 @@ export default function QuizPage() {
 
         if (!response.ok) throw new Error('Failed to save quiz data')
 
-        const { tempId } = await response.json()
+        const { url } = await response.json()
         // Track completion
         trackQuizCompleted(quizType)
         clearQuizProgress()
-        router.push(`/auth/post-quiz?tempId=${tempId}`)
+        // Start a fresh document so analytics loaded on the quiz page cannot observe this private URL.
+          window.location.assign(url)
         return
       }
 
@@ -384,7 +387,7 @@ export default function QuizPage() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col p-4">
+    <div className="min-h-screen flex flex-col overflow-x-clip p-4">
       <BrowserWarning />
       {/* Progress Header */}
       {!showWelcome && (

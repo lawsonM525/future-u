@@ -14,7 +14,7 @@ import { useSession } from "next-auth/react"
 
 // Note: icons supply the visual accent; no additional color palette needed here
 
-export function StrategyCircles({ checkpoints, positions, intro, isGenerating }: { checkpoints: TimelineCheckpoint[]; positions?: number[]; intro?: ReactNode; isGenerating?: boolean }) {
+export function StrategyCircles({ checkpoints, positions, intro, isGenerating, allowGoalEditing = true }: { checkpoints: TimelineCheckpoint[]; positions?: number[]; intro?: ReactNode; isGenerating?: boolean; allowGoalEditing?: boolean }) {
   const { data: session } = useSession()
   const items = useMemo(() => {
     const uniqueByYear = new Map<number, TimelineCheckpoint>()
@@ -153,7 +153,7 @@ export function StrategyCircles({ checkpoints, positions, intro, isGenerating }:
         {items.map((cp, i) => {
           const selected = openSet.has(i)
           const year = cp.year
-          const shouldPulse2025 = year === 2025 && !selected && !dismissedPulseYears.has(2025)
+          const shouldPulse = i === 0 && !selected && !dismissedPulseYears.has(year)
           const hasAsset = year >= 2025 && year <= 2030
           const iconSrc = hasAsset ? `/buttons/${year}-${selected ? 'up' : 'flat'}.png` : null
           const norm = Math.max(-1, Math.min(1, positions?.[i] ?? defaultNormalized(i)))
@@ -191,11 +191,11 @@ export function StrategyCircles({ checkpoints, positions, intro, isGenerating }:
               }}
               whileHover={{ scale: 1.15, transition: { duration: 0.12, ease: [0.2, 0.8, 0.2, 1] } }}
               whileTap={{ scale: 0.96 }}
-              animate={shouldPulse2025 ? { scale: [1, 1.08, 1] } : undefined}
-              transition={shouldPulse2025 ? { duration: 1.6, repeat: Infinity, ease: 'easeInOut' } : undefined}
+              animate={shouldPulse ? { scale: [1, 1.08, 1] } : undefined}
+              transition={shouldPulse ? { duration: 1.6, repeat: Infinity, ease: 'easeInOut' } : undefined}
               className={cn(
                 "relative z-10 grid place-items-center transform-gpu will-change-transform focus:outline-none",
-                iconSrc ? "p-0" : "w-24 h-24"
+                iconSrc ? "p-0" : "w-24 h-24 rounded-full bg-accent text-accent-foreground border-b-8 border-yellow-800 shadow-lg"
               )}
               aria-expanded={selected}
               aria-label={`Year ${cp.year}: ${cp.title}`}
@@ -253,7 +253,7 @@ export function StrategyCircles({ checkpoints, positions, intro, isGenerating }:
                               ))}
                             </ul>
                           ) : null}
-                          <div className="mt-4">
+                          {allowGoalEditing && <div className="mt-4">
                             <motion.div
                               initial={{ scale: 1 }}
                               animate={reduceMotion ? { scale: 1 } : { scale: [1, 1.04, 1] }}
@@ -279,7 +279,7 @@ export function StrategyCircles({ checkpoints, positions, intro, isGenerating }:
                                 Add to Goals
                               </Button>
                             </motion.div>
-                          </div>
+                          </div>}
                         </div>
                       </motion.div>
                     )}

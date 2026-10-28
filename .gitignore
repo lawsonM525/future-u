@@ -40,3 +40,7 @@ next-env.d.ts
 .env.local
 .env.d.ts 
 
+
+# Local regression artifacts
+.playwright-results/
+playwright-report/
